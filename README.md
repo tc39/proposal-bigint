@@ -46,7 +46,7 @@ In many cases in JavaScript coding, integers larger than 2<sup>53</sup> come up,
 - Cases which would fit in a signed or unsigned 64-bit integer
   - Reading certain machine registers, wire protocols
   - Protobufs or JSON documents that have GUIDs in them
-  - Cryptography calculations
+  - Highly optimized cryptography calculations
   - `stat` may give some data as 64-bit integers
   - Accurate timestamps
 - Bigger than 64-bit int cases
@@ -163,6 +163,8 @@ Here, we build on JavaScript already being based around two's complement semanti
 This proposal uses `n` as the literal suffix; `N`, `I`, `L` and `l` are some other proposed alternatives.
 
 This proposal calls the class `BigInt`; other proposed alternatives are `Integer` and `BigNum`.
+
+The names of the wraparound utility functions are long. Is there a shorter one that would work well?
 
 ## Design alternatives
 
