@@ -2,7 +2,7 @@
 
 Daniel Ehrenberg, Igalia. Stage 1 (?)
 
-Thanks for help and feedback on this effort from Brendan Eich, Waldemar Horwat, Igor Sheludko, Benedikt Meurer, Michael Saboff, Adam Klein and others.
+Thanks for help and feedback on this effort from Brendan Eich, Waldemar Horwat, Jaro Sevcik, Benedikt Meurer, Michael Saboff, Adam Klein and others.
 
 ## Code samples:
 
