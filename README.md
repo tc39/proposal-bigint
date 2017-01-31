@@ -30,7 +30,7 @@ Read and add two unsigned 64-bit integers in asm.js on the heap:
 ```js
 function add64(stdlib, buffer, aIndex, bIndex) {
   "use asm";
-  var cast = stdlib.BigInt.asUnsignedIntWithWidth;
+  var cast = stdlib.BigInt.asUintN;
   var values = new stdlib.Uint64Array(buffer);
   aIndex = aIndex|0;
   bIndex = bIndex|0;
@@ -70,7 +70,7 @@ BigInts are, logically, arbitrary mathematic integers, with operator definitions
 - When applied to two BigInts, comparison operators `==`, `===`, `<`, `>`, `>=`, and `<=` perform a logical comparson
 - Missing operators
   - `>>>` is not supported, as all BigInts are signed; to get an unsigned shift, pass in a positive BigInt to `>>`
-  - `+` is unsupported on BigInts due to asm.js requirements
+  - Unary `+` is unsupported on BigInts due to asm.js requirements; details explained below
 - In a conditional, `if (0n)` executes the `else` branch.
 
 ### The BigInt constructor
@@ -81,8 +81,8 @@ When called as a function, it is similar to the `Number` constructor: It convert
 
 #### Library functions
 
-- `BigInt.asUnsignedIntWithWidth(BigInt, width)`: Wrap a BigInt between 0 and 2<sup>width</sup>-1
-- `BigInt.asSignedIntWithWidth(BigInt, width)`: Wrap a BigInt between -2<sup>width-1</sup> and 2<sup>width-1</sup>-1
+- `BigInt.asUintN(BigInt, width)`: Wrap a BigInt between 0 and 2<sup>width</sup>-1
+- `BigInt.asIntN(BigInt, width)`: Wrap a BigInt between -2<sup>width-1</sup> and 2<sup>width-1</sup>-1
 - `BigInt.parseInt(string[, radix])`: Analogous to `Number.parseInt`, to parse a BigNum from a String in any base.
 
 ### TypedArrays and DataViews
@@ -103,7 +103,7 @@ Many (all?) other dynamically typed programming languages which have multiple nu
 
 Silently losing precision sometimes may be a problem, but in most dynamically typed programming languages which provide integers and floats, integers are written like `1` and floats are written like `1.0`. It's possible to scan code for operations which may introduce floating point precision by looking for a decimal point. JavaScript exacerbates the scope of losing precision by making the unfortunate decision that a simple literal like `1` is a float. So, if mixed-precision were allowed, an innocent calculation such as `2n ** 53n + 1` would produce the float `2**53`--defeating the core functionality of this feature.
 
-To avoid this problem, this proposal bans implicit coercions between Numbers and BigInts, including operations which are mixed type. `1n + 1` throws a TypeError. So does passing `1n` as an argument into any JavaScript standard library function or Web API which expects a Number. Instead, to convert between types, an explicit call to `Number()` or `BigInt()` needs to be made to decide which domain to operate in. `0 === 0n` returns `false`, and `0 == 0n` throws a `TypeError`.
+To avoid this problem, this proposal bans implicit coercions between Numbers and BigInts, including operations which are mixed type. `1n + 1` throws a TypeError. So does passing `1n` as an argument into any JavaScript standard library function or Web API which expects a Number. Instead, to convert between types, an explicit call to `Number()` or `BigInt()` needs to be made to decide which domain to operate in. `0 === 0n` returns `false`, and `0 == 0n` and `0 < 0n` throw a `TypeError`.
 
 ## Design goals
 
@@ -123,7 +123,7 @@ Although this proposal introduces operator overloading, it throws in any of the 
 - `>>> 0` always returns a Number in uint32 range, throwing as `>>>` is not supported on BigInts at all.
 - `Math.fround` always returns a Number in float32 range, or throws. This proposal would throw if `Math.fround` is called with a BigInt, preserving the property.
 
-This proposal makes special allowances to make BigInts usable in asm.js code to build support for 64-bit integers, by including the standard library functions `BigInt.asUnsignedIntWithWidth` and `BigInt.asSignedIntWithWidth` as well as `Uint64Array` and `Int64Array`.
+This proposal makes special allowances to make BigInts usable in asm.js code to build support for 64-bit integers, by including the standard library functions `BigInt.asUintN` and `BigInt.asIntN` as well as `Uint64Array` and `Int64Array`.
 
 ### Don't break potential future value types extensions
 
@@ -152,7 +152,14 @@ Design work here is being done in conjunction with planned prototyping in V8; th
 
 ### Mixed comparison operators
 
-It would be mathematically well-defined to allow comparison operators such as `<` and `==` compare between Numbers and BigInts. Unlike operators like `+`, there is no loss of precision, since the output is just a Boolean. In the initial proposal here, using even these operators with mixed type operands would throw, for consistency with `+`, and out of an abundance of caution. One element is, we could add mixed operand comparisons later (go from throwing to not throwing), but not the other way around.
+It would be mathematically well-defined to allow comparison operators such as `<` and `==` compare between Numbers and BigInts. Unlike operators like `+`, there is no loss of precision, since the output is just a Boolean.
+
+A couple arguments for why we should throw on `0 < 0n` and `0 == 0n`:
+- It's more straightforward to imagine how single-dispatch, matching-only operator overloading could be generalized to user-defined types and objects, whereas multiple dispatch is more difficult.
+- Throwing here leads to a simple, regular rule: You never have any operator at all work between types, just as it is prohibited for `+`. The simplicity of the rule may help developers understand what they can do.
+- Not supporting it is a "more minimal" proposal; we can likely to back and support mixed operands here, but it would be hard to go in the other direction.
+
+With "MVP" as a tiebreaker, this proposal starts with banning mixed operations.
 
 ### Semantics of bitwise operations
 
@@ -170,7 +177,7 @@ The names of the wraparound utility functions are long. Is there a shorter one t
 
 ### Int64/Uint64
 
-Brendan Eich previously proposed two types--signed and unsigned Int64/Uint64, for JavaScript. These meet many of the concrete use cases for BigInts. One claim is that they may provide more predictable performance; however, my understanding is that, if the appropriate casting operator (e.g., `BigInt.asUnsignedIntWithWidth`) is used everywhere, an implementation like V8 is expected provide the same performance for BigInt as it would for an Int64 type. The risks of this approach are that the performance won't pan out without harder-to-remove cliffs, or that the ergonomics will be too bad for performance-sensitive code--we'll watch for these risks as the prototype advances.
+Brendan Eich previously proposed two types--signed and unsigned Int64/Uint64, for JavaScript. These meet many of the concrete use cases for BigInts. One claim is that they may provide more predictable performance; however, my understanding is that, if the appropriate casting operator (e.g., `BigInt.asUintN`) is used everywhere, an implementation like V8 is expected provide the same performance for BigInt as it would for an Int64 type. The risks of this approach are that the performance won't pan out without harder-to-remove cliffs, or that the ergonomics will be too bad for performance-sensitive code--we'll watch for these risks as the prototype advances.
 
 ### Allowing mixed operands
 
