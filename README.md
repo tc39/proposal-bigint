@@ -34,8 +34,8 @@ function add64(stdlib, buffer, aIndex, bIndex) {
   var values = new stdlib.Uint64Array(buffer);
   aIndex = aIndex|0;
   bIndex = bIndex|0;
-  var aValue = cast(values[aIndex>>3], 64);
-  var bValue = cast(values[bIndex>>3], 64);
+  var aValue = values[aIndex>>3];
+  var bValue = values[bIndex>>3];
   return cast(a + b, 64);
 }
 ```
