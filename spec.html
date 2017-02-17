@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<pre class="metadata">
+title: BigInt
+status: proposal
+stage: 1
+location: https://github.com/littledan/proposal-bigint
+copyright: false
+contributors: Daniel Ehrenberg, Brendan Eich
+</pre>
+<script src="ecmarkup.js" defer></script>
+<link rel="stylesheet" href="ecmarkup.css">
+<style>
+emu-issue, emu-todo, emu-motivation, emu-my-example, emu-integration-plans {
+    margin: 1em 0;
+    padding: .5em;
+    padding-left: 1em;
+    display: block;
+}
+
+emu-issue:before, emu-todo:before, emu-motivation:before, emu-my-example:before, emu-integration-plans:before {
+    display: block;
+    padding-bottom: .5em;
+    margin-left: -.5em;
+}
+
+emu-issue {
+    border-left: 5px solid #ff0000;
+    background: #ffdddd;
+}
+
+emu-issue:before {
+    color: #770000;
+    content: "ISSUE";
+}
+
+emu-motivation {
+    border-left: 5px solid #aaaa00;
+    background: #ffffdd;
+}
+
+emu-motivation:before {
+    color: #666600;
+    content: "MOTIVATION";
+}
+
+emu-todo {
+    border-left: 5px solid #00aa00;
+    background: #ddffdd;
+}
+
+emu-todo:before {
+    color: #006600;
+    content: "TODO";
+}
+
+emu-my-example {
+    border-left: 5px solid #0000aa;
+    background: #ddddff;
+}
+
+emu-my-example:before {
+    color: #000066;
+    content: "EXAMPLE";
+}
+
+emu-integration-plans {
+    border-left: 5px solid #aa00aa;
+    background: #ffddff;
+}
+
+emu-integration-plans:before {
+    color: #660066;
+    content: "INTEGRATION PLANS";
+}
+</style>
+
+<emu-intro id="sec-intro">
+  <h1>Introduction</h1>
+<p>This proposal adds arbitrary-precision integers to ECMAScript. For motivation and a high-level introduction, see <a href="https://github.com/littledan/proposal-bigint/blob/master/README.md">the explainer document</a>.</p>
+
+<emu-integration-plans>
+  I attempted to write this specification draft with an eye towards intelligiblity and clarifying issues, rather than looking exactly like the final specification. In particular, the translation of the operations on the Number type into the new form are omitted, as they are identical to the previous definitions and would be expressed only as a lengthy refactoring to skip when reading this text. If anyone finds this confusing, please <a href="https://github.com/littledan/proposal-bigint/issues/new">file an issue</a>.
+</emu-integration-plans>
+</emu-intro>
+<emu-clause id="sec-numeric-types">
+  <h1>Numeric Types</h1>
+  <emu-issue>This specification introduces a protocol to help describe overloading of built-in operators to work on both Numbers and BigInts. An <a href="https://github.com/littledan/proposal-bigint/issues/12">alternative</a> would be to simply inline the new BigInt definition alongside the old Number definition in an ad-hoc way.</a></emu-issue>
+  <p>ECMAScript has two built-in numeric types: Number two BigInt. In this specification, every numeric type _T_ contains an additive identity value denoted _T_::zero and a multiplicative identity value denoted _T_::unit. The specification types also have the following abstract operations, likewise denoted _T_::<i>op</i> for a given operation with specification name <i>op</i>. Unless noted otherwise, argument and result types are all _T_.</p>
+  <emu-table id="table-numeric-type-ops" caption="Numeric Type Operations">
+    <table>
+      <tbody>
+      <tr>
+        <th>
+          Invocation Synopsis
+        </th>
+        <th>
+          Value and Purpose
+        </th>
+      </tr>
+      <tr>
+        <td>
+          _T_::unaryMinus(x)
+        </td>
+        <td>
+          A specification function invoked when applying the unary minus operator. Called by the semantics of the <emu-xref href="#sec-unary-minus-operator">unary - operator</emu-xref>.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          _T_::bitwiseNOT(x)
+        </td>
+        <td>
+          A specification function invoked when applying the bitwise NOT operator. Called by the semantics of the <emu-xref href="#sec-bitwise-not-operator">bitwise NOT operator</emu-xref> for `~x`.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          _T_::exponentiate(x,&nbsp;y)
+        </td>
+        <td>
+          A specification function invoked when applying the exponentiation operator. Called by the semantics of the <emu-xref href="#sec-exp-operator">exponentiation operator</emu-xref> for `x ** y`.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          _T_::multiply(x,&nbsp;y)
+        </td>
+        <td>
+          A specification function invoked when applying the multiplication operator. Called by the semantics of the <emu-xref href="#sec-applying-the-mul-operator">`*` operator</emu-xref> for `x * y`.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          _T_::divide(x,&nbsp;y)
+        </td>
+        <td>
+          A specification function invoked when applying the division operator. Called by the semantics of the <emu-xref href="#sec-applying-the-div-operator">`/` operator</emu-xref> for `x / y`.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          _T_::remainder(x,&nbsp;y)
+        </td>
+        <td>
+          A specification function invoked when applying the truncating remainder ("mod") operator. Called by the semantics of the <emu-xref href="#sec-applying-the-mod-operator">`%` operator</emu-xref> for `x % y`.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          _T_::add(x,&nbsp;y)
+        </td>
+        <td>
+          A specification function invoked when applying the addition operator. Called by the semantics of the <emu-xref href="#sec-addition-operator-plus">`+` operator</emu-xref> for `x + y`.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          _T_::subtract(x,&nbsp;y)
+        </td>
+        <td>
+          A specification function invoked when applying the subtraction operator. Called by the semantics of the <emu-xref href="#sec-subtraction-operator-minus">`-` operator</emu-xref> for `x - y`.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          _T_::leftShift(x,&nbsp;y)
+        </td>
+        <td>
+          A specification function invoked when applying the left shift operator to two operands, the left one of type _T_ and the right one converted from any type into a shift amount. Called by the semantics of the <emu-xref href="#sec-left-shift-operator">`<<` operator</emu-xref> for `x << y`.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          _T_::signedRightShift(x,&nbsp;y)
+        </td>
+        <td>
+          A specification function invoked when applying the right shift operator to two operands, the left one of type _T_ and the right one converted from any type into a shift amount. Called by the semantics of the <emu-xref href="#sec-signed-right-shift-operator">`>>` operator</emu-xref> for `x >> y`.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          _T_::unsignedRightShift(x,&nbsp;y)
+        </td>
+        <td>
+          A specification function invoked when applying the right shift operator to two operands, the left one of type _T_ and the right one converted from any type into a shift amount. Called by the semantics of the <emu-xref href="#sec-unsigned-right-shift-operator">`>>>` operator</emu-xref> for `x >>> y`.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          _T_::lessThan(x,&nbsp;y)
+        </td>
+        <td>
+          A specification function invoked when applying one of the four partial-order <emu-xref href="#sec-relational-operators">relational operators</emu-xref>. The return value must be *false*, *true*, or *undefined* (for unordered inputs). Called by the <emu-xref href="#sec-abstract-relational-comparison">Abstract Relational Comparison</emu-xref> algorithm for `x < y`, `x > y`, `x <= y`, and `x >= y`.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          _T_::equal(x,&nbsp;y)
+        </td>
+        <td>
+          A specification function invoked when applying <emu-xref href="#sec-equality-operators">equality operators</emu-xref>. The return value must be *false* or *true*. Called by the <emu-xref href="#sec-strict-equality-comparison">Strict Equality Comparison</emu-xref> algorithm for `x == y`, `x != y`, `x === y`, and `x !== y`.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          _T_::sameValue(x,&nbsp;y)
+        </td>
+        <td>
+          A specification function invoked when applying <emu-xref href="#sec-samevalue">abstract operation SameValue</emu-xref>. The return value must be *false* or *true*. Called from Object internal methods to test exact value equality.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          _T_::sameValueZero(x,&nbsp;y)
+        </td>
+        <td>
+          A specification function invoked when applying <emu-xref href="#sec-samevaluezero">abstract operation SameValueZero</emu-xref>. The return value must be *false* or *true*. Called from Array, Map, and Set methods to test value equality ignoring differences among members of the zero cohort (e.g., *-0* and *+0*).
+        </td>
+      </tr>
+      <tr>
+        <td>
+          _T_::bitwiseAND(x,&nbsp;y)
+        </td>
+        <td>
+          A specification function invoked when applying <emu-xref href="#sec-binary-bitwise-operators">binary bitwise AND operator</emu-xref>. Called by the <emu-xref href="#sec-binary-bitwise-operators-runtime-semantics-evaluation">Binary Bitwise Operators</emu-xref> algorithm for `x &amp; y`.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          _T_::bitwiseXOR(x,&nbsp;y)
+        </td>
+        <td>
+          A specification function invoked when applying <emu-xref href="#sec-binary-bitwise-operators">binary bitwise XOR operator</emu-xref>. Called by the <emu-xref href="#sec-binary-bitwise-operators-runtime-semantics-evaluation">Binary Bitwise Operators</emu-xref> algorithm for `x ^ y`.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          _T_::bitwiseOR(x,&nbsp;y)
+        </td>
+        <td>
+          A specification function invoked when applying <emu-xref href="#sec-binary-bitwise-operators">binary bitwise OR operator</emu-xref>. Called by the <emu-xref href="#sec-binary-bitwise-operators-runtime-semantics-evaluation">Binary Bitwise Operators</emu-xref> algorithm for `x | y`.
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </emu-table>
+  <p>The _T_::zero value, _T_::unit value, and _T_::_op_ operations are not a part of the ECMAScript language; they are defined here solely to aid the specification of the semantics of the ECMAScript language. Other abstract operations are defined throughout this specification.</p>
+  <p>Because the numeric types are in general not interconvertible without loss of precision or truncation, the ECMAScript language provides no implicit conversion among these types. Programmers must explicitly call `Number` and `BigInt` functions to convert among types when calling a function which requires another type.</p>
+  <emu-note>
+   <p>The first and subsequent editions of ECMAScript have provided, for certain operators, implicit numeric conversions that could lose precision or truncate. These legacy implicit conversions are maintained for backward compatibility, but not provided for BigInt in order to minimize opportunity for programmer error, and to leave open the option of generalized <em>value types</em> in a future edition.</p>
+  </emu-note>
+
+
+  <emu-clause id="sec-ecmascript-language-types-bigint-type">
+   <h1>The BigInt Type</h1>
+   <p>The BigInt type represents a mathematical integer value. The value may be any size and is not limited to a particular bit-width. Generally, where not otherwise noted, operations are designed to return exact mathematically-based answers. For binary operations, BigInts act as two's complement binary strings, with negative numbers treated as having bits set infinitely to the left.</p>
+
+   <p>The BigInt::zero value is *0n*.</p>
+   <p>The BigInt::unit value is *1n*.</p>
+
+    <emu-clause id="sec-numeric-types-bigint-unaryMinus">
+      <h1>BigInt::unaryMinus (_x_)</h1>
+      <p>The abstract operation BigInt::unaryMinus with an argument _x_ of BigInt type returns the result of negating _x_; that is, compute a BigInt with the same magnitude but opposite sign.</p>
+    </emu-clause>
+
+    <emu-clause id="sec-numeric-types-bigint-bitwiseNOT">
+      <h1>BigInt::bitwiseNOT (_x_)</h1>
+      <p>The abstract operation BigInt::bitwiseNOT with an argument _x_ of BigInt type returns the one's complement of _x_; that is, -_x_ - 1.</p>
+    </emu-clause>
+
+    <emu-clause id="sec-numeric-types-bigint-exponentiate">
+      <h1>BigInt::exponentiate (_base_, _exponent_)</h1>
+      <emu-alg>
+        1. If _exponent_ &lt; 0, throw a *RangeError* exception.
+        1. Return a BigInt representing the mathematical value of _base_ raised to the power _exponent_.
+      </emu-alg>
+      <emu-issue>
+        See <a href="https://github.com/littledan/proposal-bigint/issues/9">Issue #9</a> discussion about exception throwing semantics. An alternative would be to return 0 here.
+      </emu-issue>
+    </emu-clause>
+
+    <emu-clause id="sec-numeric-types-bigint-multiply">
+      <h1>BigInt::multiply (_x_, _y_)</h1>
+      <p>The abstract operation BigInt::multiply with two arguments _x_ and _y_ of BigInt type returns a BigInt representing the result of multiplying _x_ and _y_.</p>
+      <emu-note>Even if the result has a much larger bit width than the input, the exact mathematical answer is given.</emu-note>
+    </emu-clause>
+
+    <emu-clause id="sec-numeric-types-bigint-divide">
+      <h1>BigInt::divide (_x_, _y_)</h1>
+      <emu-alg>
+        1. If SameValue(_y_, *0n*), throw a *TypeError* exception.
+        1. Let _quotient_ be the mathematical value of _x_ divided by _y_.
+        1. Return a BigInt representing _quotient_ rounded towards 0 to the next integral value.
+      </emu-alg>
+      <emu-issue>
+        See <a href="https://github.com/littledan/proposal-bigint/issues/7">Issue #7</a> discussion about exception throwing semantics.
+      </emu-issue>
+    </emu-clause>
+
+    <emu-clause id="sec-numeric-types-bigint-remainder">
+      <h1>BigInt::remainder (_x_, _y_)</h1>
+      <emu-alg>
+        1. If _y_ is `0n`, throw a *RangeError* exception.
+        1. Return the BigInt representing <emu-eqn>_x_ modulo _y_</emu-eqn>.
+      </emu-alg>
+    </emu-clause>
+
+    <emu-clause id="sec-numeric-types-bigint-add">
+      <h1>BigInt::add (_x_, _y_)</h1>
+      <p>The abstract operation BigInt::add with two arguments _x_ and _y_ of BigInt type returns a BigInt representing the sum of _x_ and _y_.</p>
+    </emu-clause>
+
+    <emu-clause id="sec-numeric-types-bigint-subtract">
+      <h1>BigInt::subtract (_x_, _y_)</h1>
+      <p>The abstract operation BigInt::subtract with two arguments _x_ and _y_ of BigInt type returns the BigInt representing the difference _x_ minus _y_.</p>
+    </emu-clause>
+
+    <emu-clause id="sec-numeric-types-bigint-leftShift">
+      <h1>BigInt::leftShift (_x_, _y_)</h1>
+      <p>The abstract operation BigInt::leftShift with two arguments _x_ and _y_ of BigInt:</p>
+      <emu-alg>
+        1. If _y_ &lt; 0,
+          1. Return a BigInt representing _x_ divided by 2<sup>_y_</sup>, rounding down to the nearest integer, including for negative numbers.
+        1. Return a BigInt representing _x_ multiplied by 2<sup>_y_</sup>.
+      </emu-alg>
+      <emu-note>Semantics here should be equivalent to a bitwise shift, treating the BigInt as an infinite length string of binary two's complement digits.</emu-note>
+      <emu-issue>
+        Semantics here differ a bit from Number; see <a href="https://github.com/littledan/proposal-bigint/issues/8">Issue #8</a> for details.
+      </emu-issue>
+    </emu-clause>
+
+    <emu-clause id="sec-numeric-types-bigint-signedRightShift">
+      <h1>BigInt::signedRightShift (_x_, _y_)</h1>
+      <p>The abstract operation BigInt::signedRightShift with arguments _x_ of BigInt type and _y_ of any type:</p>
+      <emu-alg>
+        1. Return ? BigInt::rightShift(_x_, -_y_).
+      </emu-alg>
+    </emu-clause>
+
+    <emu-clause id="sec-numeric-types-bigint-unsignedRightShift">
+      <h1>BigInt::unsignedRightShift (_x_, _y_)</h1>
+      <p>The abstract operation BigInt::unsignedRightShift with two arguments _x_ of BigInt type and _y_ of any type:</p>
+      <emu-alg>
+        1. Throw a *TypeError* exception.
+      </emu-alg>
+      <emu-issue>
+        See <a href="https://github.com/littledan/proposal-bigint/issues/6">Issue #6</a> for background and discussion about unsigned signed right shift semantics. An alternative here would be to return the signed shift result.
+      </emu-issue>
+    </emu-clause>
+
+    <emu-clause id="sec-numeric-types-bigint-lessThan">
+      <h1>BigInt::lessThan (_x_, _y_)</h1>
+      <p>The abstract operation BigInt::lessThan with two arguments _x_ and _y_ of BigInt type returns *true* if _x_ is less than _y_ and *false* otherwise.</p>
+    </emu-clause>
+
+    <emu-clause id="sec-numeric-types-bigint-equal">
+      <h1>BigInt::equal (_x_, _y_)</h1>
+      <p>The abstract operation BigInt::equal with two arguments _x_ and _y_ of BigInt type returns *true* if _x_ and _y_ are the same 64-bit integer and *false* otherwise.</p>
+    </emu-clause>
+
+    <emu-clause id="sec-numeric-types-bigint-sameValue">
+      <h1>BigInt::sameValue (_x_, _y_)</h1>
+      <p>The abstract operation BigInt::sameValue with two arguments _x_ and _y_ of BigInt type:</p>
+      <emu-alg>
+        1. Return BigInt::equal(_x_, _y_).
+      </emu-alg>
+    </emu-clause>
+
+    <emu-clause id="sec-numeric-types-bigint-sameValueZero">
+      <h1>BigInt::sameValueZero (_x_, _y_)</h1>
+      <p>The abstract operation BigInt::sameValueZero with two arguments _x_ and _y_ of BigInt type:</p>
+      <emu-alg>
+        1. Return BigInt::equal(_x_, _y_).
+      </emu-alg>
+    </emu-clause>
+
+    <emu-clause id="sec-bitwise-op">
+      <h1>BitwiseOp(_op_, _x_, _y_)</h1>
+      <emu-alg>
+        1. Let _invert_ be *false*;
+        1. If _x_ &lt; 0,
+          1. Let _x_ be BigInt::bitwiseNOT(_x_).
+          1. Let _invert_ be not _invert_.
+        1. If _y_ &lt; 0,
+          1. Let _y_ be BigInt::bitwiseNOT(_y_).
+          1. Let _invert_ be not _invert_.
+        1. Let _result_ be 0.
+        1. Let _shift_ be 0.
+        1. Repeat, while _x_ &gt; 0 or _y_ &gt; 0,
+          1. Let _xDigit_ be the remainder of _x_ divided by 2.
+          1. Let _yDigit_ be the remainder of _y_ divided by 2.
+          1. Let _result_ be result + 2<sup>_shift_</sup> + op(_xDigit_, _yDigit_)
+          1. Let _shift_ be _shift_ + 1.
+          1. Let _x_ be (_x_ - _xDigit_) / 2.
+          1. Let _y_ be (_y_ - _yDigit_) / 2.
+        1. If _invert_, let _result_ be BigInt::bitwiseNOT(_result_).
+        1. Return _result_.
+      </emu-alg>
+    </emu-clause>
+
+    <emu-clause id="sec-numeric-types-bigint-bitwiseAND">
+      <h1>BigInt::bitwiseAND (_x_, _y_)</h1>
+      <emu-alg>
+        1. Return BitwiseOp(&amp;, _x_, _y_).
+      </emu-alg>
+    </emu-clause>
+
+    <emu-clause id="sec-numeric-types-bigint-bitwiseXOR">
+      <h1>BigInt::bitwiseXOR (_x_, _y_)</h1>
+      <emu-alg>
+        1. Return BitwiseOp(^, _x_, _y_).
+      </emu-alg>
+    </emu-clause>
+
+    <emu-clause id="sec-numeric-types-bigint-bitwiseOR">
+      <h1>BigInt::bitwiseOR (_x_, _y_)</h1>
+      <emu-alg>
+        1. Return BitwiseOp(|, _x_, _y_).
+      </emu-alg>
+    </emu-clause>
+  </emu-clause>
+
+  <emu-integration-plans>
+    As part of the integration with the main specification, the Number type will have a similar definition of operations, derived from the current operator definitions. Because the semantics are not proposed to change, for ease of review, the refactoring is omitted from this spec draft.
+  </emu-integration-plans>
+</emu-clause>
+
+<emu-clause id="sec-grammar-change">
+  <h1>Modifications to the Number grammar</h1>
+  <emu-grammar>
+    NumericLiteral ::
+      <ins>NumericLiteralBase</ins>
+      <ins>NumericLiteralBase NumericLiteralSuffix</ins>
+
+    <ins>NumericLiteralBase ::</ins>
+      DecimalLiteral
+      BinaryIntegerLiteral
+      OctalIntegerLiteral
+
+    <ins>NumericLiteralSuffix :: `n`</ins>
+  </emu-grammar>
+  <emu-issue>Which letter suffix should be used is <a href="https://github.com/littledan/proposal-bigint/issues/1">under discussion</a>; other contenders include `L`, `N`, `I` or `i`</emu-issue>
+
+  <emu-clause id="sec-numeric-literal-static-semantics-early-errors">
+    <h1>Static Semantics: Early Errors</h1>
+    <emu-grammar>NumericLiteral :: NumericLiteralBase NumericLiteralSuffix</emu-grammar>
+    <ul>
+      <li>
+        It is a Syntax Error if the MV is not an integer.
+      </li>
+    </ul>
+  </emu-clause>
+
+  <emu-clause id="sec-numeric-literal-static-semantics-64-bit-integer-value">
+    <h1>Static Semantics: BigInt Value</h1>
+    <emu-grammar>NumericLiteral :: NumericLiteralBase NumericLiteralSuffix</emu-grammar>
+    <ul>
+      <li>Assert: |NumericLiteralSuffix| is `n`.</li>
+      <li>
+        Let the value of |NumericLiteral| be the MV of |NumericLiteralBase| represented as BigInt.
+      </li>
+    </ul>
+  </emu-clause>
+
+   <emu-clause id="sec-numeric-literal-static-semantics-number-value">
+     <h1>Static Semantics: Number Value</h1>
+     <emu-grammar>NumericLiteral :: NumericLiteralBase</emu-grammar>
+       <p>The MV is rounded to a value of the Number type.</p>
+    </emu-clause>
+
+    <emu-integration-plans>
+      Rounding to the nearest Number will be moved from the MV calcuation to a Number Value Static Semantics section so that it doesn't apply to BigInts.
+    </emu-integration-plans>
+  </emu-clause>
+</emu-clause>
+
+<emu-clause id="sec-abstract-operations">
+  <h1>Abstract Operations</h1>
+  <emu-clause id="sec-type-conversion">
+     <h1>Type Conversion</h1>
+     The BigInt type has no implicit conversions in the ECMAScript language; programmers must call BigInt explicitly to convert values from other types.
+
+    <emu-clause id="sec-toprimitive" aoid="ToPrimitive">
+      <h1>ToPrimitive ( _input_ [ , _PreferredType_ ] )</h1>
+      <emu-table id="table-9" caption="ToPrimitive Conversions">
+        <table>
+          <tbody>
+          <tr>
+            <th>
+              Input Type
+            </th>
+            <th>
+              Result
+            </th>
+          </tr>
+          <tr>
+            <td>
+              <ins>BigInt</ins>
+            </td>
+            <td>
+              <ins>Return _input_.</ins>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </emu-table>
+    </emu-clause>
+
+    <emu-clause id="sec-toboolean" aoid="ToBoolean">
+      <h1>ToBoolean ( _argument_ )</h1>
+      <p>The abstract operation ToBoolean converts _argument_ to a value of type Boolean according to <emu-xref href="#table-10"></emu-xref>:</p>
+      <emu-table id="table-10" caption="ToBoolean Conversions">
+        <table>
+          <tbody>
+          <tr>
+            <th>
+              Argument Type
+            </th>
+            <th>
+              Result
+            </th>
+          </tr>
+          <tr>
+            <td>
+              <ins>BigInt</ins>
+            </td>
+            <td>
+              <ins>Return *false* if _argument_ is *0n*; otherwise return *true*.</ins>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </emu-table>
+      <emu-issue>
+        Are these semantics overkill? One alternative under discussion is to <a href="https://github.com/littledan/proposal-bigint/issues/11">return false</a>.
+      </emu-issue>
+    </emu-clause>
+
+    <emu-clause id="sec-tonumber" aoid="ToNumber">
+      <h1>ToNumber ( _argument_ )</h1>
+      <p>The abstract operation ToNumber converts _argument_ to a value of type Number according to <emu-xref href="#table-11"></emu-xref>:</p>
+      <emu-table id="table-11" caption="ToNumber Conversions">
+        <table>
+          <tbody>
+          <tr>
+            <th>
+              Argument Type
+            </th>
+            <th>
+              Result
+            </th>
+          </tr>
+          <tr>
+            <td>
+              <ins>BigInt</ins>
+            </td>
+            <td>
+              <ins>Throw a *TypeError* exception</ins>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </emu-table>
+      <emu-motivation>
+        Although it would be possible to define a conversion here, to find the nearest Number for a BigInt, such a conversion may lose precision. ToNumber is called implicitly from so many places, but BigInts would not add any value if they lost precision all the time; you might as well just use Numbers instead in the first place. A key <a href="https://github.com/littledan/proposal-bigint/blob/master/README.md#no-implicit-conversions-or-mixed-operands">design decision</a> of this specification is to disallow implicit conversions, and force programmers to to explicit conversions themselves instead.
+      </emu-motivation>
+
+      <emu-clause id="sec-tonumber-applied-to-the-string-type">
+        <h1>ToNumber Applied to the String Type</h1>
+        <emu-note>
+          <p>Some differences should be noted between the syntax of a |StringNumericLiteral| and a |NumericLiteral|:</p>
+            <li>
+              <ins>A |StringNumericLiteral| may not include a |NumericLiteralSuffix|.</ins>
+            </li>
+        </emu-note>
+    </emu-clause>
+
+    <emu-clause id="sec-tostring" aoid="ToString">
+      <h1>ToString ( _argument_ )</h1>
+      <p>The abstract operation ToString converts _argument_ to a value of type String according to <emu-xref href="#table-12"></emu-xref>:</p>
+      <emu-table id="table-12" caption="ToString Conversions">
+        <table>
+          <tbody>
+          <tr>
+            <th>
+              Argument Type
+            </th>
+            <th>
+              Result
+            </th>
+          </tr>
+          <tr>
+            <td>
+              BigInt
+            </td>
+            <td>
+              See <emu-xref href="#sec-tostring-applied-to-the-bigint-type"></emu-xref>.
+            </td>
+          </tr>
+          </tbody>
+        </table>
+       </emu-table>
+
+      <emu-clause id="sec-tostring-applied-to-the-bigint-type" aoid="ToString Applied to the BigInt Type">
+        <h1>ToString Applied to the BigInt Type</h1>
+        <p>The abstract operation ToString converts a BigInt _i_ to String format as follows:</p>
+        <emu-alg>
+          1. If _i_ is less than zero, return the String concatenation of the String `"-"` and ToString(-_i_).
+          1. Return the String consisting of the code units of the digits of the decimal representation of _i_.
+        </emu-alg>
+        <emu-issue>ToString may concatenate `n` on the end; see <a href="https://github.com/littledan/proposal-bigint/issues/5">discussion</a></emu-issue>
+      </emu-clause>
+     </emu-clause>
+
+    <emu-clause id="sec-toobject" aoid="ToObject">
+      <h1>ToObject ( _argument_ )</h1>
+      <p>The abstract operation ToObject converts _argument_ to a value of type Object according to <emu-xref href="#table-13"></emu-xref>:</p>
+      <emu-table id="table-13" caption="ToObject Conversions">
+        <table>
+          <tbody>
+          <tr>
+            <th>
+              Argument Type
+            </th>
+            <th>
+              Result
+            </th>
+          </tr>
+          <tr>
+            <td>
+              BigInt
+            </td>
+            <td>
+              Return a new Int64 object whose [[BigIntData]] internal slot is set to _argument_. See <emu-xref href="#sec-bigint-objects"></emu-xref> for a description of Int64 objects.
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </emu-table>
+    </emu-clause>
+
+    <emu-clause id="sec-tonumeric" aoid="ToNumeric">
+      <h1>ToNumeric ( _value_ )</h1>
+      <p>The abstract operation ToNumeric returns _value_ converted to a numeric value of type Numberor BigInt. This abstract operation functions as follows:</p>
+      <emu-alg>
+        1. Let _primValue_ be ? ToPrimitive(_value_).
+        1. If Type(_value_) is BigInt, return _value_.
+        1. Return ToNumber(_value_).
+      </emu-alg>
+    </emu-clause>
+
+    <emu-clause id="sec-requireobjectcoercible" aoid="RequireObjectCoercible">
+      <h1>RequireObjectCoercible ( _argument_ )</h1>
+      <p>The abstract operation RequireObjectCoercible throws an error if _argument_ is a value that cannot be converted to an Object using ToObject. It is defined by <emu-xref href="#table-14"></emu-xref>:</p>
+      <emu-table id="table-14" caption="RequireObjectCoercible Results">
+        <table>
+          <tbody>
+          <tr>
+            <th>
+              Argument Type
+            </th>
+            <th>
+              Result
+            </th>
+          </tr>
+          <tr>
+            <td>
+              BigInt
+            </td>
+            <td>
+              Return _argument_.
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </emu-table>
+    </emu-clause>
+
+  <emu-clause id="sec-testing-and-comparison-operations">
+    <h1>Testing and Comparison Operations</h1>
+    <emu-clause id="sec-samevalue" aoid="SameValue">
+      <h1>SameValue ( _x_, _y_ )</h1>
+       <p>The internal comparison abstract operation SameValue(_x_, _y_), where _x_ and _y_ are ECMAScript language values, produces *true* or *false*. Such a comparison is performed as follows:</p>
+       <emu-alg>
+         1. If Type(_x_) is different from Type(_y_), return *false*.
+         1. If Type(_x_) is Number <ins>or BigInt</ins>, then
+           1. <del>If _x_ is *NaN* and _y_ is *NaN*, return *true*.</del>
+           1. <del>If _x_ is *+0* and _y_ is *-0*, return *false*.</del>
+           1. <del>If _x_ is *-0* and _y_ is *+0*, return *false*.</del>
+           1. <del>If _x_ is the same Number value as _y_, return *true*.</del>
+           1. <del>Return *false*.</del>
+           1. <ins>Return ? Type(_x_)::sameValue(_x_, _y_).</ins>
+         1. Return <a href="sec-samevaluenonnumber">SameValueNon<del>Number</del><ins>Numeric</ins></a>(_x_, _y_).
+       </emu-alg>
+       <emu-integration-plans>The previous Number-related contents of this algorithm will be moved into Number::sameValue.</emu-integration-plans>
+    </emu-clause>
+
+    <!-- es6num="7.2.10" -->
+    <emu-clause id="sec-samevaluezero" aoid="SameValueZero">
+      <h1>SameValueZero ( _x_, _y_ )</h1>
+       <p>The internal comparison abstract operation SameValueZero(_x_, _y_), where _x_ and _y_ are ECMAScript language values, produces *true* or *false*. Such a comparison is performed as follows:</p>
+       <emu-alg>
+         1. If Type(_x_) is different from Type(_y_), return *false*.
+         1. If Type(_x_) is Number <ins>or BigInt</ins>, then
+           1. <del>If _x_ is *NaN* and _y_ is *NaN*, return *true*.</del>
+           1. <del>If _x_ is *+0* and _y_ is *-0*, return *true*.</del>
+           1. <del>If _x_ is *-0* and _y_ is *+0*, return *true*.</del>
+           1. <del>If _x_ is the same Number value as _y_, return *true*.</del>
+           1. <del>Return *false*.</del>
+           1. <ins>Return ? Type(_x_)::sameValueZero(_x_, _y_).</ins>
+         1. Return <a href="sec-samevaluenonnumber">SameValueNon<del>Number</del><ins>Numeric</ins></a>(_x_, _y_).
+       </emu-alg>
+     </emu-clause>
+
+    <emu-clause id="sec-samevaluenonnumber" aoid="SameValueNonNumeric">
+      <h1>SameValueNon<del>Number</del><ins>Numeric</ins> ( _x_, _y_ )</h1>
+      <p>The internal comparison abstract operation SameValueNonNumeric(_x_, _y_), where neither _x_ nor _y_ are numeric type values, produces *true* or *false*. Such a comparison is performed as follows:</p>
+       <emu-alg>
+         1. Assert: Type(_x_) is not Number <ins>or BigInt</ins>.
+         1. Assert: Type(_x_) is the same as Type(_y_).
+         1. If Type(_x_) is Undefined, return *true*.
+         1. If Type(_x_) is Null, return *true*.
+         1. If Type(_x_) is String, then
+           1. If _x_ and _y_ are exactly the same sequence of code units (same length and same code units at corresponding indices), return *true*; otherwise, return *false*.
+         1. If Type(_x_) is Boolean, then
+           1. If _x_ and _y_ are both *true* or both *false*, return *true*; otherwise, return *false*.
+         1. If Type(_x_) is Symbol, then
+           1. If _x_ and _y_ are both the same Symbol value, return *true*; otherwise, return *false*.
+         1. Return *true* if _x_ and _y_ are the same Object value. Otherwise, return *false*.
+      </emu-alg>
+    </emu-clause>
+
+    <!-- es6num="7.2.11" -->
+    <emu-clause id="sec-abstract-relational-comparison" aoid="Abstract Relational Comparison">
+      <h1>Abstract Relational Comparison</h1>
+      <p>The comparison _x_ &lt; _y_, where _x_ and _y_ are values, produces *true*, *false*, or *undefined* (which indicates that at least one operand is *NaN*). In addition to _x_ and _y_ the algorithm takes a Boolean flag named _LeftFirst_ as a parameter. The flag is used to control the order in which operations with potentially visible side-effects are performed upon _x_ and _y_. It is necessary because ECMAScript specifies left to right evaluation of expressions. The default value of _LeftFirst_ is *true* and indicates that the _x_ parameter corresponds to an expression that occurs to the left of the _y_ parameter's corresponding expression. If _LeftFirst_ is *false*, the reverse is the case and operations must be performed upon _y_ before _x_. Such a comparison is performed as follows:</p>
+      <emu-alg>
+        1. If the _LeftFirst_ flag is *true*, then
+          1. Let _px_ be ? ToPrimitive(_x_, hint Number).
+          1. Let _py_ be ? ToPrimitive(_y_, hint Number).
+        1. Else the order of evaluation needs to be reversed to preserve left to right evaluation,
+          1. Let _py_ be ? ToPrimitive(_y_, hint Number).
+          1. Let _px_ be ? ToPrimitive(_x_, hint Number).
+        1. If both _px_ and _py_ are Strings, then
+          1. If _py_ is a prefix of _px_, return *false*. (A String value _p_ is a prefix of String value _q_ if _q_ can be the result of concatenating _p_ and some other String _r_. Note that any String is a prefix of itself, because _r_ may be the empty String.)
+          1. If _px_ is a prefix of _py_, return *true*.
+          1. Let _k_ be the smallest nonnegative integer such that the code unit at index _k_ within _px_ is different from the code unit at index _k_ within _py_. (There must be such a _k_, for neither String is a prefix of the other.)
+          1. Let _m_ be the integer that is the code unit value at index _k_ within _px_.
+          1. Let _n_ be the integer that is the code unit value at index _k_ within _py_.
+          1. If _m_ &lt; _n_, return *true*. Otherwise, return *false*.
+        1. Else,
+          1. <ins>Let _nx_ be ? ToNumeric(_px_). Because _px_ and _py_ are primitive values evaluation order is not important.</ins>
+          1. <del>Let _nx_ be ? ToNumber(_px_). Because _px_ and _py_ are primitive values evaluation order is not important.</del>
+          1. <del>Let _ny_ be ? ToNumber(_py_).</del>
+          1. <del>If _nx_ is *NaN*, return *undefined*.</del>
+          1. <del>If _ny_ is *NaN*, return *undefined*.</del>
+          1. <del>If _nx_ and _ny_ are the same Number value, return *false*.</del>
+          1. <del>If _nx_ is *+0* and _ny_ is *-0*, return *false*.</del>
+          1. <del>If _nx_ is *-0* and _ny_ is *+0*, return *false*.</del>
+          1. <del>If _nx_ is *+&infin;*, return *false*.</del>
+          1. <del>If _ny_ is *+&infin;*, return *true*.</del>
+          1. <del>If _ny_ is *-&infin;*, return *false*.</del>
+          1. <del>If _nx_ is *-&infin;*, return *true*.</del>
+          1. <del>If the mathematical value of _nx_ is less than the mathematical value of _ny_ &mdash;note that these mathematical values are both finite and not both zero&mdash;return *true*. Otherwise, return *false*.</del>
+          1. <ins>Let _ny_ be ? ToNumeric(_py_).</ins>
+          1. <ins>if Type(_nx_) is not Type(_ny_), throw a *TypeError* exception.</ins>
+          1. <ins>Return ? Type(_nx_)::lessThan(_nx_, _ny_).</ins>
+      </emu-alg>
+       <emu-integration-plans>The previous Number-related contents of this algorithm will be moved into Number::lessThan.</emu-integration-plans>
+      <emu-issue>In this section, comparisons between BigInts and Numbers would throw a TypeError. A possible alternative semantics would be to permit comparisons; this is discussed <a href="https://github.com/littledan/proposal-bigint/issues/4">in Issue #4</a>.</emu-issue>
+    </emu-clause>
+
+    <!-- es6num="7.2.12" -->
+    <emu-clause id="sec-abstract-equality-comparison" aoid="Abstract Equality Comparison">
+      <h1>Abstract Equality Comparison</h1>
+      <p>The comparison _x_ == _y_, where _x_ and _y_ are values, produces *true* or *false*. Such a comparison is performed as follows:</p>
+      <emu-alg>
+        1. If Type(_x_) is the same as Type(_y_), then
+          1. Return the result of performing Strict Equality Comparison _x_ === _y_.
+        1. If _x_ is *null* and _y_ is *undefined*, return *true*.
+        1. If _x_ is *undefined* and _y_ is *null*, return *true*.
+        1. If Type(_x_) is Number and Type(_y_) is String, return the result of the comparison _x_ == ToNumber(_y_).
+        1. If Type(_x_) is String and Type(_y_) is Number, return the result of the comparison ToNumber(_x_) == _y_.
+        1. If Type(_x_) is Boolean, return the result of the comparison ToNumber(_x_) == _y_.
+        1. If Type(_y_) is Boolean, return the result of the comparison _x_ == ToNumber(_y_).
+        1. If Type(_x_) is either String, Number, or Symbol and Type(_y_) is Object, return the result of the comparison _x_ == ToPrimitive(_y_).
+        1. If Type(_x_) is Object and Type(_y_) is either String, Number, or Symbol, return the result of the comparison ToPrimitive(_x_) == _y_.
+        1. <ins>If Type(_x_) is BigInt and Type(_y_) is Number, or if Type(_x_) is Number and Type(_y_) is BigInt, throw a *TypeError* exception.</ins>
+        1. Return *false*.
+      </emu-alg>
+      <emu-issue>In this section, comparisons between BigInts and Numbers would throw a TypeError. A possible alternative semantics would be to permit comparisons; this is discussed <a href="https://github.com/littledan/proposal-bigint/issues/4">in Issue #4</a>.</emu-issue>
+    </emu-clause>
+
+    <!-- es6num="7.2.13" -->
+    <emu-clause id="sec-strict-equality-comparison" aoid="Strict Equality Comparison">
+      <h1>Strict Equality Comparison</h1>
+      <p>The comparison _x_ === _y_, where _x_ and _y_ are values, produces *true* or *false*. Such a comparison is performed as follows:</p>
+      <emu-alg>
+        1. If Type(_x_) is different from Type(_y_), return *false*.
+        1. If Type(_x_) is Number <ins>or BigInt</ins>, then
+          1. <del>If _x_ is *NaN*, return *false*.</del>
+          1. <del>If _y_ is *NaN*, return *false*.</del>
+          1. <del>If _x_ is the same Number value as _y_, return *true*.</del>
+          1. <del>If _x_ is *+0* and _y_ is *-0*, return *true*.</del>
+          1. <del>If _x_ is *-0* and _y_ is *+0*, return *true*.</del>
+          1. <del>Return *false*.</del>
+          1. <ins>Return ? Type(_x_)::equal(_x_, _y_).</ins>
+        1. Return <a href="sec-samevaluenonnumber">SameValueNon<del>Number</del><ins>Numeric</ins></a>(_x_, _y_).
+      </emu-alg>
+      <emu-integration-plans>The previous Number-related contents of this algorithm will be moved into Number::equal.</emu-integration-plans>
+    </emu-clause>
+</emu-clause>
+
+<emu-clause id="sec-ecmascript-language-expressions">
+  <h1>ECMAScript Language: Expressions</h1>
+
+  <emu-clause id="sec-update-expressions">
+    <h1>Update Expressions</h1>
+
+    <!-- es6num="12.4.4" -->
+    <emu-clause id="sec-postfix-increment-operator">
+      <h1>Postfix Increment Operator</h1>
+
+      <!-- es6num="12.4.4.1" -->
+      <emu-clause id="sec-postfix-increment-operator-runtime-semantics-evaluation">
+        <h1>Runtime Semantics: Evaluation</h1>
+        <emu-grammar>UpdateExpression : LeftHandSideExpression `++`</emu-grammar>
+        <emu-alg>
+          1. Let _lhs_ be the result of evaluating |LeftHandSideExpression|.
+          1. <del>Let _oldValue_ be ? ToNumber(? GetValue(_expr_)).</del>
+          1. <del>Let _newValue_ be the result of adding the value 1 to _oldValue_, using the same rules as for the `+` operator (see <emu-xref href="#sec-applying-the-additive-operators-to-numbers"></emu-xref>).</del>
+          1. <ins>Let _oldValue_ be ? ToNumeric(? GetValue(_lhs_)).</ins>
+          1. <ins>Let _newValue_ be ? Type(_oldvalue_)::add(_oldValue_, Type(_oldValue_)::unit).</ins>
+          1. Perform ? PutValue(_lhs_, _newValue_).
+          1. Return _oldValue_.
+        </emu-alg>
+      </emu-clause>
+    </emu-clause>
+
+    <!-- es6num="12.4.5" -->
+    <emu-clause id="sec-postfix-decrement-operator">
+      <h1>Postfix Decrement Operator</h1>
+
+      <!-- es6num="12.4.5.1" -->
+      <emu-clause id="sec-postfix-decrement-operator-runtime-semantics-evaluation">
+        <h1>Runtime Semantics: Evaluation</h1>
+        <emu-grammar>UpdateExpression : LeftHandSideExpression `--`</emu-grammar>
+        <emu-alg>
+          1. Let _lhs_ be the result of evaluating |LeftHandSideExpression|.
+          1. <del>Let _oldValue_ be ? ToNumber(? GetValue(_expr_)).</del>
+          1. <del>Let _newValue_ be the result of subtracting the value 1 from _oldValue_, using the same rules as for the `-` operator (see <emu-xref href="#sec-applying-the-additive-operators-to-numbers"></emu-xref>).</del>
+          1. <ins>Let _oldValue_ be ? ToNumeric(? GetValue(_lhs_)).</ins>
+          1. <ins>Let _newValue_ be ? Type(_oldvalue_)::subtract(_oldValue_, Type(_oldValue_)::unit).</ins>
+          1. Perform ? PutValue(_lhs_, _newValue_).
+          1. Return _oldValue_.
+        </emu-alg>
+      </emu-clause>
+    </emu-clause>
+
+    <!-- es6num="12.5.7" -->
+    <emu-clause id="sec-prefix-increment-operator">
+      <h1>Prefix Increment Operator</h1>
+
+      <!-- es6num="12.5.7.1" -->
+      <emu-clause id="sec-prefix-increment-operator-runtime-semantics-evaluation">
+        <h1>Runtime Semantics: Evaluation</h1>
+        <emu-grammar>UpdateExpression : `++` UnaryExpression</emu-grammar>
+        <emu-alg>
+          1. Let _expr_ be the result of evaluating |UnaryExpression|.
+          1. <del>Let _oldValue_ be ? ToNumber(? GetValue(_expr_)).</del>
+          1. <del>Let _newValue_ be the result of adding the value 1 to _oldValue_, using the same rules as for the `+` operator (see <emu-xref href="#sec-applying-the-additive-operators-to-numbers"></emu-xref>).</del>
+          1. <ins>Let _oldValue_ be ? ToNumeric(? GetValue(_lhs_)).</ins>
+          1. <ins>Let _newValue_ be ? Type(_oldvalue_)::add(_oldValue_, Type(_oldValue_)::unit).</ins>
+          1. Perform ? PutValue(_expr_, _newValue_).
+          1. Return _newValue_.
+        </emu-alg>
+      </emu-clause>
+    </emu-clause>
+
+    <!-- es6num="12.5.8" -->
+    <emu-clause id="sec-prefix-decrement-operator">
+      <h1>Prefix Decrement Operator</h1>
+
+      <!-- es6num="12.5.8.1" -->
+      <emu-clause id="sec-prefix-decrement-operator-runtime-semantics-evaluation">
+        <h1>Runtime Semantics: Evaluation</h1>
+        <emu-grammar>UpdateExpression : `--` UnaryExpression</emu-grammar>
+        <emu-alg>
+          1. Let _expr_ be the result of evaluating |UnaryExpression|.
+          1. <del>Let _oldValue_ be ? ToNumber(? GetValue(_expr_)).</del>
+          1. <del>Let _newValue_ be the result of subtracting the value 1 from _oldValue_, using the same rules as for the `-` operator (see <emu-xref href="#sec-applying-the-additive-operators-to-numbers"></emu-xref>).</del>
+          1. <ins>Let _oldValue_ be ? ToNumeric(? GetValue(_lhs_)).</ins>
+          1. <ins>Let _newValue_ be ? Type(_oldvalue_)::subtract(_oldValue_, Type(_oldValue_)::unit).</ins>
+          1. Perform ? PutValue(_expr_, _newValue_).
+          1. Return _newValue_.
+        </emu-alg>
+      </emu-clause>
+    </emu-clause>
+  </emu-clause>
+  <emu-clause id="sec-unary-operators">
+    <h1>Unary Operators</h1>
+    <!-- es6num="12.5.6" -->
+    <emu-clause id="sec-typeof-operator">
+      <h1>The `typeof` Operator</h1>
+
+      <!-- es6num="12.5.6.1" -->
+      <emu-clause id="sec-typeof-operator-runtime-semantics-evaluation">
+        <h1>Runtime Semantics: Evaluation</h1>
+        <emu-grammar>UnaryExpression : `typeof` UnaryExpression</emu-grammar>
+        <emu-table id="table-35" caption="typeof Operator Results">
+          <table>
+            <tbody>
+            <tr>
+              <th>
+                Type of _val_
+              </th>
+              <th>
+                Result
+              </th>
+            </tr>
+            <tr>
+              <td>
+                <ins>BigInt</ins>
+              </td>
+              <td>
+                <ins>`"bigint"`</ins>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </emu-table>
+      </emu-clause>
+    </emu-clause>
+
+    <!-- es6num="12.5.9" -->
+    <emu-clause id="sec-unary-plus-operator">
+      <h1>Unary `+` Operator</h1>
+      <emu-note>
+        <p>The unary + operator converts its operand to Number type.</p>
+      </emu-note>
+
+      <!-- es6num="12.5.9.1" -->
+      <emu-clause id="sec-unary-plus-operator-runtime-semantics-evaluation">
+        <h1>Runtime Semantics: Evaluation</h1>
+        <emu-grammar>UnaryExpression : `+` UnaryExpression</emu-grammar>
+        <emu-alg>
+          1. Let _expr_ be the result of evaluating |UnaryExpression|.
+          1. Return ? ToNumber(? GetValue(_expr_)).
+        </emu-alg>
+        <emu-motivation>The definition here is unchanged, and still uses ToNumber rather than ToNumeric. This means that `+` will throw on BigInts. The semantics here are designed to allow expressions of the form `+x` to always return Numbers, which is necessary to <a href="https://github.com/littledan/proposal-bigint/blob/master/README.md#dont-break-asmjs">preserve assumptions made by asm.js</a>.</emu-motivation>
+      </emu-clause>
+    </emu-clause>
+
+    <!-- es6num="12.5.10" -->
+    <emu-clause id="sec-unary-minus-operator">
+      <h1>Unary `-` Operator</h1>
+      <emu-note>
+        <p>The unary `-` operator converts its operand to Number type and then negates it. Negating *+0* produces *-0*, and negating *-0* produces *+0*.</p>
+      </emu-note>
+
+      <!-- es6num="12.5.10.1" -->
+      <emu-clause id="sec-unary-minus-operator-runtime-semantics-evaluation">
+        <h1>Runtime Semantics: Evaluation</h1>
+        <emu-grammar>UnaryExpression : `-` UnaryExpression</emu-grammar>
+        <emu-alg>
+          1. Let _expr_ be the result of evaluating |UnaryExpression|.
+          1. Let _oldValue_ be ? <del>ToNumber</del><ins>ToNumeric</ins>(? GetValue(_expr_)).
+          1. <del>If _oldValue_ is *NaN*, return *NaN*.</del>
+          1. <del>Return the result of negating _oldValue_; that is, compute a Number with the same magnitude but opposite sign.</del>
+          1. <ins>Let _T_ be Type(_oldValue_).</ins>
+          1. </ins>Return ? _T_::minus(_T_::zero, _oldValue_).</ins>
+        </emu-alg>
+      </emu-clause>
+    </emu-clause>
+
+    <!-- es6num="12.5.11" -->
+    <emu-clause id="sec-bitwise-not-operator">
+      <h1>Bitwise NOT Operator ( `~` )</h1>
+
+      <!-- es6num="12.5.11.1" -->
+      <emu-clause id="sec-bitwise-not-operator-runtime-semantics-evaluation">
+        <h1>Runtime Semantics: Evaluation</h1>
+        <emu-grammar>UnaryExpression : `~` UnaryExpression</emu-grammar>
+        <emu-alg>
+          1. Let _expr_ be the result of evaluating |UnaryExpression|.
+          1. Let _oldValue_ be ? <del>ToInt32</del><ins>ToNumeric</ins>(? GetValue(_expr_)).
+          1. <del>Return the result of applying bitwise complement to _oldValue_. The result is a signed 32-bit integer.</del>
+          1. <ins>Return ? _T_::bitNOT(_oldValue_).</ins>
+        </emu-alg>
+      </emu-clause>
+    </emu-clause>
+  </emu-clause>
+
+  <emu-clause id="sec-exp-operator">
+    <h1>Exponentiation Operator</h1>
+    <emu-clause id="sec-exp-operator-runtime-semantics-evaluation">
+      <h1>Runtime Semantics: Evaluation</h1>
+      <emu-grammar>
+        ExponentiationExpression : UpdateExpression `**` ExponentiationExpression
+      </emu-grammar>
+      <emu-alg>
+        1. Let _left_ be the result of evaluating _UpdateExpression_.
+        1. Let _leftValue_ be ? GetValue(_left_).
+        1. Let _right_ be the result of evaluating _ExponentiationExpression_.
+        1. Let _rightValue_ be ? GetValue(_right_).
+        1. Let _base_ be ? <del>ToNumber</del><ins>ToNumeric</ins>(_leftValue_).
+        1. Let _exponent_ be ? <del>ToNumber</del><ins>ToNumeric</ins>(_rightValue_).
+        1. <del>Return the result of <emu-xref href="#sec-applying-the-exp-operator" title>Applying the ** operator</emu-xref> with _base_ and _exponent_ as specified in <emu-xref href="#sec-applying-the-exp-operator"></emu-xref>.</del>
+        1. <ins>If Type(_base_) does not equal Type(_exponent_), throw a *TypeError* exception.</ins>
+        1. <ins>Return ? Type(_base_)::exponentiate(_base_, _exponent_).</ins>
+      </emu-alg>
+    </emu-clause>
+  </emu-clause>
+
+  <!-- es6num="12.6" -->
+  <emu-clause id="sec-multiplicative-operators">
+    <h1>Multiplicative Operators</h1>
+    <!-- es6num="12.6.3" -->
+    <emu-clause id="sec-multiplicative-operators-runtime-semantics-evaluation">
+      <h1>Runtime Semantics: Evaluation</h1>
+      <emu-grammar>MultiplicativeExpression : MultiplicativeExpression MultiplicativeOperator ExponentiationExpression</emu-grammar>
+      <emu-alg>
+        1. Let _left_ be the result of evaluating |MultiplicativeExpression|.
+        1. Let _leftValue_ be ? GetValue(_left_).
+        1. Let _right_ be the result of evaluating |ExponentiationExpression|.
+        1. Let _rightValue_ be ? GetValue(_right_).
+        1. Let _lnum_ be ? <del>ToNumber</del><ins>ToNumeric</ins>(_leftValue_).
+        1. Let _rnum_ be ? <del>ToNumber</del><ins>ToNumeric</ins>(_rightValue_).
+        1. <del>Return the result of applying the |MultiplicativeOperator| (`*`, `/`, or `%`) to _lnum_ and _rnum_ as specified in <emu-xref href="#sec-applying-the-mul-operator"></emu-xref>, <emu-xref href="#sec-applying-the-div-operator"></emu-xref>, or <emu-xref href="#sec-applying-the-mod-operator"></emu-xref>.</del>
+        1. <ins>If Type(_lnum_) does not equal Type(_rnum_), throw a *TypeError* exception.</ins>
+        1. <ins>Let _T_ be Type(_lnum_).</ins>
+        1. <ins>If |MultiplicativeOperator| is `*`, return _T_::multiply(_lnum_, _rnum_).</ins>
+        1. <ins>If |MultiplicativeOperator| is `/`, return _T_::divide(_lnum_, _rnum_).</ins>
+        1. <ins>Otherwise, |MultiplicativeOperator| is `%`; return _T_::remainder(_lnum_, _rnum_).</ins>
+      </emu-alg>
+    </emu-clause>
+  </emu-clause>
+
+  <!-- es6num="12.7" -->
+  <emu-clause id="sec-additive-operators">
+    <h1>Additive Operators</h1>
+    <emu-clause id="sec-addition-operator-plus">
+      <h1>The Addition Operator ( `+` )</h1>
+      <emu-note>
+        <p>The addition operator either performs string concatenation or numeric addition.</p>
+      </emu-note>
+
+      <!-- es6num="12.7.3.1" -->
+      <emu-clause id="sec-addition-operator-plus-runtime-semantics-evaluation">
+        <h1>Runtime Semantics: Evaluation</h1>
+        <emu-grammar>AdditiveExpression : AdditiveExpression `+` MultiplicativeExpression</emu-grammar>
+        <emu-alg>
+          1. Let _lref_ be the result of evaluating |AdditiveExpression|.
+          1. Let _lval_ be ? GetValue(_lref_).
+          1. Let _rref_ be the result of evaluating |MultiplicativeExpression|.
+          1. Let _rval_ be ? GetValue(_rref_).
+          1. Let _lprim_ be ? ToPrimitive(_lval_).
+          1. Let _rprim_ be ? ToPrimitive(_rval_).
+          1. If Type(_lprim_) is String or Type(_rprim_) is String, then
+            1. Let _lstr_ be ? ToString(_lprim_).
+            1. Let _rstr_ be ? ToString(_rprim_).
+            1. Return the String that is the result of concatenating _lstr_ and _rstr_.
+          1. Let _lnum_ be ? <del>ToNumber</del><ins>ToNumeric</ins>(_lprim_).
+          1. Let _rnum_ be ? <del>ToNumber</del><ins>ToNumeric</ins>(_rprim_).
+          1. <del>Return the result of applying the addition operation to _lnum_ and _rnum_. See the Note below <emu-xref href="#sec-applying-the-additive-operators-to-numbers"></emu-xref>.</del>
+          1. <ins>If Type(_lnum_) does not equal Type(_rnum_), throw a *TypeError* exception.</ins>
+          1. <ins>Let _T_ be Type(_lnum_).</ins>
+          1. <ins>Return _T_::add(_lnum_, _rnum_).</ins>
+        </emu-alg>
+        <emu-note>
+          <p>No hint is provided in the calls to ToPrimitive in steps 5 and 6. All standard objects except Date objects handle the absence of a hint as if the hint Number were given; Date objects handle the absence of a hint as if the hint String were given. Exotic objects may handle the absence of a hint in some other manner.</p>
+        </emu-note>
+        <emu-note>
+          <p>Step 7 differs from step 5 of the Abstract Relational Comparison algorithm, by using the logical-or operation instead of the logical-and operation.</p>
+        </emu-note>
+      </emu-clause>
+    </emu-clause>
+
+    <!-- es6num="12.7.4" -->
+    <emu-clause id="sec-subtraction-operator-minus">
+      <h1>The Subtraction Operator ( `-` )</h1>
+
+      <!-- es6num="12.7.4.1" -->
+      <emu-clause id="sec-subtraction-operator-minus-runtime-semantics-evaluation">
+        <h1>Runtime Semantics: Evaluation</h1>
+        <emu-grammar>AdditiveExpression : AdditiveExpression `-` MultiplicativeExpression</emu-grammar>
+        <emu-alg>
+          1. Let _lref_ be the result of evaluating |AdditiveExpression|.
+          1. Let _lval_ be ? GetValue(_lref_).
+          1. Let _rref_ be the result of evaluating |MultiplicativeExpression|.
+          1. Let _rval_ be ? GetValue(_rref_).
+          1. Let _lnum_ be ? <del>ToNumber</del><ins>ToNumeric</ins>(_lval_).
+          1. Let _rnum_ be ? <del>ToNumber</del><ins>ToNumeric</ins>(_rval_).
+          1. <del>Return the result of applying the subtraction operation to _lnum_ and _rnum_. See the note below <emu-xref href="#sec-applying-the-additive-operators-to-numbers"></emu-xref>.</del>
+          1. <ins>If Type(_lnum_) does not equal Type(_rnum_), throw a *TypeError* exception.</ins>
+          1. <ins>Let _T_ be Type(_lnum_).</ins>
+          1. <ins>Return _T_::subtract(_lnum_, _rnum_).</ins>
+        </emu-alg>
+      </emu-clause>
+    </emu-clause>
+  </emu-clause>
+
+  <!-- es6num="12.8" -->
+  <emu-clause id="sec-bitwise-shift-operators">
+    <h1>Bitwise Shift Operators</h1>
+
+    <!-- es6num="12.8.3" -->
+    <emu-clause id="sec-left-shift-operator">
+      <h1>The Left Shift Operator ( `&lt;&lt;` )</h1>
+      <emu-note>
+        <p>Performs a bitwise left shift operation on the left operand by the amount specified by the right operand.</p>
+      </emu-note>
+
+      <!-- es6num="12.8.3.1" -->
+      <emu-clause id="sec-left-shift-operator-runtime-semantics-evaluation">
+        <h1>Runtime Semantics: Evaluation</h1>
+        <emu-grammar>ShiftExpression : ShiftExpression `&lt;&lt;` AdditiveExpression</emu-grammar>
+        <emu-alg>
+          1. Let _lref_ be the result of evaluating |ShiftExpression|.
+          1. Let _lval_ be ? GetValue(_lref_).
+          1. Let _rref_ be the result of evaluating |AdditiveExpression|.
+          1. Let _rval_ be ? GetValue(_rref_).
+          1. Let _lnum_ be ? <del>ToInt32</del><ins>ToNumeric</ins>(_lval_).
+          1. Let _rnum_ be ? <del>ToUint32</del><ins>ToNumeric</ins>(_rval_).
+          1. <del>Let _shiftCount_ be the result of masking out all but the least significant 5 bits of _rnum_, that is, compute _rnum_ &amp; 0x1F.</del>
+          1. <del>Return the result of left shifting _lnum_ by _shiftCount_ bits. The result is a signed 32-bit integer.</del>
+          1. <ins>If Type(_lnum_) does not equal Type(_rnum_), throw a *TypeError* exception.</ins>
+          1. <ins>Let _T_ be Type(_lnum_).</ins>
+          1. <ins>Return _T_::leftShift(_lnum_, _rnum_).</ins>
+        </emu-alg>
+      </emu-clause>
+    </emu-clause>
+
+    <!-- es6num="12.8.4" -->
+    <emu-clause id="sec-signed-right-shift-operator">
+      <h1>The Signed Right Shift Operator ( `&gt;&gt;` )</h1>
+      <emu-note>
+        <p>Performs a sign-filling bitwise right shift operation on the left operand by the amount specified by the right operand.</p>
+      </emu-note>
+
+      <!-- es6num="12.8.4.1" -->
+      <emu-clause id="sec-signed-right-shift-operator-runtime-semantics-evaluation">
+        <h1>Runtime Semantics: Evaluation</h1>
+        <emu-grammar>ShiftExpression : ShiftExpression `&gt;&gt;` AdditiveExpression</emu-grammar>
+        <emu-alg>
+          1. Let _lref_ be the result of evaluating |ShiftExpression|.
+          1. Let _lval_ be ? GetValue(_lref_).
+          1. Let _rref_ be the result of evaluating |AdditiveExpression|.
+          1. Let _rval_ be ? GetValue(_rref_).
+          1. Let _lnum_ be ? <del>ToInt32</del><ins>ToNumeric</ins>(_lval_).
+          1. Let _rnum_ be ? <del>ToUint32</del><ins>ToNumeric</ins>(_rval_).
+          1. <del>Let _shiftCount_ be the result of masking out all but the least significant 5 bits of _rnum_, that is, compute _rnum_ &amp; 0x1F.</del>
+          1. <del>Return the result of performing a sign-extending right shift of _lnum_ by _shiftCount_ bits. The most significant bit is propagated. The result is a signed 32-bit integer.</del>
+          1. <ins>If Type(_lnum_) does not equal Type(_rnum_), throw a *TypeError* exception.</ins>
+          1. <ins>Let _T_ be Type(_lnum_).</ins>
+          1. <ins>Return _T_::rightShift(_lnum_, _rnum_).</ins>
+        </emu-alg>
+      </emu-clause>
+    </emu-clause>
+
+    <!-- es6num="12.8.5" -->
+    <emu-clause id="sec-unsigned-right-shift-operator">
+      <h1>The Unsigned Right Shift Operator ( `&gt;&gt;&gt;` )</h1>
+      <emu-note>
+        <p>Performs a zero-filling bitwise right shift operation on the left operand by the amount specified by the right operand.</p>
+      </emu-note>
+
+      <!-- es6num="12.8.5.1" -->
+      <emu-clause id="sec-unsigned-right-shift-operator-runtime-semantics-evaluation">
+        <h1>Runtime Semantics: Evaluation</h1>
+        <emu-grammar>ShiftExpression : ShiftExpression `&gt;&gt;&gt;` AdditiveExpression</emu-grammar>
+        <emu-alg>
+          1. Let _lref_ be the result of evaluating |ShiftExpression|.
+          1. Let _lval_ be ? GetValue(_lref_).
+          1. Let _rref_ be the result of evaluating |AdditiveExpression|.
+          1. Let _rval_ be ? GetValue(_rref_).
+          1. Let _lnum_ be ? <del>ToInt32</del><ins>ToNumeric</ins>(_lval_).
+          1. Let _rnum_ be ? <del>ToUint32</del><ins>ToNumeric</ins>(_rval_).
+          1. <del>Let _shiftCount_ be the result of masking out all but the least significant 5 bits of _rnum_, that is, compute _rnum_ &amp; 0x1F.</del>
+          1. <del>Return the result of performing a zero-filling right shift of _lnum_ by _shiftCount_ bits. Vacated bits are filled with zero. The result is an unsigned 32-bit integer.</del>
+          1. <ins>If Type(_lnum_) does not equal Type(_rnum_), throw a *TypeError* exception.</ins>
+          1. <ins>Let _T_ be Type(_lnum_).</ins>
+          1. <ins>Return _T_::unsignedRightShift(_lnum_, _rnum_).</ins>
+        </emu-alg>
+      </emu-clause>
+    </emu-clause>
+  </emu-clause>
+
+  <!-- es6num="12.11" -->
+  <emu-clause id="sec-binary-bitwise-operators">
+    <h1>Binary Bitwise Operators</h1>
+
+    <!-- es6num="12.11.3" -->
+    <emu-clause id="sec-binary-bitwise-operators-runtime-semantics-evaluation">
+      <h1>Runtime Semantics: Evaluation</h1>
+      <p>The production <emu-grammar>A : A @ B</emu-grammar>, where @ is one of the bitwise operators in the productions above, is evaluated as follows:</p>
+      <emu-alg>
+        1. Let _lref_ be the result of evaluating _A_.
+        1. Let _lval_ be ? GetValue(_lref_).
+        1. Let _rref_ be the result of evaluating _B_.
+        1. Let _rval_ be ? GetValue(_rref_).
+        1. Let _lnum_ be ? <del>ToInt32</del><ins>ToNumeric</ins>(_lval_).
+        1. Let _rnum_ be ? <del>ToUint32</del><ins>ToNumeric</ins>(_rval_).
+        1. <ins>If Type(_lnum_) does not equal Type(_rnum_), throw a *TypeError* exception.</ins>
+        1. <ins>Let _T_ be Type(_lnum_).</ins>
+        1. <ins>If @ is `&amp;`, return _T_::bitwiseAND(_lnum_, _rnum_).</ins>
+        1. <ins>If @ is `|`, return _T_::bitwiseOR(_lnum_, _rnum_).</ins>
+        1. <ins>Otherwise, @ is `^`; return _T_::bitwiseXOR(_lnum_, _rnum_).</ins>
+      </emu-alg>
+    </emu-clause>
+  </emu-clause>
+</emu-clause>
+
+<emu-clause id="sec-bigint-object">
+  <h1>BigInt Objects</h1>
+  <emu-todo>Fill in this section with constructor, statics: parseInt, asUintN, asIntN; methods: toString(), valueOf()</emu-todo>
+</emu-clause>
