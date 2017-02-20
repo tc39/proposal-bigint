@@ -290,7 +290,7 @@ emu-integration-plans:before {
     <emu-clause id="sec-numeric-types-bigint-divide">
       <h1>BigInt::divide (_x_, _y_)</h1>
       <emu-alg>
-        1. If SameValue(_y_, *0n*), throw a *TypeError* exception.
+        1. If SameValue(_y_, *0n*), throw a *RangeError* exception.
         1. Let _quotient_ be the mathematical value of _x_ divided by _y_.
         1. Return a BigInt representing _quotient_ rounded towards 0 to the next integral value.
       </emu-alg>
@@ -336,7 +336,7 @@ emu-integration-plans:before {
       <h1>BigInt::signedRightShift (_x_, _y_)</h1>
       <p>The abstract operation BigInt::signedRightShift with arguments _x_ of BigInt type and _y_ of any type:</p>
       <emu-alg>
-        1. Return ? BigInt::rightShift(_x_, -_y_).
+        1. Return ? BigInt::leftShift(_x_, -_y_).
       </emu-alg>
     </emu-clause>
 
@@ -1427,3 +1427,213 @@ emu-integration-plans:before {
         </emu-alg>
         <emu-issue>The rounding text in step 2.b. is vague. <a href="https://github.com/littledan/proposal-bigint/issues/14">How should it be specified?</a></emu-issue>
       </emu-clause>
+
+<emu-clause id="sec-typedarrays-and-dataview">
+  <h1>TypedArrays and DataViews</h1>
+  BigInt is integrated into TypedArray, DataView, SharedArrayBuffer and Atomics by providing Int64 and Uint64 access as represented by BigInts on the ECMAScript side.
+
+  <emu-clause id="sec-typedarray-objects">
+    <h1>TypedArray Objects</h1>
+    <emu-table id="table-49" caption="The TypedArray Constructors">
+      <table>
+        <tbody>
+        <tr>
+          <th>
+            Constructor Name and Intrinsic
+          </th>
+          <th>
+            Element Type
+          </th>
+          <th>
+            Element Size
+          </th>
+          <th>
+            Conversion Operation
+          </th>
+          <th>
+            Description
+          </th>
+          <th>
+            Equivalent C Type
+          </th>
+        </tr>
+        <tr>
+          <td>
+            <ins>Int64Array</ins>
+            <br>
+            <ins>%Int64Array%</ins>
+          </td>
+          <td>
+            <ins>Int64</ins>
+          </td>
+          <td>
+            <ins>8</ins>
+          </td>
+          <td>
+            <ins>ToInt64</ins>
+          </td>
+          <td>
+            <ins>64-bit 2's complement signed integer</ins>
+          </td>
+          <td>
+            <ins>signed long long</ins>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <ins>Uint64Array</ins>
+            <br>
+            <ins>%Uint64Array%</ins>
+          </td>
+          <td>
+            <ins>Uint64</ins>
+          </td>
+          <td>
+            <ins>1</ins>
+          </td>
+          <td>
+            <ins>ToUint64</ins>
+          </td>
+          <td>
+            <ins>64-bit unsigned integer</ins>
+          </td>
+          <td>
+            <ins>unsigned long long</ins>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </emu-table>
+  </emu-clause>
+  <emu-clause id="sec-to-int64" aoid="ToInt64">
+    <h1>ToInt64 ( _argument_ )</h1>
+    <p>The abstract operation ToInt8 converts _argument_ to one of 2<sup>64</sup> integer values in the range -2<sup>63</sup> through 2<sup>63</sup>-1, inclusive. This abstract operation functions as follows:</p>
+    <emu-alg>
+      1. Let _n_ be ? ToNumeric(_argument_).
+      1. If Type(_n_) is not BigInt, throw a *TypeError*.
+      1. Let _int64bit_ be _n_ modulo 2<sup>8</sup>.
+      1. If _int64bit_ &ge; 2<sup>64</sup>, return _int64bit_ - 2<sup>63</sup>; otherwise return _int64bit_.
+    </emu-alg>
+  </emu-clause>
+
+  <emu-clause id="sec-to-uint64" aoid="ToUint64">
+    <h1>ToUint64 ( _argument_ )</h1>
+    <p>The abstract operation ToInt8 converts _argument_ to one of 2<sup>64</sup> integer values in the range 0 through 2<sup>64</sup>-1, inclusive. This abstract operation functions as follows:</p>
+    <emu-alg>
+      1. Let _n_ be ? ToNumeric(_argument_).
+      1. If Type(_n_) is not BigInt, throw a *TypeError*.
+      1. Let _int64bit_ be _n_ modulo 2<sup>8</sup>.
+      1. Return _int64bit_.
+    </emu-alg>
+  </emu-clause>
+
+      <emu-clause id="sec-rawbytestonumber" aoid="RawBytesToNumber">
+        <h1>RawBytesToNumber( _type_, _rawBytes_, _isLittleEndian_ )</h1>
+        <p>The abstract operation RawBytesToNumber takes three parameters, a String _type_, a List _rawBytes_, and a Boolean _isLittleEndian_. This operation performs the following steps:</p>
+        <emu-alg>
+          1. Let _elementSize_ be the Number value of the Element Size value specified in <emu-xref href="#table-49"></emu-xref> for Element Type _type_.
+          1. If _isLittleEndian_ is *false*, reverse the order of the elements of _rawBytes_.
+          1. If _type_ is `"Float32"`, then
+            1. Let _value_ be the byte elements of _rawBytes_ concatenated and interpreted as a little-endian bit string encoding of an IEEE 754-2008 binary32 value.
+            1. If _value_ is an IEEE 754-2008 binary32 NaN value, return the *NaN* Number value.
+            1. Return the Number value that corresponds to _value_.
+          1. If _type_ is `"Float64"`, then
+            1. Let _value_ be the byte elements of _rawBytes_ concatenated and interpreted as a little-endian bit string encoding of an IEEE 754-2008 binary64 value.
+            1. If _value_ is an IEEE 754-2008 binary64 NaN value, return the *NaN* Number value.
+            1. Return the Number value that corresponds to _value_.
+          1. If the first code unit of _type_ is `"U"`, then
+            1. Let _intValue_ be the byte elements of _rawBytes_ concatenated and interpreted as a bit string encoding of an unsigned little-endian binary number.
+          1. Else,
+            1. Let _intValue_ be the byte elements of _rawBytes_ concatenated and interpreted as a bit string encoding of a binary little-endian 2's complement number of bit length _elementSize_ &times; 8.
+          1. <ins>If _type_ is `"Uint64"` or `"Int64"`, return the BigInt value that corresponds to _intValue_.</ins>
+          1. <ins>Otherwise, </ins>return the Number value that corresponds to _intValue_.
+        </emu-alg>
+      </emu-clause>
+
+      <emu-clause id="sec-numbertorawbytes" aoid="NumberToRawBytes">
+        <h1>NumberToRawBytes( _type_, _value_, _isLittleEndian_ )</h1>
+        <p>The abstract operation NumberToRawBytes takes three parameters, a String _type_, a <ins>BigInt or </ins>Number _value_, and a Boolean _isLittleEndian_. This operation performs the following steps:</p>
+        <emu-alg>
+          1. If _type_ is `"Float32"`, then
+            1. Set _rawBytes_ to a List containing the 4 bytes that are the result of converting _value_ to IEEE 754-2008 binary32 format using &ldquo;Round to nearest, ties to even&rdquo; rounding mode. If _isLittleEndian_ is *false*, the bytes are arranged in big endian order. Otherwise, the bytes are arranged in little endian order. If _value_ is *NaN*, _rawValue_ may be set to any implementation chosen IEEE 754-2008 binary32 format Not-a-Number encoding. An implementation must always choose the same encoding for each implementation distinguishable *NaN* value.
+          1. Else if _type_ is `"Float64"`, then
+            1. Set _rawBytes_ to a List containing the 8 bytes that are the IEEE 754-2008 binary64 format encoding of _value_. If _isLittleEndian_ is *false*, the bytes are arranged in big endian order. Otherwise, the bytes are arranged in little endian order. If _value_ is *NaN*, _rawValue_ may be set to any implementation chosen IEEE 754-2008 binary64 format Not-a-Number encoding. An implementation must always choose the same encoding for each implementation distinguishable *NaN* value.
+          1. Else,
+            1. Let _n_ be the Number value of the Element Size specified in <emu-xref href="#table-49"></emu-xref> for Element Type _type_.
+            1. Let _convOp_ be the abstract operation named in the Conversion Operation column in <emu-xref href="#table-49"></emu-xref> for Element Type _type_.
+            1. Let _intValue_ be _convOp_(_value_) <ins>treated as a mathematical value, whether the result is a BigInt or Number</ins>.
+            1. If _intValue_ &ge; 0, then
+              1. Let _rawBytes_ be a List containing the _n_-byte binary encoding of _intValue_. If _isLittleEndian_ is *false*, the bytes are ordered in big endian order. Otherwise, the bytes are ordered in little endian order.
+            1. Else,
+              1. Let _rawBytes_ be a List containing the _n_-byte binary 2's complement encoding of _intValue_. If _isLittleEndian_ is *false*, the bytes are ordered in big endian order. Otherwise, the bytes are ordered in little endian order.
+          1. Return _rawBytes_.
+        </emu-alg>
+      </emu-clause>
+
+      <!-- es6num="9.4.5.9" -->
+      <emu-clause id="sec-integerindexedelementset" aoid="IntegerIndexedElementSet">
+        <h1>IntegerIndexedElementSet ( _O_, _index_, _value_ )</h1>
+        <p>The abstract operation IntegerIndexedElementSet with arguments _O_, _index_, and _value_ performs the following steps:</p>
+        <emu-alg>
+          1. Assert: Type(_index_) is Number.
+          1. Assert: _O_ is an Object that has [[ViewedArrayBuffer]], [[ArrayLength]], [[ByteOffset]], and [[TypedArrayName]] internal slots.
+          1. Let _arrayTypeName_ be the String value of _O_.[[TypedArrayName]].
+          1. Let _elementType_ be the String value of the Element Type value in <emu-xref href="#table-49"></emu-xref> for _arrayTypeName_.
+          1. Let _numValue_ be ? <del>ToNumber</del><ins>ToNumeric</ins>(_value_).
+          1. <ins>If _elementType_ is `"Int64"` or `"Uint64"`,</ins>
+            1. <ins>If Type(_numValue_) is not BigInt, throw a *TypeError*.</ins>
+          1. <ins>Otherwise, if Type(_numValue_) is not Number, throw a *TypeError*.</ins>
+          1. Let _buffer_ be _O_.[[ViewedArrayBuffer]].
+          1. If IsDetachedBuffer(_buffer_) is *true*, throw a *TypeError* exception.
+          1. If IsInteger(_index_) is *false*, return *false*.
+          1. If _index_ = *-0*, return *false*.
+          1. Let _length_ be _O_.[[ArrayLength]].
+          1. If _index_ &lt; 0 or _index_ &ge; _length_, return *false*.
+          1. Let _offset_ be _O_.[[ByteOffset]].
+          1. Let _elementSize_ be the Number value of the Element Size value specified in <emu-xref href="#table-49"></emu-xref> for _arrayTypeName_.
+          1. Let _indexedPosition_ be (_index_ &times; _elementSize_) + _offset_.
+          1. Perform SetValueInBuffer(_buffer_, _indexedPosition_, _elementType_, _numValue_, *true*, `"Unordered"`).
+          1. Return *true*.
+        </emu-alg>
+        <emu-integration-plans>Several other functions and abstract algorithms need similar treatment; for example, SetViewValue and Atomics.store. Other places in the specification need changes to their assertions, such as the assertion in SetValueInBuffer that the _value_ is passed is a Number (instead, the assertion should assert BigInt for Int64/Uint64Array).</emu-integration-plans>
+      </emu-clause>
+
+      <emu-clause id="sec-dataview.prototype.getint64">
+        <h1>DataView.prototype.getInt64 ( _byteOffset_ [ , _littleEndian_ ] )</h1>
+        <p>When the `getInt64` method is called with argument _byteOffset_ and optional argument _littleEndian_, the following steps are taken:</p>
+        <emu-alg>
+          1. Let _v_ be the *this* value.
+          1. If _littleEndian_ is not present, let _littleEndian_ be *undefined*.
+          1. Return ? GetViewValue(_v_, _byteOffset_, _littleEndian_, `"Int64"`).
+        </emu-alg>
+      </emu-clause>
+
+      <emu-clause id="sec-dataview.prototype.getuint64">
+        <h1>DataView.prototype.getUint64 ( _byteOffset_ [ , _littleEndian_ ] )</h1>
+        <p>When the `getUint64` method is called with argument _byteOffset_ and optional argument _littleEndian_, the following steps are taken:</p>
+        <emu-alg>
+          1. Let _v_ be the *this* value.
+          1. If _littleEndian_ is not present, let _littleEndian_ be *undefined*.
+          1. Return ? GetViewValue(_v_, _byteOffset_, _littleEndian_, `"Uint64"`).
+        </emu-alg>
+      </emu-clause>
+
+      <emu-clause id="sec-dataview.prototype.setint64">
+        <h1>DataView.prototype.setInt64 ( _byteOffset_, _value_ )</h1>
+        <p>When the `setInt8` method is called with arguments _byteOffset_ and _value_, the following steps are taken:</p>
+        <emu-alg>
+          1. Let _v_ be the *this* value.
+          1. Return ? SetViewValue(_v_, _byteOffset_, *true*, `"Int64"`, _value_).
+        </emu-alg>
+      </emu-clause>
+
+      <emu-clause id="sec-dataview.prototype.setuint64">
+        <h1>DataView.prototype.setUint64 ( _byteOffset_, _value_ )</h1>
+        <p>When the `setInt8` method is called with arguments _byteOffset_ and _value_, the following steps are taken:</p>
+        <emu-alg>
+          1. Let _v_ be the *this* value.
+          1. Return ? SetViewValue(_v_, _byteOffset_, *true*, `"Uint64"`, _value_).
+        </emu-alg>
+      </emu-clause>
+
+</emu-clause>
