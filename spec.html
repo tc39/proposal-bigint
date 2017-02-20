@@ -635,7 +635,7 @@ emu-integration-plans:before {
               BigInt
             </td>
             <td>
-              Return a new Int64 object whose [[BigIntData]] internal slot is set to _argument_. See <emu-xref href="#sec-bigint-objects"></emu-xref> for a description of Int64 objects.
+              Return a new BigInt object whose [[BigIntData]] internal slot is set to _argument_. See <emu-xref href="#sec-bigint-objects"></emu-xref> for a description of BigInt objects.
             </td>
           </tr>
           </tbody>
@@ -647,7 +647,7 @@ emu-integration-plans:before {
       <h1>ToNumeric ( _value_ )</h1>
       <p>The abstract operation ToNumeric returns _value_ converted to a numeric value of type Numberor BigInt. This abstract operation functions as follows:</p>
       <emu-alg>
-        1. Let _primValue_ be ? ToPrimitive(_value_).
+        1. Let _primValue_ be ? ToPrimitive(_value_, hint Number).
         1. If Type(_value_) is BigInt, return _value_.
         1. Return ToNumber(_value_).
       </emu-alg>
