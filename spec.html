@@ -144,6 +144,7 @@ emu-integration-plans:before {
         </td>
         <td>
           A specification function invoked when applying the truncating remainder ("mod") operator. Called by the semantics of the <emu-xref href="#sec-applying-the-mod-operator">`%` operator</emu-xref> for `x % y`.
+          <emu-todo>Revist this name, as Number::remainder explicitly doesn't do the IEEE 754 remainder operation.</emu-todo>
         </td>
       </tr>
       <tr>
@@ -304,6 +305,7 @@ emu-integration-plans:before {
         1. If _y_ is `0n`, throw a *RangeError* exception.
         1. Return the BigInt representing <emu-eqn>_x_ modulo _y_</emu-eqn>.
       </emu-alg>
+      <emu-todo>Revisit/double-check the specification of these semantics--the result here should be analogous to Number::remainder with respect to sign.</emu-todo>
     </emu-clause>
 
     <emu-clause id="sec-numeric-types-bigint-add">
@@ -1214,5 +1216,213 @@ emu-integration-plans:before {
 
 <emu-clause id="sec-bigint-object">
   <h1>BigInt Objects</h1>
-  <emu-todo>Fill in this section with constructor, statics: parseInt, asUintN, asIntN; methods: toString(), valueOf()</emu-todo>
+    <emu-clause id="sec-bigint-constructor">
+      <h1>The BigInt Constructor</h1>
+      <p>The BigInt constructor is the <dfn>%BigInt%</dfn> intrinsic object and the initial value of the `BigInt` property of the global object. When `BigInt` is called as a function, it performs a type conversion.</p>
+
+      <emu-clause id="sec-bigint-constructor-number-value">
+        <h1>BigInt ( _value_ )</h1>
+        <p>When `BigInt` is called with argument _value_, the following steps are taken:</p>
+        <emu-alg>
+          1. If NewTarget is not *undefined*, throw a *TypeError* exception.
+          1. Let _prim_ be ? ToPrimitive(_value_).
+          1. Return the value that _prim_ correspond to in <emu-xref href="#table-to-bigint"></emu-xref>
+        </emu-alg>
+        <emu-issue>BigInt wrapped objects cannot be created using `new` on BigInt due to the throw in line 1; they can be created explicitly with `Object()` however. This follows a precedent from SIMD.js. <a href="https://github.com/littledan/proposal-bigint/issues/13">An open issue</a> discusses whether this is appropriate.</emu-issue>
+        <emu-table id="table-to-bigint" caption="BigInt Conversions">
+        <table>
+          <tbody>
+          <tr>
+            <th>
+              Argument Type
+            </th>
+            <th>
+              Result
+            </th>
+          </tr>
+          <tr>
+            <td>
+              Undefined
+            </td>
+            <td>
+              Throw a *TypeError* exception.
+              <emu-issue>Alternatively, we could return `0n` here and several of the below cases; see <a href="https://github.com/littledan/proposal-bigint/issues/15">this issue</a> for discussion</a>.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Null
+            </td>
+            <td>
+              Throw a *TypeError* exception.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Boolean
+            </td>
+            <td>
+              Return `1n` if _prim_ is *true* and `0n` if _prim_ is *false*.
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Number
+            </td>
+            <td>
+              Round the _prim_ to the appropriate BigInt and return the result.
+              <emu-issue>Rounding rules still <a href="https://github.com/littledan/proposal-bigint/issues/14">under discussion.</a></emu-issue>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              String
+            </td>
+            <td>
+              Apply the algorithm in <emu-xref href="#sec-tonumber-applied-to-the-string-type"></emu-xref> with the following changes:
+              <ul>
+                <li>If the grammar fails to apply, throw a *SyntaxError* rather than returning *NaN*.</li>
+                <li>Replace the |StrDecimalLiteral| production with |DecimalDigits| to not allow decimal points or exponents.</li>
+                <li>Return the BigInt which exactly corresponds to the MV, rather than rounding to a Number.</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Symbol
+            </td>
+            <td>
+              Throw a *TypeError* exception.
+            </td>
+          </tr>
+          </tbody>
+        </table>
+        </emu-table>
+      </emu-clause>
+    </emu-clause>
+
+    <emu-clause id="sec-properties-of-the-bigint-constructor">
+      <h1>Properties of the BigInt Constructor</h1>
+      <p>The value of the [[Prototype]] internal slot of the BigInt constructor is the intrinsic object %FunctionPrototype%.</p>
+      <p>The BigInt constructor has the following properties:</p>
+
+      <emu-clause id="sec-parseint-string-radix">
+        <h1>parseInt ( _string_, _radix_ )</h1>
+        <p>The `parseInt` function produces a BigInt value dictated by interpretation of the contents of the _string_ argument according to the specified _radix_.</p>
+        <p>The algorithm is the same as <emu-xref href="#sec-parseint-string-radix"></emu-xref> but with the following edits:</p>
+        <ul>
+          <li>For all cases which result in returning *NaN*, throw a *SyntaxError* exception.</li>
+          <li>For all cases which result in returning *-0*, return `0n`.</li>
+          <li>Replace the second to last step, which casts _mathInt_ to a Number, with casting _mathInt_ to a BigInt.</li>
+        </ul>
+      </emu-clause>
+
+      <!-- es6num="20.1.2.2" -->
+      <emu-clause id="sec-number.asuintn">
+        <h1>BigInt.asUintN ( _bigint_, _bits_ )</h1>
+        <p>When the `BigInt.asUintN` is called with two argument _bigint_ and _bits_, the following steps are taken:</p>
+        <emu-alg>
+          1. If Type(_bigint_) is not _bigInt_, return *false*.
+          1. Let _bits_ be ? ToIndex(_bits_).
+          1. Return a BigInt representing _bigint_ modulo 2<sup>_bits_</sup>.
+        </emu-alg>
+        <emu-todo>Finish description</emu-todo>
+      </emu-clause>
+
+      <!-- es6num="20.1.2.3" -->
+      <emu-clause id="sec-number.asintn">
+        <h1>Number.asIntN ( _bigint_, _bits_ )</h1>
+        <p>When the `BigInt.asIntN` is called with two argument _bigint_ and _bits_, the following steps are taken:</p>
+        <emu-alg>
+          1. If Type(_bigint_) is not _bigInt_, return *false*.
+          1. Let _bits_ be ? ToIndex(_bits_).
+          1. Let _mod_ be a BigInt representing _bigint_ modulo 2<sup>_bits_</sup>.
+          1. If _mod_ &ge; 2<sup>_bits_ - 1</sup>, return _mod_ - 2<sup>_bits_</sup>; otherwise, return _mod_.
+        </emu-alg>
+        <emu-todo>Finish description</emu-todo>
+      </emu-clause>
+
+      <emu-clause id="sec-bigint.prototype">
+        <h1>BigInt.prototype</h1>
+        <p>The initial value of `BigInt.prototype` is the intrinsic object %BigIntPrototype%.</p>
+        <p>This property has the attributes { [[Writable]]: *false*, [[Enumerable]]: *false*, [[Configurable]]: *false* }.</p>
+      </emu-clause>
+    </emu-clause>
+
+    <emu-clause id="sec-properties-of-the-bigint-prototype-object">
+      <h1>Properties of the BigInt Prototype Object</h1>
+      <p>The BigInt prototype object is the intrinsic object <dfn>%BigIntPrototype%</dfn>. The BigInt prototype object is an ordinary object. The Number prototype is not a BigInt object; it does not have a [[BigIntData]] internal slot.</p>
+      <p>The value of the [[Prototype]] internal slot of the BigInt prototype object is the intrinsic object %ObjectPrototype%.</p>
+      <p>The abstract operation thisBigIntValue(_value_) performs the following steps:</p>
+      <emu-alg>
+        1. If Type(_value_) is BigInt, return _value_.
+        1. If Type(_value_) is Object and _value_ has a [[BigIntData]] internal slot, then
+          1. Assert: _value_.[[BigIntData]] is a Number value.
+          1. Return _value_.[[BigIntData]].
+        1. Throw a *TypeError* exception.
+      </emu-alg>
+      <p>The phrase &ldquo;this BigInt value&rdquo; within the specification of a method refers to the result returned by calling the abstract operation thisNumberValue with the *this* value of the method invocation passed as the argument.</p>
+
+      <!-- es6num="20.1.3.1" -->
+      <emu-clause id="sec-bigint.prototype.constructor">
+        <h1>BigInt.prototype.constructor</h1>
+        <p>The initial value of `BigInt.prototype.constructor` is the intrinsic object %BigInt%.</p>
+      </emu-clause>
+
+      <!-- es6num="20.1.3.4" -->
+      <emu-clause id="sec-number.prototype.tolocalestring">
+        <h1>Number.prototype.toLocaleString ( [ _reserved1_ [ , _reserved2_ ] ] )</h1>
+        <p>An ECMAScript implementation that includes the ECMA-402 Internationalization API must implement the `BigInt.prototype.toLocaleString` method as specified in the ECMA-402 specification. If an ECMAScript implementation does not include the ECMA-402 API the following specification of the `toLocaleString` method is used.</p>
+        <p>Produces a String value that represents this BigInt value formatted according to the conventions of the host environment's current locale. This function is implementation-dependent, and it is permissible, but not encouraged, for it to return the same thing as `toString`.</p>
+        <p>The meanings of the optional parameters to this method are defined in the ECMA-402 specification; implementations that do not include ECMA-402 support must not use those parameter positions for anything else.</p>
+        <emu-issue>It's not clear if existing platform internationalization libraries support formatting arbitrary precision integers. <a href="https://github.com/littledan/proposal-bigint/issues/16">Should we include this method, given that?</a></emu-issue>
+      </emu-clause>
+
+      <!-- es6num="20.1.3.6" -->
+      <emu-clause id="sec-bigint.prototype.tostring">
+        <h1>BigInt.prototype.toString ( [ _radix_ ] )</h1>
+        <emu-note>
+          <p>The optional _radix_ should be an integer value in the inclusive range 2 to 36. If _radix_ not present or is *undefined* the Number 10 is used as the value of _radix_.</p>
+        </emu-note>
+        <p>The following steps are performed:</p>
+        <emu-alg>
+          1. Let _x_ be ? thisBigIntValue(*this* value).
+          1. If _radix_ is not present, let _radixNumber_ be 10.
+          1. Else if _radix_ is *undefined*, let _radixNumber_ be 10.
+          1. Else, let _radixNumber_ be ? ToInteger(_radix_).
+          1. If _radixNumber_ &lt; 2 or _radixNumber_ &gt; 36, throw a *RangeError* exception.
+          1. If _radixNumber_ = 10, return ! ToString(_x_).
+          1. Return the String representation of this Number value using the radix specified by _radixNumber_. Letters `a`-`z` are used for digits with values 10 through 35. The precise algorithm is implementation-dependent, however the algorithm should be a generalization of that specified in <emu-xref href="#sec-tostring-applied-to-the-bigint-type"></emu-xref>.
+        </emu-alg>
+        <p>The `toString` function is not generic; it throws a *TypeError* exception if its *this* value is not a Number or a Number object. Therefore, it cannot be transferred to other kinds of objects for use as a method.</p>
+        <p>The `length` property of the `toString` method is 1.</p>
+      </emu-clause>
+
+      <!-- es6num="20.1.3.7" -->
+      <emu-clause id="sec-bigint.prototype.valueof">
+        <h1>BigInt.prototype.valueOf ( )</h1>
+        <emu-alg>
+          1. Return ? thisBigIntValue(*this* value).
+        </emu-alg>
+      </emu-clause>
+    </emu-clause>
+  </emu-clause>
 </emu-clause>
+
+      <!-- es6num="20.1.1.1" -->
+      <emu-clause id="sec-number-constructor-number-value">
+        <h1>Number ( _value_ )</h1>
+        <p>When `Number` is called with argument _number_, the following steps are taken:</p>
+        <emu-alg>
+          1. If no arguments were passed to this function invocation, let _n_ be *+0*.
+          1. Else,
+            1. Let _prim_ be ? ToPrimitive(_value_).
+            1. If Type(_prim_) is BigInt, let _n_ be _value_ rounded to the appropriate Number.
+            1. Otherwise, let _n_ be ? ToNumber(_value_).
+          1. If NewTarget is *undefined*, return _n_.
+          1. Let _O_ be ? OrdinaryCreateFromConstructor(NewTarget, `"%NumberPrototype%"`, &laquo; [[NumberData]] &raquo;).
+          1. Set _O_.[[NumberData]] to _n_.
+          1. Return _O_.
+        </emu-alg>
+        <emu-issue>The rounding text in step 2.b. is vague. <a href="https://github.com/littledan/proposal-bigint/issues/14">How should it be specified?</a></emu-issue>
+      </emu-clause>
