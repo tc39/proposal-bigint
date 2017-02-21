@@ -8,8 +8,6 @@ location: https://github.com/littledan/proposal-bigint
 copyright: false
 contributors: Daniel Ehrenberg, Brendan Eich
 </pre>
-<script src="ecmarkup.js" defer></script>
-<link rel="stylesheet" href="ecmarkup.css">
 <style>
 emu-issue, emu-todo, emu-motivation, emu-my-example, emu-integration-plans {
     margin: 1em 0;
@@ -80,7 +78,8 @@ emu-integration-plans:before {
 <p>This proposal adds arbitrary-precision integers to ECMAScript. For motivation and a high-level introduction, see <a href="https://github.com/littledan/proposal-bigint/blob/master/README.md">the explainer document</a>.</p>
 
 <emu-integration-plans>
-  I attempted to write this specification draft with an eye towards intelligiblity and clarifying issues, rather than looking exactly like the final specification. In particular, the translation of the operations on the Number type into the new form are omitted, as they are identical to the previous definitions and would be expressed only as a lengthy refactoring to skip when reading this text. If anyone finds this confusing, please <a href="https://github.com/littledan/proposal-bigint/issues/new">file an issue</a>.
+  <p>I attempted to write this specification draft with an eye towards intelligiblity and clarifying issues, rather than looking exactly like the final specification. In particular, the translation of the operations on the Number type into the new form are omitted, as they are identical to the previous definitions and would be expressed only as a lengthy refactoring to skip when reading this text.</p>
+  <p>If you find any part of this specification unclear or confusing, please <a href="https://github.com/littledan/proposal-bigint/issues/new">file an issue</a>.</p>
 </emu-integration-plans>
 </emu-intro>
 <emu-clause id="sec-numeric-types">
@@ -632,10 +631,10 @@ emu-integration-plans:before {
           </tr>
           <tr>
             <td>
-              BigInt
+              <ins>BigInt</ins>
             </td>
             <td>
-              Return a new BigInt object whose [[BigIntData]] internal slot is set to _argument_. See <emu-xref href="#sec-bigint-objects"></emu-xref> for a description of BigInt objects.
+              <ins>Return a new BigInt object whose [[BigIntData]] internal slot is set to _argument_. See <a href="#sec-bigint-objects">BigInt Objects</a> for a description of BigInt objects.</ins>
             </td>
           </tr>
           </tbody>
