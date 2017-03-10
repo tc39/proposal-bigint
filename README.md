@@ -1,4 +1,4 @@
-# BigInt: Arbitrary precision integers in JavaScript
+# Integer: Arbitrary precision integers in JavaScript
 
 Daniel Ehrenberg, Igalia. Stage 1 (?)
 
@@ -9,7 +9,7 @@ Thanks for help and feedback on this effort from Brendan Eich, Waldemar Horwat, 
 Find the nth prime:
 
 ```js
-// Takes a BigInt as an argument and returns a BigInt
+// Takes an Integer as an argument and returns an Integer
 function nthPrime(nth) {
   function isPrime(p) {
     for (let i = 2n; i < p; i++) {
@@ -30,7 +30,7 @@ Read and add two unsigned 64-bit integers in asm.js on the heap:
 ```js
 function add64(stdlib, buffer, aIndex, bIndex) {
   "use asm";
-  var cast = stdlib.BigInt.asUintN;
+  var cast = stdlib.Integer.asUintN;
   var values = new stdlib.Uint64Array(buffer);
   aIndex = aIndex|0;
   bIndex = bIndex|0;
@@ -51,65 +51,65 @@ In many cases in JavaScript coding, integers larger than 2<sup>53</sup> come up,
   - Accurate timestamps
 - Bigger than 64-bit int cases
   - Cryptography calculations implemented directly
-  - Basis for implementing BigDecimal; perhaps some applications would be happy with fixpoint calculations based on a BigInt
+  - Basis for implementing BigDecimal; perhaps some applications would be happy with fixpoint calculations based on an Integer
   - Any mathematical calculation with larger integers, e.g., solving Project Euler problems
 
-This proposal provides a new, second primitive numeric type, `BigInt`, to meet those use cases.
+This proposal provides a new, second primitive numeric type, `Integer`, to meet those use cases.
 
 ## API outline
 
-BigInts are a new numerical type supporting literals (`1234n`) and arithmetic with operator overloading (`1n + 2n` makes `3n`).
+Integer is a new numerical type supporting literals (`1234n`) and arithmetic with operator overloading (`1n + 2n` makes `3n`).
 
 ### Literals, operators and their meanings
 
-BigInts are, logically, arbitrary mathematic integers, with operator definitions which fall out naturally:
-- Binary `+`, `-`, `*` and `**` find their mathematical answer when applied to two BigInts
+Integers are, logically, arbitrary mathematic integers, with operator definitions which fall out naturally:
+- Binary `+`, `-`, `*` and `**` find their mathematical answer when applied to two Integers
 - `/` and `%` round towards 0
 - Bitwise operations `|`, `&`, `<<`, `>>`, `^` operate logically
   - Negative numbers to be interpreted as infinite-length two's complement.
-- When applied to two BigInts, comparison operators `==`, `===`, `<`, `>`, `>=`, and `<=` perform a logical comparson
+- When applied to two Integers, comparison operators `==`, `===`, `<`, `>`, `>=`, and `<=` perform a logical comparson
 - Missing operators
-  - `>>>` is not supported, as all BigInts are signed; to get an unsigned shift, pass in a positive BigInt to `>>`
-  - Unary `+` is unsupported on BigInts due to asm.js requirements; details explained below
+  - `>>>` is not supported, as all Integers are signed; to get an unsigned shift, pass in a positive Integer to `>>`
+  - Unary `+` is unsupported on Integers due to asm.js requirements; details explained below
 - In a conditional, `if (0n)` executes the `else` branch.
 
-### The BigInt constructor
+### The Integer constructor
 
-BigInts are a primitive type, and `BigInt` forms a constructor which can be used analogously to `Number`--to convert various types to BigInt values, as well as to be an object wrapper for BigInt values when used with property access.
+Integer is a primitive type, and `Integer` forms a constructor which can be used analogously to `Number`--to convert various types to Integer values, as well as to be an object wrapper for Integer values when used with property access.
 
-When called as a function, it is similar to the `Number` constructor: It converts strings, Numbers, etc into BigInts.
+When called as a function, it is similar to the `Number` constructor: It converts strings, Numbers, etc into Integers.
 
 #### Library functions
 
-- `BigInt.asUintN(BigInt, width)`: Wrap a BigInt between 0 and 2<sup>width</sup>-1
-- `BigInt.asIntN(BigInt, width)`: Wrap a BigInt between -2<sup>width-1</sup> and 2<sup>width-1</sup>-1
-- `BigInt.parseInt(string[, radix])`: Analogous to `Number.parseInt`, to parse a BigNum from a String in any base.
+- `Integer.asUintN(Integer, width)`: Wrap an Integer between 0 and 2<sup>width</sup>-1
+- `Integer.asIntN(Integer, width)`: Wrap an Integer between -2<sup>width-1</sup> and 2<sup>width-1</sup>-1
+- `Integer.parseInt(string[, radix])`: Analogous to `Number.parseInt`, to parse an Integer from a String in any base.
 
 ### TypedArrays and DataViews
 
-BigInts give JavaScript the ability to accurately represent 64-bit signed and unsigned integers:
-- Uint64Array and Int64Array, whose elements read from property access are BigInts
-- DataView.prototype.getInt64/getUint64, returning a BigInt
+Integers give JavaScript the ability to accurately represent 64-bit signed and unsigned integers:
+- Uint64Array and Int64Array, whose elements read from property access are Integers
+- DataView.prototype.getInt64/getUint64, returning an Integer
 
-Similarly, BigInts may be used by the WebAssembly FFI for 64-bit arguments and return values to functions.
+Similarly, Integers may be used by the WebAssembly FFI for 64-bit arguments and return values to functions.
 
 ### No implicit conversions or mixed operands
 
-A key design decision is to disallow mixed operations between BigInts and Numbers. The driving factor: Any implicit coercions would lose information.
+A key design decision is to disallow mixed operations between Integers and Numbers. The driving factor: Any implicit coercions would lose information.
 
-When adding two values of different numeric types, between large integers and floating point numbers, the mathematical value of the result may be outside of the domain of either. For example, `(2n\*\*53n + 1n) + 0.5` has a value which cannot be accurately represented in either range. Floating point arithmetic is not the exact mathematical value, but at least it is well-defined by IEEE 754. The entire aim of introducing BigInt is, on the other hand, to make a way to preserve integer precision of larger values.
+When adding two values of different numeric types, between large integers and floating point numbers, the mathematical value of the result may be outside of the domain of either. For example, `(2n\*\*53n + 1n) + 0.5` has a value which cannot be accurately represented in either range. Floating point arithmetic is not the exact mathematical value, but at least it is well-defined by IEEE 754. The entire aim of introducing Integer is, on the other hand, to make a way to preserve integer precision of larger values.
 
 Many (all?) other dynamically typed programming languages which have multiple numeric types implement a *numeric tower*. This forms an ordering between types--on the built-in numeric types, when an operator is used with operands from two types, the greater type is chosen as the domain, and the "less general" operand is cast to the "more general" type. Unfortunately, as the previous example shows, there is no "more general" type between arbitrary integers and double-precision floats. The typical resolution, then, is to take floats as the "more general" type.
 
 Silently losing precision sometimes may be a problem, but in most dynamically typed programming languages which provide integers and floats, integers are written like `1` and floats are written like `1.0`. It's possible to scan code for operations which may introduce floating point precision by looking for a decimal point. JavaScript exacerbates the scope of losing precision by making the unfortunate decision that a simple literal like `1` is a float. So, if mixed-precision were allowed, an innocent calculation such as `2n ** 53n + 1` would produce the float `2**53`--defeating the core functionality of this feature.
 
-To avoid this problem, this proposal bans implicit coercions between Numbers and BigInts, including operations which are mixed type. `1n + 1` throws a TypeError. So does passing `1n` as an argument into any JavaScript standard library function or Web API which expects a Number. Instead, to convert between types, an explicit call to `Number()` or `BigInt()` needs to be made to decide which domain to operate in. `0 === 0n` returns `false`, and `0 == 0n` and `0 < 0n` throw a `TypeError`.
+To avoid this problem, this proposal bans implicit coercions between Numbers and Integers, including operations which are mixed type. `1n + 1` throws a TypeError. So does passing `1n` as an argument into any JavaScript standard library function or Web API which expects a Number. Instead, to convert between types, an explicit call to `Number()` or `Integer()` needs to be made to decide which domain to operate in. `0 === 0n` returns `false`, and `0 == 0n` and `0 < 0n` throw a `TypeError`.
 
 ## Design goals
 
 ### Don't break user intuition
 
-When a messy situation comes up, the this proposal errs on the side of throwing an exception rather than silently giving a bad answer. This is what's behind throwing a TypeError on adding a BigInt and a Number: If we don't have a good answer, better to not give one.
+When a messy situation comes up, the this proposal errs on the side of throwing an exception rather than silently giving a bad answer. This is what's behind throwing a TypeError on adding an Integer and a Number: If we don't have a good answer, better to not give one.
 
 ### Don't break math
 
@@ -118,27 +118,27 @@ The semantics of all operators should ideally be based on some mathematical firs
 ### Don't break asm.js
 
 Although this proposal introduces operator overloading, it throws in any of the cases that asm.js depends on for setting up type checking. asm.js relies on a few identies:
-- Unary `+` followed by an expression is always either a Number, or results in throwing. For this reason, unfortunately, `+` on a BigInt needs to throw, rather than being symmetrical with `+` on Number: Otherwise, previosly "type-declared" asm.js code would now be polymorphic.
-- `|0` always returns a Number in int32 range, or throws. This proposal maintains that, as it would throw on a BigInt for being a mixed operand type.
-- `>>> 0` always returns a Number in uint32 range, throwing as `>>>` is not supported on BigInts at all.
-- `Math.fround` always returns a Number in float32 range, or throws. This proposal would throw if `Math.fround` is called with a BigInt, preserving the property.
+- Unary `+` followed by an expression is always either a Number, or results in throwing. For this reason, unfortunately, `+` on an Integer needs to throw, rather than being symmetrical with `+` on Number: Otherwise, previosly "type-declared" asm.js code would now be polymorphic.
+- `|0` always returns a Number in int32 range, or throws. This proposal maintains that, as it would throw on an Integer for being a mixed operand type.
+- `>>> 0` always returns a Number in uint32 range, throwing as `>>>` is not supported on Integer at all.
+- `Math.fround` always returns a Number in float32 range, or throws. This proposal would throw if `Math.fround` is called with an Integer, preserving the property.
 
-This proposal makes special allowances to make BigInts usable in asm.js code to build support for 64-bit integers, by including the standard library functions `BigInt.asUintN` and `BigInt.asIntN` as well as `Uint64Array` and `Int64Array`.
+This proposal makes special allowances to make Integers usable in asm.js code to build support for 64-bit integers, by including the standard library functions `Integer.asUintN` and `Integer.asIntN` as well as `Uint64Array` and `Int64Array`.
 
 ### Don't break potential future value types extensions
 
 - Should pave the cowpath to value types, as previously discussed, in conjunction with the work done on SIMD.js.
- - BigInts are a new primitive type, and have associated wrappers, as do the other primitives, and SIMD.js, and as value types would get.
- - Operator overloading on value types may follow a similar pattern of requiring uniform argument types; this avoids the very difficult proposition of double dispatch. By not supporting mixed operands, BigInt gets no superpowers which would be very difficult to generalize.
+ - Integers are a new primitive type, and have associated wrappers, as do the other primitives, and SIMD.js, and as value types would get.
+ - Operator overloading on value types may follow a similar pattern of requiring uniform argument types; this avoids the very difficult proposition of double dispatch. By not supporting mixed operands, Integer gets no superpowers which would be very difficult to generalize.
 - `L` has been proposed as a literal suffix for positive Int64 values. This proposal uses `n` to leave that space free for later (bikeshedding welcome!).
 
 ### Don't break JavaScript ergonomics
 
-This proposal comes with built-in operator overloading in order to not make BigInts too ugly to be usable. One particular hazard, if BigInts were to be operated on with static methods, is that users may convert the BigInt into a Number in order to use the `+` operator on it--this would work most of the time, just not with big enough values, so it might pass tests. By including operator overloading, it would be even shorter code to add the BigInts properly than to convert them to Numbers, which minimizes the chance of this bug.
+This proposal comes with built-in operator overloading in order to not make Integers too ugly to be usable. One particular hazard, if Integers were to be operated on with static methods, is that users may convert the Integer into a Number in order to use the `+` operator on it--this would work most of the time, just not with big enough values, so it might pass tests. By including operator overloading, it would be even shorter code to add the Integers properly than to convert them to Numbers, which minimizes the chance of this bug.
 
 ### Don't break a consistent model of JavaScript
 
-This proposal adds a new primitive type with wrappers, similar to Symbol. As part of integrating BigInts into the JavaScript specification, a high amount of rigor will be required to differentiate three types floating around in the specification: Mathematical values, BigInts and Numbers.
+This proposal adds a new primitive type with wrappers, similar to Symbol. As part of integrating Integers into the JavaScript specification, a high amount of rigor will be required to differentiate three types floating around in the specification: Mathematical values, Integers and Numbers.
 
 ### Don't break the web
 
@@ -152,7 +152,7 @@ Design work here is being done in conjunction with planned prototyping in V8; th
 
 ### Mixed comparison operators
 
-It would be mathematically well-defined to allow comparison operators such as `<` and `==` compare between Numbers and BigInts. Unlike operators like `+`, there is no loss of precision, since the output is just a Boolean.
+It would be mathematically well-defined to allow comparison operators such as `<` and `==` compare between Numbers and Integers. Unlike operators like `+`, there is no loss of precision, since the output is just a Boolean.
 
 A couple arguments for why we should throw on `0 < 0n` and `0 == 0n`:
 - It's more straightforward to imagine how single-dispatch, matching-only operator overloading could be generalized to user-defined types and objects, whereas multiple dispatch is more difficult.
@@ -163,13 +163,13 @@ With "MVP" as a tiebreaker, this proposal starts with banning mixed operations.
 
 ### Semantics of bitwise operations
 
-Here, we build on JavaScript already being based around two's complement semantics to extend binary operations on BigInts to infinite two's complement semantics. However, it's not clear whether this is the most efficiently implementable thing; more investigation has to be done to ensure that this choice doesn't put us in an unnecessarily bad spot performance-wise.
+Here, we build on JavaScript already being based around two's complement semantics to extend binary operations on Integers to infinite two's complement semantics. However, it's not clear whether this is the most efficiently implementable thing; more investigation has to be done to ensure that this choice doesn't put us in an unnecessarily bad spot performance-wise.
 
 ### Bikeshedding
 
 This proposal uses `n` as the literal suffix; `N`, `I`, `L` and `l` are some other proposed alternatives.
 
-This proposal calls the class `BigInt`; other proposed alternatives are `Integer` and `BigNum`.
+This proposal calls the class `Integer`; other proposed alternatives are `BigInt` and `BigNum`.
 
 The names of the wraparound utility functions are long. Is there a shorter one that would work well?
 
@@ -177,7 +177,7 @@ The names of the wraparound utility functions are long. Is there a shorter one t
 
 ### Int64/Uint64
 
-Brendan Eich previously proposed two types--signed and unsigned Int64/Uint64, for JavaScript. These meet many of the concrete use cases for BigInts. One claim is that they may provide more predictable performance; however, my understanding is that, if the appropriate casting operator (e.g., `BigInt.asUintN`) is used everywhere, an implementation like V8 is expected provide the same performance for BigInt as it would for an Int64 type. The risks of this approach are that the performance won't pan out without harder-to-remove cliffs, or that the ergonomics will be too bad for performance-sensitive code--we'll watch for these risks as the prototype advances.
+Brendan Eich previously proposed two types--signed and unsigned Int64/Uint64, for JavaScript. These meet many of the concrete use cases for Integers. One claim is that they may provide more predictable performance; however, my understanding is that, if the appropriate casting operator (e.g., `Integer.asUintN`) is used everywhere, an implementation like V8 is expected provide the same performance for Integer as it would for an Int64 type. The risks of this approach are that the performance won't pan out without harder-to-remove cliffs, or that the ergonomics will be too bad for performance-sensitive code--we'll watch for these risks as the prototype advances.
 
 ### Allowing mixed operands
 
@@ -204,4 +204,4 @@ In the course of development of ES2015, the proposal to add 64-bit integers was 
 
 ## Implementation status
 
-V8 is interested in implementing BigInt as soon as the major semantics are worked out.
+V8 is interested in implementing Integer as soon as the major semantics are worked out.
