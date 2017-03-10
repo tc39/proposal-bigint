@@ -66,10 +66,10 @@ Integers are, logically, arbitrary mathematic integers, with operator definition
 - Binary `+`, `-`, `*` and `**` find their mathematical answer when applied to two Integers
 - `/` and `%` round towards 0
 - Bitwise operations `|`, `&`, `<<`, `>>`, `^` operate logically
-  - Negative numbers to be interpreted as infinite-length two's complement.
+  - Negative numbers to be interpreted as infinite-length two's complement (see [discussion](https://github.com/littledan/proposal-integer/issues/3)).
 - When applied to two Integers, comparison operators `==`, `===`, `<`, `>`, `>=`, and `<=` perform a logical comparson
 - Missing operators
-  - `>>>` is not supported, as all Integers are signed; to get an unsigned shift, pass in a positive Integer to `>>`
+  - `>>>` is not supported, as all Integers are signed; to get an unsigned shift, pass in a positive Integer to `>>` ([discussion](https://github.com/littledan/proposal-integer/issues/6))
   - Unary `+` is unsupported on Integers due to asm.js requirements; details explained below
 - In a conditional, `if (0n)` executes the `else` branch.
 
@@ -150,7 +150,7 @@ Design work here is being done in conjunction with planned prototyping in V8; th
 
 ## Open questions
 
-### Mixed comparison operators
+### Mixed comparison operators ([bug](https://github.com/littledan/proposal-integer/issues/2))
 
 It would be mathematically well-defined to allow comparison operators such as `<` and `==` compare between Numbers and Integers. Unlike operators like `+`, there is no loss of precision, since the output is just a Boolean.
 
@@ -161,19 +161,17 @@ A couple arguments for why we should throw on `0 < 0n` and `0 == 0n`:
 
 With "MVP" as a tiebreaker, this proposal starts with banning mixed operations.
 
-### Semantics of bitwise operations
-
-Here, we build on JavaScript already being based around two's complement semantics to extend binary operations on Integers to infinite two's complement semantics. However, it's not clear whether this is the most efficiently implementable thing; more investigation has to be done to ensure that this choice doesn't put us in an unnecessarily bad spot performance-wise.
-
-### Bikeshedding
+### Bikeshedding ([bug](https://github.com/littledan/proposal-integer/issues/1))
 
 This proposal uses `n` as the literal suffix; `N`, `I`, `L` and `l` are some other proposed alternatives.
 
-This proposal calls the class `Integer`; other proposed alternatives are `BigInt` and `BigNum`.
+This proposal calls the class `Integer`; other proposed alternatives are `BigInt` and `BigNum`. An earlier version was called `BigInt`.
 
-The names of the wraparound utility functions are long. Is there a shorter one that would work well?
+### And much, much more
 
-## Design alternatives
+There are many [open bugs](https://github.com/littledan/proposal-integer/issues) to discuss various issues. Come and join the discussion, and file some of your own!
+
+## Design alternatives not proposed here
 
 ### Int64/Uint64
 
@@ -189,7 +187,7 @@ One possibility would be to wait until a potential future Int64/Uint64 proposal 
 
 ## Left for future proposals
 
-### Function and constant library
+### Function and constant library ([bug](https://github.com/littledan/proposal-integer/issues/20))
 
 It would be reasonable to add integer-related mathematical library functions, especially those which could be more efficiently based on instructions found on CPUs likely to be used by implementations. This includes:
 - Find first set/unset bit
@@ -204,4 +202,10 @@ In the course of development of ES2015, the proposal to add 64-bit integers was 
 
 ## Implementation status
 
+No current (known) implementations exist.
+
 V8 is interested in implementing Integer as soon as the major semantics are worked out.
+
+## Specification
+
+See the [specification](https://littledan.github.io/proposal-integer/) for more fine details.
