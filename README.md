@@ -36,7 +36,7 @@ function add64(stdlib, buffer, aIndex, bIndex) {
   bIndex = bIndex|0;
   var aValue = values[aIndex>>3];
   var bValue = values[bIndex>>3];
-  return cast(a + b, 64);
+  return cast(64, a + b);
 }
 ```
 
@@ -81,8 +81,8 @@ When called as a function, it is similar to the `Number` constructor: It convert
 
 #### Library functions
 
-- `Integer.asUintN(Integer, width)`: Wrap an Integer between 0 and 2<sup>width</sup>-1
-- `Integer.asIntN(Integer, width)`: Wrap an Integer between -2<sup>width-1</sup> and 2<sup>width-1</sup>-1
+- `Integer.asUintN(width, Integer)`: Wrap an Integer between 0 and 2<sup>width</sup>-1
+- `Integer.asIntN(width, Integer)`: Wrap an Integer between -2<sup>width-1</sup> and 2<sup>width-1</sup>-1
 - `Integer.parseInt(string[, radix])`: Analogous to `Number.parseInt`, to parse an Integer from a String in any base.
 
 ### TypedArrays and DataViews

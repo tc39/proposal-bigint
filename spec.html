@@ -1320,9 +1320,9 @@ emu-integration-plans:before {
       </emu-clause>
 
       <!-- es6num="20.1.2.2" -->
-      <emu-clause id="sec-number.asuintn">
+      <emu-clause id="sec-integer.asuintn">
         <h1>Integer.asUintN ( _integer_, _bits_ )</h1>
-        <p>When the `Integer.asUintN` is called with two argument _integer_ and _bits_, the following steps are taken:</p>
+        <p>When the `Integer.asUintN` is called with two argument _bits_ and _integer_, the following steps are taken:</p>
         <emu-alg>
           1. If Type(_integer_) is not _integer_, return *false*.
           1. Let _bits_ be ? ToIndex(_bits_).
@@ -1331,9 +1331,9 @@ emu-integration-plans:before {
       </emu-clause>
 
       <!-- es6num="20.1.2.3" -->
-      <emu-clause id="sec-number.asintn">
-        <h1>Number.asIntN ( _integer_, _bits_ )</h1>
-        <p>When the `Integer.asIntN` is called with two argument _integer_ and _bits_, the following steps are taken:</p>
+      <emu-clause id="sec-integer.asintn">
+        <h1>Number.asIntN ( _bits_, _integer_ )</h1>
+        <p>When the `Integer.asIntN` is called with two argument _bits_ and _integer_, the following steps are taken:</p>
         <emu-alg>
           1. If Type(_integer_) is not _integer_, return *false*.
           1. Let _bits_ be ? ToIndex(_bits_).
