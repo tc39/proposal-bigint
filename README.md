@@ -36,7 +36,7 @@ function add64(stdlib, buffer, aIndex, bIndex) {
   bIndex = bIndex|0;
   var aValue = values[aIndex>>3];
   var bValue = values[bIndex>>3];
-  return cast(64, a + b);
+  return cast(64, aValue + bValue);
 }
 ```
 
