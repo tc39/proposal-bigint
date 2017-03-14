@@ -273,6 +273,7 @@ emu-integration-plans:before {
       <h1>Integer::exponentiate (_base_, _exponent_)</h1>
       <emu-alg>
         1. If _exponent_ &lt; 0, throw a *RangeError* exception.
+        1. If SameValue(_base_, *0n*) and Samevalue(_exponent_, *0n*), return *1n*.
         1. Return an Integer representing the mathematical value of _base_ raised to the power _exponent_.
       </emu-alg>
       <emu-issue>
@@ -357,7 +358,7 @@ emu-integration-plans:before {
 
     <emu-clause id="sec-numeric-types-integer-equal">
       <h1>Integer::equal (_x_, _y_)</h1>
-      <p>The abstract operation Integer::equal with two arguments _x_ and _y_ of Integer type returns *true* if _x_ and _y_ are the same 64-bit integer and *false* otherwise.</p>
+      <p>The abstract operation Integer::equal with two arguments _x_ and _y_ of Integer type returns *true* if _x_ and _y_ have the same mathematical integer value and *false* otherwise.</p>
     </emu-clause>
 
     <emu-clause id="sec-numeric-types-integer-sameValue">
@@ -379,23 +380,17 @@ emu-integration-plans:before {
     <emu-clause id="sec-bitwise-op">
       <h1>BitwiseOp(_op_, _x_, _y_)</h1>
       <emu-alg>
-        1. Let _invert_ be *false*;
-        1. If _x_ &lt; 0,
-          1. Let _x_ be Integer::bitwiseNOT(_x_).
-          1. Let _invert_ be not _invert_.
-        1. If _y_ &lt; 0,
-          1. Let _y_ be Integer::bitwiseNOT(_y_).
-          1. Let _invert_ be not _invert_.
         1. Let _result_ be 0.
         1. Let _shift_ be 0.
-        1. Repeat, while _x_ &gt; 0 or _y_ &gt; 0,
-          1. Let _xDigit_ be the remainder of _x_ divided by 2.
-          1. Let _yDigit_ be the remainder of _y_ divided by 2.
-          1. Let _result_ be result + 2<sup>_shift_</sup> + op(_xDigit_, _yDigit_)
+        1. Repeat, until (_x_ = 0 or _x_ = -1) and (_y_ = 0 or _y_ = -1),
+          1. Let _xDigit_ be _x_ modulo 2.
+          1. Let _yDigit_ be _y_ modulo 2.
+          1. Let _result_ be result + 2<sup>_shift_</sup> * op(_xDigit_, _yDigit_)
           1. Let _shift_ be _shift_ + 1.
           1. Let _x_ be (_x_ - _xDigit_) / 2.
           1. Let _y_ be (_y_ - _yDigit_) / 2.
-        1. If _invert_, let _result_ be Integer::bitwiseNOT(_result_).
+        1. If _op_(_x_ modulo 2, _y_ modulo 2) &ne; 0,
+          1. Let _reuslt_ be _result_ - 2<sup>_shift_</sup>. NOTE: This extends the sign.
         1. Return _result_.
       </emu-alg>
     </emu-clause>
@@ -403,21 +398,21 @@ emu-integration-plans:before {
     <emu-clause id="sec-numeric-types-integer-bitwiseAND">
       <h1>Integer::bitwiseAND (_x_, _y_)</h1>
       <emu-alg>
-        1. Return BitwiseOp(&amp;, _x_, _y_).
+        1. Return BitwiseOp(`&amp;`, _x_, _y_).
       </emu-alg>
     </emu-clause>
 
     <emu-clause id="sec-numeric-types-integer-bitwiseXOR">
       <h1>Integer::bitwiseXOR (_x_, _y_)</h1>
       <emu-alg>
-        1. Return BitwiseOp(^, _x_, _y_).
+        1. Return BitwiseOp(`^`, _x_, _y_).
       </emu-alg>
     </emu-clause>
 
     <emu-clause id="sec-numeric-types-integer-bitwiseOR">
       <h1>Integer::bitwiseOR (_x_, _y_)</h1>
       <emu-alg>
-        1. Return BitwiseOp(|, _x_, _y_).
+        1. Return BitwiseOp(`|` _x_, _y_).
       </emu-alg>
     </emu-clause>
   </emu-clause>
@@ -453,7 +448,7 @@ emu-integration-plans:before {
     </ul>
   </emu-clause>
 
-  <emu-clause id="sec-numeric-literal-static-semantics-64-bit-integer-value">
+  <emu-clause id="sec-numeric-literal-static-semantics-integer-value">
     <h1>Static Semantics: Integer Value</h1>
     <emu-grammar>NumericLiteral :: NumericLiteralBase NumericLiteralSuffix</emu-grammar>
     <ul>
@@ -644,7 +639,7 @@ emu-integration-plans:before {
 
     <emu-clause id="sec-tonumeric" aoid="ToNumeric">
       <h1>ToNumeric ( _value_ )</h1>
-      <p>The abstract operation ToNumeric returns _value_ converted to a numeric value of type Numberor Integer. This abstract operation functions as follows:</p>
+      <p>The abstract operation ToNumeric returns _value_ converted to a numeric value of type Number or Integer. This abstract operation functions as follows:</p>
       <emu-alg>
         1. Let _primValue_ be ? ToPrimitive(_value_, hint Number).
         1. If Type(_value_) is Integer, return _value_.
@@ -1488,7 +1483,7 @@ emu-integration-plans:before {
             <ins>Uint64</ins>
           </td>
           <td>
-            <ins>1</ins>
+            <ins>8</ins>
           </td>
           <td>
             <ins>ToUint64</ins>
@@ -1506,22 +1501,22 @@ emu-integration-plans:before {
   </emu-clause>
   <emu-clause id="sec-to-int64" aoid="ToInt64">
     <h1>ToInt64 ( _argument_ )</h1>
-    <p>The abstract operation ToInt8 converts _argument_ to one of 2<sup>64</sup> integer values in the range -2<sup>63</sup> through 2<sup>63</sup>-1, inclusive. This abstract operation functions as follows:</p>
+    <p>The abstract operation ToInt64 converts _argument_ to one of 2<sup>64</sup> integer values in the range -2<sup>63</sup> through 2<sup>63</sup>-1, inclusive. This abstract operation functions as follows:</p>
     <emu-alg>
       1. Let _n_ be ? ToNumeric(_argument_).
       1. If Type(_n_) is not Integer, throw a *TypeError*.
-      1. Let _int64bit_ be _n_ modulo 2<sup>8</sup>.
+      1. Let _int64bit_ be _n_ modulo 2<sup>64</sup>.
       1. If _int64bit_ &ge; 2<sup>64</sup>, return _int64bit_ - 2<sup>63</sup>; otherwise return _int64bit_.
     </emu-alg>
   </emu-clause>
 
   <emu-clause id="sec-to-uint64" aoid="ToUint64">
     <h1>ToUint64 ( _argument_ )</h1>
-    <p>The abstract operation ToInt8 converts _argument_ to one of 2<sup>64</sup> integer values in the range 0 through 2<sup>64</sup>-1, inclusive. This abstract operation functions as follows:</p>
+    <p>The abstract operation ToUint64 converts _argument_ to one of 2<sup>64</sup> integer values in the range 0 through 2<sup>64</sup>-1, inclusive. This abstract operation functions as follows:</p>
     <emu-alg>
       1. Let _n_ be ? ToNumeric(_argument_).
       1. If Type(_n_) is not Integer, throw a *TypeError*.
-      1. Let _int64bit_ be _n_ modulo 2<sup>8</sup>.
+      1. Let _int64bit_ be _n_ modulo 2<sup>64</sup>.
       1. Return _int64bit_.
     </emu-alg>
   </emu-clause>
@@ -1619,7 +1614,7 @@ emu-integration-plans:before {
 
       <emu-clause id="sec-dataview.prototype.setint64">
         <h1>DataView.prototype.setInt64 ( _byteOffset_, _value_ )</h1>
-        <p>When the `setInt8` method is called with arguments _byteOffset_ and _value_, the following steps are taken:</p>
+        <p>When the `setInt64` method is called with arguments _byteOffset_ and _value_, the following steps are taken:</p>
         <emu-alg>
           1. Let _v_ be the *this* value.
           1. Return ? SetViewValue(_v_, _byteOffset_, *true*, `"Int64"`, _value_).
@@ -1628,7 +1623,7 @@ emu-integration-plans:before {
 
       <emu-clause id="sec-dataview.prototype.setuint64">
         <h1>DataView.prototype.setUint64 ( _byteOffset_, _value_ )</h1>
-        <p>When the `setInt8` method is called with arguments _byteOffset_ and _value_, the following steps are taken:</p>
+        <p>When the `setUint64` method is called with arguments _byteOffset_ and _value_, the following steps are taken:</p>
         <emu-alg>
           1. Let _v_ be the *this* value.
           1. Return ? SetViewValue(_v_, _byteOffset_, *true*, `"Uint64"`, _value_).

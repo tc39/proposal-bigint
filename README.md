@@ -67,7 +67,7 @@ Integers are, logically, arbitrary mathematic integers, with operator definition
 - `/` and `%` round towards 0
 - Bitwise operations `|`, `&`, `<<`, `>>`, `^` operate logically
   - Negative numbers to be interpreted as infinite-length two's complement (see [discussion](https://github.com/littledan/proposal-integer/issues/3)).
-- When applied to two Integers, comparison operators `==`, `===`, `<`, `>`, `>=`, and `<=` perform a logical comparson
+- When applied to two Integers, comparison operators `==`, `===`, `<`, `>`, `>=`, and `<=` perform a mathematical comparson
 - Missing operators
   - `>>>` is not supported, as all Integers are signed; to get an unsigned shift, pass in a positive Integer to `>>` ([discussion](https://github.com/littledan/proposal-integer/issues/6))
   - Unary `+` is unsupported on Integers due to asm.js requirements; details explained below
@@ -97,7 +97,7 @@ Similarly, Integers may be used by the WebAssembly FFI for 64-bit arguments and 
 
 A key design decision is to disallow mixed operations between Integers and Numbers. The driving factor: Any implicit coercions would lose information.
 
-When adding two values of different numeric types, between large integers and floating point numbers, the mathematical value of the result may be outside of the domain of either. For example, `(2n\*\*53n + 1n) + 0.5` has a value which cannot be accurately represented in either range. Floating point arithmetic is not the exact mathematical value, but at least it is well-defined by IEEE 754. The entire aim of introducing Integer is, on the other hand, to make a way to preserve integer precision of larger values.
+When adding two values of different numeric types, between large integers and floating point numbers, the mathematical value of the result may be outside of the domain of either. For example, `(2n**53n + 1n) + 0.5` has a value which cannot be accurately represented in either range. Floating point arithmetic is not the exact mathematical value, but at least it is well-defined by IEEE 754. The entire aim of introducing Integer is, on the other hand, to make a way to preserve integer precision of larger values.
 
 Many (all?) other dynamically typed programming languages which have multiple numeric types implement a *numeric tower*. This forms an ordering between types--on the built-in numeric types, when an operator is used with operands from two types, the greater type is chosen as the domain, and the "less general" operand is cast to the "more general" type. Unfortunately, as the previous example shows, there is no "more general" type between arbitrary integers and double-precision floats. The typical resolution, then, is to take floats as the "more general" type.
 
