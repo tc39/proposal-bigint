@@ -85,7 +85,7 @@ emu-integration-plans:before {
 <emu-clause id="sec-numeric-types">
   <h1>Numeric Types</h1>
   <emu-issue>This specification introduces a protocol to help describe overloading of built-in operators to work on both Numbers and Integers. An <a href="https://github.com/littledan/proposal-integer/issues/12">alternative</a> would be to simply inline the new Integer definition alongside the old Number definition in an ad-hoc way.</a></emu-issue>
-  <p>ECMAScript has two built-in numeric types: Number two Integer. In this specification, every numeric type _T_ contains an additive identity value denoted _T_::zero and a multiplicative identity value denoted _T_::unit. The specification types also have the following abstract operations, likewise denoted _T_::<i>op</i> for a given operation with specification name <i>op</i>. Unless noted otherwise, argument and result types are all _T_.</p>
+  <p>ECMAScript has two built-in numeric types: Number two Integer. In this specification, every numeric type _T_ contains an additive identity value denoted _T_::additiveZero and a multiplicative identity value denoted _T_::unit. The specification types also have the following abstract operations, likewise denoted _T_::<i>op</i> for a given operation with specification name <i>op</i>. Unless noted otherwise, argument and result types are all _T_.</p>
   <emu-table id="table-numeric-type-ops" caption="Numeric Type Operations">
     <table>
       <tbody>
@@ -245,8 +245,9 @@ emu-integration-plans:before {
       </tbody>
     </table>
   </emu-table>
-  <p>The _T_::zero value, _T_::unit value, and _T_::_op_ operations are not a part of the ECMAScript language; they are defined here solely to aid the specification of the semantics of the ECMAScript language. Other abstract operations are defined throughout this specification.</p>
+  <p>The _T_::additiveZero value, _T_::unit value, and _T_::_op_ operations are not a part of the ECMAScript language; they are defined here solely to aid the specification of the semantics of the ECMAScript language. Other abstract operations are defined throughout this specification.</p>
   <p>Because the numeric types are in general not interconvertible without loss of precision or truncation, the ECMAScript language provides no implicit conversion among these types. Programmers must explicitly call `Number` and `Integer` functions to convert among types when calling a function which requires another type.</p>
+  <emu-integration-plans>Number::additiveZero is *-0*.</emu-integration-plans>
   <emu-note>
    <p>The first and subsequent editions of ECMAScript have provided, for certain operators, implicit numeric conversions that could lose precision or truncate. These legacy implicit conversions are maintained for backward compatibility, but not provided for Integer in order to minimize opportunity for programmer error, and to leave open the option of generalized <em>value types</em> in a future edition.</p>
   </emu-note>
@@ -256,7 +257,7 @@ emu-integration-plans:before {
    <h1>The Integer Type</h1>
    <p>The Integer type represents a mathematical integer value. The value may be any size and is not limited to a particular bit-width. Generally, where not otherwise noted, operations are designed to return exact mathematically-based answers. For binary operations, Integers act as two's complement binary strings, with negative numbers treated as having bits set infinitely to the left.</p>
 
-   <p>The Integer::zero value is *0n*.</p>
+   <p>The Integer::additiveZero value is *0n*.</p>
    <p>The Integer::unit value is *1n*.</p>
 
     <emu-clause id="sec-numeric-types-integer-unaryMinus">
@@ -968,7 +969,7 @@ emu-integration-plans:before {
           1. <del>If _oldValue_ is *NaN*, return *NaN*.</del>
           1. <del>Return the result of negating _oldValue_; that is, compute a Number with the same magnitude but opposite sign.</del>
           1. <ins>Let _T_ be Type(_oldValue_).</ins>
-          1. </ins>Return ? _T_::minus(_T_::zero, _oldValue_).</ins>
+          1. </ins>Return ? _T_::minus(_T_::additiveZero, _oldValue_).</ins>
         </emu-alg>
       </emu-clause>
     </emu-clause>
