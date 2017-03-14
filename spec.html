@@ -391,7 +391,7 @@ emu-integration-plans:before {
           1. Let _x_ be (_x_ - _xDigit_) / 2.
           1. Let _y_ be (_y_ - _yDigit_) / 2.
         1. If _op_(_x_ modulo 2, _y_ modulo 2) &ne; 0,
-          1. Let _reuslt_ be _result_ - 2<sup>_shift_</sup>. NOTE: This extends the sign.
+          1. Let _result_ be _result_ - 2<sup>_shift_</sup>. NOTE: This extends the sign.
         1. Return _result_.
       </emu-alg>
     </emu-clause>
@@ -413,7 +413,7 @@ emu-integration-plans:before {
     <emu-clause id="sec-numeric-types-integer-bitwiseOR">
       <h1>Integer::bitwiseOR (_x_, _y_)</h1>
       <emu-alg>
-        1. Return BitwiseOp(`|` _x_, _y_).
+        1. Return BitwiseOp(`|`, _x_, _y_).
       </emu-alg>
     </emu-clause>
   </emu-clause>
