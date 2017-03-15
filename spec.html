@@ -1218,6 +1218,16 @@ emu-integration-plans:before {
       <h1>The Integer Constructor</h1>
       <p>The Integer constructor is the <dfn>%Integer%</dfn> intrinsic object and the initial value of the `Integer` property of the global object. When `Integer` is called as a function, it performs a type conversion.</p>
 
+      <emu-clause id="sec-number-to-integer" aoid="NumberToInteger">
+        <h1>NumberToInteger ( _number_ )</h1>
+        <emu-alg>
+          1. Assert: Type(_number_) is Number.
+          1. If SameValue(_number_, *NaN*) or SameValue(_number_, *+&infin;*) or SameValue(_number_, *-&infin;*), throw a *RangeError* exception.
+          1. Let _int_ be the mathematical value that is the same sign as _number_ and whose magnitude is floor(abs(_number_)).
+          1. Return an Integer value representing _int_.
+        </emu-alg>
+      </emu-clause>
+
       <emu-clause id="sec-integer-constructor-number-value">
         <h1>Integer ( _value_ )</h1>
         <p>When `Integer` is called with argument _value_, the following steps are taken:</p>
@@ -1268,8 +1278,7 @@ emu-integration-plans:before {
               Number
             </td>
             <td>
-              Round the _prim_ to the appropriate Integer and return the result.
-              <emu-issue>Rounding rules still <a href="https://github.com/littledan/proposal-integer/issues/14">under discussion.</a></emu-issue>
+              Return NumberToInteger(_prim_).
             </td>
           </tr>
           <tr>
@@ -1347,7 +1356,7 @@ emu-integration-plans:before {
 
     <emu-clause id="sec-properties-of-the-integer-prototype-object">
       <h1>Properties of the Integer Prototype Object</h1>
-      <p>The Integer prototype object is the intrinsic object <dfn>%IntegerPrototype%</dfn>. The Integer prototype object is an ordinary object. The Number prototype is not an Integer object; it does not have a [[IntegerData]] internal slot.</p>
+      <p>The Integer prototype object is the intrinsic object <dfn>%IntegerPrototype%</dfn>. The Integer prototype object is an ordinary object. The Integer prototype is not an Integer object; it does not have a [[IntegerData]] internal slot.</p>
       <p>The value of the [[Prototype]] internal slot of the Integer prototype object is the intrinsic object %ObjectPrototype%.</p>
       <p>The abstract operation thisIntegerValue(_value_) performs the following steps:</p>
       <emu-alg>
@@ -1413,14 +1422,15 @@ emu-integration-plans:before {
           1. If no arguments were passed to this function invocation, let _n_ be *+0*.
           1. Else,
             1. Let _prim_ be ? ToPrimitive(_value_).
-            1. If Type(_prim_) is Integer, let _n_ be _value_ rounded to the appropriate Number.
+            1. If Type(_prim_) is Integer, let _n_ be the Number value for _prim_.
             1. Otherwise, let _n_ be ? ToNumber(_value_).
           1. If NewTarget is *undefined*, return _n_.
           1. Let _O_ be ? OrdinaryCreateFromConstructor(NewTarget, `"%NumberPrototype%"`, &laquo; [[NumberData]] &raquo;).
           1. Set _O_.[[NumberData]] to _n_.
           1. Return _O_.
         </emu-alg>
-        <emu-issue>The rounding text in step 2.b. is vague. <a href="https://github.com/littledan/proposal-integer/issues/14">How should it be specified?</a></emu-issue>
+        <emu-note>See <emu-xref href="#sec-ecmascript-language-types-number-type"></emu-xref> in the second-to-last paragraph for the definition of the phrase "The Number value for _integer_".</emu-note>
+        <emu-integration-plans>That paragraph should possibly be refactored into a separate abstract operation; see <a href="https://github.com/littledan/proposal-integer/issues/10">this bug</a> for more discussion about the integration of different numeric types and casting operations between them.</emu-integration-plans>
       </emu-clause>
 
 <emu-clause id="sec-typedarrays-and-dataview">
