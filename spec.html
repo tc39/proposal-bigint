@@ -427,13 +427,19 @@ emu-integration-plans:before {
   <h1>Modifications to the Number grammar</h1>
   <emu-grammar>
     NumericLiteral ::
+      <del>DecimalLiteral</del>
+      <del>BinaryIntegerLiteral</del>
+      <del>OctalIntegerLiteral</del>
+      <del>HexIntegerLiteral</del>
       <ins>NumericLiteralBase</ins>
       <ins>NumericLiteralBase NumericLiteralSuffix</ins>
+      LegacyOctalIntegerLiteral
 
-    <ins>NumericLiteralBase ::</ins>
-      DecimalLiteral
-      BinaryIntegerLiteral
-      OctalIntegerLiteral
+    <ins>NumericLiteralBase ::
+          DecimalLiteral
+          BinaryIntegerLiteral
+          OctalIntegerLiteral
+          HexIntegerLiteral</ins>
 
     <ins>NumericLiteralSuffix :: `n`</ins>
   </emu-grammar>
@@ -445,6 +451,9 @@ emu-integration-plans:before {
     <ul>
       <li>
         It is a Syntax Error if the MV is not an integer.
+      </li>
+      <li>
+        It is a Syntax Error if the |NumericLiteralBase| contains an |ExponentPart|.
       </li>
     </ul>
   </emu-clause>

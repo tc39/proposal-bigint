@@ -73,6 +73,8 @@ Integers are, logically, arbitrary mathematic integers, with operator definition
   - Unary `+` is unsupported on Integers due to asm.js requirements; details explained below
 - In a conditional, `if (0n)` executes the `else` branch.
 
+Literals for Integers are similar to Number literals, but followed by `n`. They can be written with binary, octal or hexadecimal notation, e.g., `0x100n`. Legacy octal syntax (`0640`) is not allowed, only new-style (`0o064n`).
+
 ### The Integer constructor
 
 Integer is a primitive type, and `Integer` forms a constructor which can be used analogously to `Number`--to convert various types to Integer values, as well as to be an object wrapper for Integer values when used with property access.
