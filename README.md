@@ -28,15 +28,18 @@ function nthPrime(nth) {
 Read and add two unsigned 64-bit integers in asm.js on the heap:
 
 ```js
-function add64(stdlib, buffer, aIndex, bIndex) {
+function Add64Module(stdlib, foreign, buffer) {
   "use asm";
   var cast = stdlib.Integer.asUintN;
   var values = new stdlib.Uint64Array(buffer);
-  aIndex = aIndex|0;
-  bIndex = bIndex|0;
-  var aValue = values[aIndex>>3];
-  var bValue = values[bIndex>>3];
-  return cast(64, aValue + bValue);
+  function add64(aIndex, bIndex) {
+    aIndex = aIndex|0;
+    bIndex = bIndex|0;
+    var aValue = values[aIndex>>3];
+    var bValue = values[bIndex>>3];
+    return cast(64, aValue + bValue);
+  }
+  return { add64: add64 };
 }
 ```
 
@@ -122,10 +125,12 @@ The semantics of all operators should ideally be based on some mathematical firs
 Although this proposal introduces operator overloading, it throws in any of the cases that asm.js depends on for setting up type checking. asm.js relies on a few identies:
 - Unary `+` followed by an expression is always either a Number, or results in throwing. For this reason, unfortunately, `+` on an Integer needs to throw, rather than being symmetrical with `+` on Number: Otherwise, previosly "type-declared" asm.js code would now be polymorphic.
 - `|0` always returns a Number in int32 range, or throws. This proposal maintains that, as it would throw on an Integer for being a mixed operand type.
-- `>>> 0` always returns a Number in uint32 range, throwing as `>>>` is not supported on Integer at all.
 - `Math.fround` always returns a Number in float32 range, or throws. This proposal would throw if `Math.fround` is called with an Integer, preserving the property.
 
+Analogously, `>>> 0` always returns a Number in uint32 range, throwing as `>>>` is not supported on Integer at all. Note: asm.js itself does not require this property, as `>>>` may be an overloaded operator, and `|0` is used for all `int` parameter declarations, but `>>> 0` is a common idiom to achieve this property in JavaScrpit code.
+
 This proposal makes special allowances to make Integers usable in asm.js code to build support for 64-bit integers, by including the standard library functions `Integer.asUintN` and `Integer.asIntN` as well as `Uint64Array` and `Int64Array`.
+ The operator overloading in this proposal should not complicate the asm.js model: asm.js already treats operators as "overloaded" between floats, doubles, and signed and unsigned integers.
 
 ### Don't break potential future value types extensions
 
