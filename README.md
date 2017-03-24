@@ -114,7 +114,7 @@ To avoid this problem, this proposal bans implicit coercions between Numbers and
 
 ### Don't break user intuition
 
-When a messy situation comes up, the this proposal errs on the side of throwing an exception rather than silently giving a bad answer. This is what's behind throwing a TypeError on adding an Integer and a Number: If we don't have a good answer, better to not give one.
+When a messy situation comes up, this proposal errs on the side of throwing an exception rather than silently giving a bad answer. This is what's behind throwing a TypeError on adding an Integer and a Number: If we don't have a good answer, better to not give one.
 
 ### Don't break math
 
