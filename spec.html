@@ -1371,7 +1371,7 @@ emu-integration-plans:before {
       <emu-alg>
         1. If Type(_value_) is Integer, return _value_.
         1. If Type(_value_) is Object and _value_ has a [[IntegerData]] internal slot, then
-          1. Assert: _value_.[[IntegerData]] is a Number value.
+          1. Assert: _value_.[[IntegerData]] is an Integer value.
           1. Return _value_.[[IntegerData]].
         1. Throw a *TypeError* exception.
       </emu-alg>
