@@ -215,4 +215,4 @@ V8 is interested in implementing Integer as soon as the major semantics are work
 
 ## Specification
 
-See the [specification](https://littledan.github.io/proposal-integer/) for more fine details.
+See the [specification](https://tc39.github.io/proposal-integer/) for more fine details.
