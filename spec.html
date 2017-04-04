@@ -1227,14 +1227,28 @@ emu-integration-plans:before {
       <h1>The Integer Constructor</h1>
       <p>The Integer constructor is the <dfn>%Integer%</dfn> intrinsic object and the initial value of the `Integer` property of the global object. When `Integer` is called as a function, it performs a type conversion.</p>
 
+      <emu-clause id="sec-is-safe-integer" aoid="IsSafeInteger">
+        <h1>IsSafeInteger ( _number_ )</h1>
+        <emu-alg>
+          1. Assert: Type(_number_) is Number.
+          1. If _number_ is *NaN*, *+&infin;*, or *-&infin;*, return *false*.
+          1. Let _integer_ be ToInteger(_number_).
+          1. If _integer_ is not equal to _number_, return *false*.
+          1. If abs(_integer_) &le; 2<sup>53</sup>-1, return *true*.
+          1. Otherwise, return *false*.
+        </emu-alg>
+        <emu-integration-plans>Number.isSafeInteger will be refactored to call this abstract algorithm.</emu-integration-plans>
+      </emu-clause>
+
       <emu-clause id="sec-number-to-integer" aoid="NumberToInteger">
         <h1>NumberToInteger ( _number_ )</h1>
         <emu-alg>
           1. Assert: Type(_number_) is Number.
-          1. If SameValue(_number_, *NaN*) or SameValue(_number_, *+&infin;*) or SameValue(_number_, *-&infin;*), throw a *RangeError* exception.
+          1. If IsSafeInteger(_number_) is *false*, throw a *RangeError* exception.
           1. Let _int_ be the mathematical value that is the same sign as _number_ and whose magnitude is floor(abs(_number_)).
           1. Return an Integer value representing _int_.
         </emu-alg>
+        <emu-issue>Throwing on unsafe integer inputs is discussed <a href="https://github.com/tc39/proposal-integer/issues/15">in this issue</a>.</emu-issue>
       </emu-clause>
 
       <emu-clause id="sec-integer-constructor-number-value">
