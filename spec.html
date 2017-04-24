@@ -1352,7 +1352,7 @@ emu-integration-plans:before {
         <h1>BigInt.asUintN ( _bits_, _bigint_ )</h1>
         <p>When the `BigInt.asUintN` function is called with two argument _bits_ and _bigint_, the following steps are taken:</p>
         <emu-alg>
-          1. If Type(_bigint_) is not BigInt, return *false*.
+          1. Let _bigint_ ToBigInt(_bigint_).
           1. Let _bits_ be ? ToIndex(_bits_).
           1. Return a BigInt representing _bigint_ modulo 2<sup>_bits_</sup>.
         </emu-alg>
@@ -1363,7 +1363,7 @@ emu-integration-plans:before {
         <h1>BigInt.asIntN ( _bits_, _bigint_ )</h1>
         <p>When the `BigInt.asIntN` is called with two argument _bits_ and _bigint_, the following steps are taken:</p>
         <emu-alg>
-          1. If Type(_bigint_) is not BigInt, return *false*.
+          1. Let _bigint_ ToBigInt(_bigint_).
           1. Let _bits_ be ? ToIndex(_bits_).
           1. Let _mod_ be a BigInt representing _bigint_ modulo 2<sup>_bits_</sup>.
           1. If _mod_ &ge; 2<sup>_bits_ - 1</sup>, return _mod_ - 2<sup>_bits_</sup>; otherwise, return _mod_.
@@ -1571,12 +1571,22 @@ emu-integration-plans:before {
       </table>
     </emu-table>
   </emu-clause>
+
+  <emu-clause id="sec-to-bigint" aoid="ToBigInt">
+    <h1>ToBigInt ( _argument_ )</h1>
+    <p>The abstract operation ToBigInt converts its argument _argument_ to a BigInt value, or throws if an implicit conversion from Number would be required.</p>
+    <emu-alg>
+      1. Let _n_ be ? ToNumeric(_argument_).
+      1. If Type(_n_) is not BigInt, throw a *TypeError*.
+      1. Return _n_.
+    </emu-alg>
+  </emu-clause>
+
   <emu-clause id="sec-to-int64" aoid="ToInt64">
     <h1>ToInt64 ( _argument_ )</h1>
     <p>The abstract operation ToInt64 converts _argument_ to one of 2<sup>64</sup> integer values in the range -2<sup>63</sup> through 2<sup>63</sup>-1, inclusive. This abstract operation functions as follows:</p>
     <emu-alg>
-      1. Let _n_ be ? ToNumeric(_argument_).
-      1. If Type(_n_) is not BigInt, throw a *TypeError*.
+      1. Let _n_ ToBigInt(_argument_).
       1. Let _int64bit_ be _n_ modulo 2<sup>64</sup>.
       1. If _int64bit_ &ge; 2<sup>64</sup>, return _int64bit_ - 2<sup>63</sup>; otherwise return _int64bit_.
     </emu-alg>
@@ -1586,8 +1596,7 @@ emu-integration-plans:before {
     <h1>ToUint64 ( _argument_ )</h1>
     <p>The abstract operation ToUint64 converts _argument_ to one of 2<sup>64</sup> integer values in the range 0 through 2<sup>64</sup>-1, inclusive. This abstract operation functions as follows:</p>
     <emu-alg>
-      1. Let _n_ be ? ToNumeric(_argument_).
-      1. If Type(_n_) is not BigInt, throw a *TypeError*.
+      1. Let _n_ ToBigInt(_argument_).
       1. Let _int64bit_ be _n_ modulo 2<sup>64</sup>.
       1. Return _int64bit_.
     </emu-alg>
