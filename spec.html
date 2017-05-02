@@ -652,8 +652,8 @@ emu-integration-plans:before {
       <p>The abstract operation ToNumeric returns _value_ converted to a numeric value of type Number or BigInt. This abstract operation functions as follows:</p>
       <emu-alg>
         1. Let _primValue_ be ? ToPrimitive(_value_, hint Number).
-        1. If Type(_value_) is BigInt, return _value_.
-        1. Return ToNumber(_value_).
+        1. If Type(_primValue_) is BigInt, return _primValue_.
+        1. Return ToNumber(_primValue_).
       </emu-alg>
     </emu-clause>
 
