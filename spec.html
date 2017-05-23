@@ -790,10 +790,12 @@ emu-integration-plans:before {
         1. If _x_ is *undefined* and _y_ is *null*, return *true*.
         1. If Type(_x_) is Number and Type(_y_) is String, return the result of the comparison _x_ == ToNumber(_y_).
         1. If Type(_x_) is String and Type(_y_) is Number, return the result of the comparison ToNumber(_x_) == _y_.
+        1. <ins>If Type(_x_) is BigInt and Type(_y_) is String, throw a *TypeError* exception.</ins>
+        1. <ins>If Type(_x_) is String and Type(_y_) is BigInt, throw a *TypeError* exception.</ins>
         1. If Type(_x_) is Boolean, return the result of the comparison ToNumber(_x_) == _y_.
         1. If Type(_y_) is Boolean, return the result of the comparison _x_ == ToNumber(_y_).
-        1. If Type(_x_) is either String, Number, or Symbol and Type(_y_) is Object, return the result of the comparison _x_ == ToPrimitive(_y_).
-        1. If Type(_x_) is Object and Type(_y_) is either String, Number, or Symbol, return the result of the comparison ToPrimitive(_x_) == _y_.
+        1. If Type(_x_) is either String, Number, <ins>BigInt,</ins> or Symbol and Type(_y_) is Object, return the result of the comparison _x_ == ToPrimitive(_y_).
+        1. If Type(_x_) is Object and Type(_y_) is either String, Number, <ins>BigInt,</ins> or Symbol, return the result of the comparison ToPrimitive(_x_) == _y_.
         1. <ins>If Type(_x_) is BigInt and Type(_y_) is Number, or if Type(_x_) is Number and Type(_y_) is BigInt, throw a *TypeError* exception.</ins>
         1. Return *false*.
       </emu-alg>
