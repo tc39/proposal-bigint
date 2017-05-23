@@ -49,11 +49,9 @@ In many cases in JavaScript coding, integers larger than 2<sup>53</sup> come up,
 - Cases which would fit in a signed or unsigned 64-bit integer
   - Reading certain machine registers, wire protocols
   - Protobufs or JSON documents that have GUIDs in them
-  - Highly optimized cryptography calculations
   - `stat` may give some data as 64-bit integers
   - Accurate timestamps
 - Bigger than 64-bit int cases
-  - Cryptography calculations implemented directly
   - Basis for implementing BigDecimal; perhaps some applications would be happy with fixpoint calculations based on a BigInt
   - Any mathematical calculation with larger integers, e.g., solving Project Euler problems
 
