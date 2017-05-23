@@ -85,7 +85,7 @@ emu-integration-plans:before {
 <emu-clause id="sec-numeric-types">
   <h1>Numeric Types</h1>
   <emu-issue>This specification introduces a protocol to help describe overloading of built-in operators to work on both Numbers and BigInts. An <a href="https://github.com/tc39/proposal-bigint/issues/12">alternative</a> would be to simply inline the new BigInt definition alongside the old Number definition in an ad-hoc way.</a></emu-issue>
-  <p>ECMAScript has two built-in numeric types: Number two BigInt. In this specification, every numeric type _T_ contains an additive identity value denoted _T_::additiveZero and a multiplicative identity value denoted _T_::unit. The specification types also have the following abstract operations, likewise denoted _T_::<i>op</i> for a given operation with specification name <i>op</i>. Unless noted otherwise, argument and result types are all _T_.</p>
+  <p>ECMAScript has two built-in numeric types: Number and BigInt. In this specification, every numeric type _T_ contains an additive identity value denoted _T_::additiveZero and a multiplicative identity value denoted _T_::unit. The specification types also have the following abstract operations, likewise denoted _T_::<i>op</i> for a given operation with specification name <i>op</i>. Unless noted otherwise, argument and result types are all _T_.</p>
   <emu-table id="table-numeric-type-ops" caption="Numeric Type Operations">
     <table>
       <tbody>
@@ -719,6 +719,7 @@ emu-integration-plans:before {
            1. <ins>Return ? Type(_x_)::sameValueZero(_x_, _y_).</ins>
          1. Return <a href="sec-samevaluenonnumber">SameValueNon<del>Number</del><ins>Numeric</ins></a>(_x_, _y_).
        </emu-alg>
+       <emu-integration-plans>The previous Number-related contents of this algorithm will be moved into Number::sameValueZero.</emu-integration-plans>
      </emu-clause>
 
     <emu-clause id="sec-samevaluenonnumber" aoid="SameValueNonNumeric">
@@ -997,7 +998,7 @@ emu-integration-plans:before {
           1. Let _expr_ be the result of evaluating |UnaryExpression|.
           1. Let _oldValue_ be ? <del>ToInt32</del><ins>ToNumeric</ins>(? GetValue(_expr_)).
           1. <del>Return the result of applying bitwise complement to _oldValue_. The result is a signed 32-bit integer.</del>
-          1. <ins>Return ? _T_::bitNOT(_oldValue_).</ins>
+          1. <ins>Return ? _T_::bitwiseNOT(_oldValue_).</ins>
         </emu-alg>
       </emu-clause>
     </emu-clause>
