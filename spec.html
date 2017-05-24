@@ -167,7 +167,7 @@ emu-integration-plans:before {
           _T_::leftShift(x,&nbsp;y)
         </td>
         <td>
-          A specification function invoked when applying the left shift operator to two operands, the left one of type _T_ and the right one converted from any type into a shift amount. Called by the semantics of the <emu-xref href="#sec-left-shift-operator">`<<` operator</emu-xref> for `x << y`.
+          A specification function invoked when applying the left shift operator to two operands, both of type _T_. Called by the semantics of the <emu-xref href="#sec-left-shift-operator">`<<` operator</emu-xref> for `x << y`.
         </td>
       </tr>
       <tr>
@@ -175,7 +175,7 @@ emu-integration-plans:before {
           _T_::signedRightShift(x,&nbsp;y)
         </td>
         <td>
-          A specification function invoked when applying the right shift operator to two operands, the left one of type _T_ and the right one converted from any type into a shift amount. Called by the semantics of the <emu-xref href="#sec-signed-right-shift-operator">`>>` operator</emu-xref> for `x >> y`.
+          A specification function invoked when applying the right shift operator to two operands, both of type _T_. Called by the semantics of the <emu-xref href="#sec-signed-right-shift-operator">`>>` operator</emu-xref> for `x >> y`.
         </td>
       </tr>
       <tr>
@@ -183,7 +183,7 @@ emu-integration-plans:before {
           _T_::unsignedRightShift(x,&nbsp;y)
         </td>
         <td>
-          A specification function invoked when applying the right shift operator to two operands, the left one of type _T_ and the right one converted from any type into a shift amount. Called by the semantics of the <emu-xref href="#sec-unsigned-right-shift-operator">`>>>` operator</emu-xref> for `x >>> y`.
+          A specification function invoked when applying the right shift operator to two operands, both of type _T_. Called by the semantics of the <emu-xref href="#sec-unsigned-right-shift-operator">`>>>` operator</emu-xref> for `x >>> y`.
         </td>
       </tr>
       <tr>
@@ -333,7 +333,7 @@ emu-integration-plans:before {
 
     <emu-clause id="sec-numeric-types-bigint-signedRightShift">
       <h1>BigInt::signedRightShift (_x_, _y_)</h1>
-      <p>The abstract operation BigInt::signedRightShift with arguments _x_ of BigInt type and _y_ of any type:</p>
+      <p>The abstract operation BigInt::signedRightShift with arguments _x_ and _y_ of type BigInt:</p>
       <emu-alg>
         1. Return ? BigInt::leftShift(_x_, -_y_).
       </emu-alg>
@@ -341,7 +341,7 @@ emu-integration-plans:before {
 
     <emu-clause id="sec-numeric-types-bigint-unsignedRightShift">
       <h1>BigInt::unsignedRightShift (_x_, _y_)</h1>
-      <p>The abstract operation BigInt::unsignedRightShift with two arguments _x_ of BigInt type and _y_ of any type:</p>
+      <p>The abstract operation BigInt::unsignedRightShift with two arguments _x_ and _y_ of type BigInt:</p>
       <emu-alg>
         1. Throw a *TypeError* exception.
       </emu-alg>
@@ -1164,7 +1164,7 @@ emu-integration-plans:before {
           1. <del>Return the result of performing a sign-extending right shift of _lnum_ by _shiftCount_ bits. The most significant bit is propagated. The result is a signed 32-bit integer.</del>
           1. <ins>If Type(_lnum_) does not equal Type(_rnum_), throw a *TypeError* exception.</ins>
           1. <ins>Let _T_ be Type(_lnum_).</ins>
-          1. <ins>Return _T_::rightShift(_lnum_, _rnum_).</ins>
+          1. <ins>Return _T_::signedRightShift(_lnum_, _rnum_).</ins>
         </emu-alg>
       </emu-clause>
     </emu-clause>
