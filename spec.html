@@ -771,8 +771,9 @@ emu-integration-plans:before {
           1. <del>If _nx_ is *-&infin;*, return *true*.</del>
           1. <del>If the mathematical value of _nx_ is less than the mathematical value of _ny_ &mdash;note that these mathematical values are both finite and not both zero&mdash;return *true*. Otherwise, return *false*.</del>
           1. <ins>Let _ny_ be ? ToNumeric(_py_).</ins>
-          1. <ins>if Type(_nx_) is not Type(_ny_), throw a *TypeError* exception.</ins>
-          1. <ins>Return ? Type(_nx_)::lessThan(_nx_, _ny_).</ins>
+          1. <ins>If Type(_nx_) is Type(_ny_), return ? Type(_nx_)::lessThan(_nx_, _ny_).</ins>
+          1. <ins>Assert: Type(_nx_) is BigInt and Type(_ny_) is Number, or if Type(_nx_) is Number and Type(_ny_) is BigInt.</ins>
+          1. <ins>If the mathematical value of _nx_ is less than the mathematical value of _ny_, return *true*, otherwise return *false*.</ins>
       </emu-alg>
        <emu-integration-plans>The previous Number-related contents of this algorithm will be moved into Number::lessThan.</emu-integration-plans>
       <emu-issue>In this section, comparisons between BigInts and Numbers would throw a TypeError. A possible alternative semantics would be to permit comparisons; this is discussed <a href="https://github.com/tc39/proposal-bigint/issues/4">in Issue #4</a>.</emu-issue>
@@ -789,12 +790,17 @@ emu-integration-plans:before {
         1. If _x_ is *undefined* and _y_ is *null*, return *true*.
         1. If Type(_x_) is Number and Type(_y_) is String, return the result of the comparison _x_ == ToNumber(_y_).
         1. If Type(_x_) is String and Type(_y_) is Number, return the result of the comparison ToNumber(_x_) == _y_.
-        1. <ins>If Type(_x_) is BigInt and Type(_y_) is String, throw a *TypeError* exception.</ins>
-        1. <ins>If Type(_x_) is String and Type(_y_) is BigInt, throw a *TypeError* exception.</ins>
-        1. If Type(_x_) is Boolean, return the result of the comparison ToNumber(_x_) == _y_.
-        1. If Type(_y_) is Boolean, return the result of the comparison _x_ == ToNumber(_y_).
-        1. If Type(_x_) is either String, Number, <ins>BigInt,</ins> or Symbol and Type(_y_) is Object, return the result of the comparison _x_ == ToPrimitive(_y_).
-        1. If Type(_x_) is Object and Type(_y_) is either String, Number, <ins>BigInt,</ins> or Symbol, return the result of the comparison ToPrimitive(_x_) == _y_.
+        1. <ins>If Type(_x_) is BigInt and Type(_y_) is String, return the result of _x_ == ? ToBigInt(_y_).</ins>
+        1. <ins>If Type(_x_) is String and Type(_y_) is BigInt, return the result of ? ToBigInt(_x_) == y.</ins>
+        1. If Type(_x_) is Boolean, <del>return the result of the comparison ToNumber(_x_) == _y_.</del>
+          1. <ins>Let _primY_ be ToPrimitive(_y_).</ins>
+          1. <ins>If Type(_primY_) is BigInt,</ins>
+            1. <ins>Return ! ToBigInt(_primY_) == _primY_</ins>
+          1. <ins>Otherwise,</ins>
+            1. <ins>Return ! ToNumber(_primY_) == _primY_</ins>
+        1. If Type(_y_) is Boolean, <del>return the result of the comparison _x_ == ToNumber(_y_)</del><ins>return the result of _y_ == _x_</ins>.
+        1. If Type(_x_) is either String, Number, <ins>BigInt,</ins> or Symbol and Type(_y_) is Object, return the result of the comparison _x_ == ! ToPrimitive(_y_).
+        1. If Type(_x_) is Object and Type(_y_) is either String, Number, <ins>BigInt,</ins> or Symbol, return the result of the comparison ! ToPrimitive(_x_) == _y_.
         1. <ins>If Type(_x_) is BigInt and Type(_y_) is Number, or if Type(_x_) is Number and Type(_y_) is BigInt, throw a *TypeError* exception.</ins>
         1. Return *false*.
       </emu-alg>
