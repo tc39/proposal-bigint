@@ -1257,78 +1257,11 @@ emu-integration-plans:before {
         <p>When `BigInt` is called with argument _value_, the following steps are taken:</p>
         <emu-alg>
           1. If NewTarget is not *undefined*, throw a *TypeError* exception.
-          1. Let _prim_ be ? ToPrimitive(_value_).
-          1. Return the value that _prim_ correspond to in <emu-xref href="#table-to-bigint"></emu-xref>
+          1. Let _prim_ be ? ToPrimitive(_value_, hint Number).
+          1. If Type(_prim_) is Number, let _n_ be ? NumberToBigInt(_prim_).
+          1. Otherwise, let _n_ be ? ToBigInt(_value_).
         </emu-alg>
         <emu-issue>BigInt wrapped objects cannot be created using `new` on BigInt due to the throw in line 1; they can be created explicitly with `Object()` however. This follows a precedent from SIMD.js. <a href="https://github.com/tc39/proposal-bigint/issues/13">An open issue</a> discusses whether this is appropriate.</emu-issue>
-        <emu-table id="table-to-bigint" caption="BigInt Conversions">
-        <table>
-          <tbody>
-          <tr>
-            <th>
-              Argument Type
-            </th>
-            <th>
-              Result
-            </th>
-          </tr>
-          <tr>
-            <td>
-              Undefined
-            </td>
-            <td>
-              Throw a *TypeError* exception.
-              <emu-issue>Alternatively, we could return `0n` here and several of the below cases; see <a href="https://github.com/tc39/proposal-bigint/issues/15">this issue</a> for discussion</a>.
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Null
-            </td>
-            <td>
-              Throw a *TypeError* exception.
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Boolean
-            </td>
-            <td>
-              Return `1n` if _prim_ is *true* and `0n` if _prim_ is *false*.
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Number
-            </td>
-            <td>
-              Return NumberToBigInt(_prim_).
-            </td>
-          </tr>
-          <tr>
-            <td>
-              String
-            </td>
-            <td>
-              Apply the algorithm in <emu-xref href="#sec-tonumber-applied-to-the-string-type"></emu-xref> with the following changes:
-              <ul>
-                <li>If the grammar fails to apply, throw a *SyntaxError* rather than returning *NaN*.</li>
-                <li>Replace the |StrDecimalLiteral| production with |DecimalDigits| to not allow decimal points or exponents.</li>
-                <li>Return the BigInt which exactly corresponds to the MV, rather than rounding to a Number.</li>
-              </ul>
-            </td>
-          </tr>
-          <tr>
-            <td>
-              Symbol
-            </td>
-            <td>
-              Throw a *TypeError* exception.
-            </td>
-          </tr>
-          </tbody>
-        </table>
-        </emu-table>
       </emu-clause>
     </emu-clause>
 
@@ -1482,7 +1415,7 @@ emu-integration-plans:before {
         <emu-alg>
           1. If no arguments were passed to this function invocation, let _n_ be *+0*.
           1. Else,
-            1. Let _prim_ be ? ToPrimitive(_value_).
+            1. Let _prim_ be ? ToPrimitive(_value_, hint Number).
             1. If Type(_prim_) is BigInt, let _n_ be the Number value for _prim_.
             1. Otherwise, let _n_ be ? ToNumber(_value_).
           1. If NewTarget is *undefined*, return _n_.
@@ -1577,10 +1510,77 @@ emu-integration-plans:before {
     <h1>ToBigInt ( _argument_ )</h1>
     <p>The abstract operation ToBigInt converts its argument _argument_ to a BigInt value, or throws if an implicit conversion from Number would be required.</p>
     <emu-alg>
-      1. Let _n_ be ? ToNumeric(_argument_).
-      1. If Type(_n_) is not BigInt, throw a *TypeError*.
-      1. Return _n_.
+      1. Let _prim_ be ? ToPrimitive(_argument_, hint Number).
+      1. Return the value that _prim_ corresponds to in <emu-xref href="#table-to-bigint"></emu-xref>.
     </emu-alg>
+    <emu-table id="table-to-bigint" caption="BigInt Conversions">
+    <table>
+      <tbody>
+      <tr>
+        <th>
+          Argument Type
+        </th>
+        <th>
+          Result
+        </th>
+      </tr>
+      <tr>
+        <td>
+          Undefined
+        </td>
+        <td>
+          Throw a *TypeError* exception.
+          <emu-issue>Alternatively, we could return `0n` here and several of the below cases; see <a href="https://github.com/tc39/proposal-bigint/issues/15">this issue</a> for discussion</a>.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Null
+        </td>
+        <td>
+          Throw a *TypeError* exception.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Boolean
+        </td>
+        <td>
+          Return `1n` if _prim_ is *true* and `0n` if _prim_ is *false*.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Number
+        </td>
+        <td>
+          Throw a *TypeError* exception.
+        </td>
+      </tr>
+      <tr>
+        <td>
+          String
+        </td>
+        <td>
+          Apply the algorithm in <emu-xref href="#sec-tonumber-applied-to-the-string-type"></emu-xref> with the following changes:
+          <ul>
+            <li>If the grammar fails to apply, throw a *SyntaxError* rather than returning *NaN*.</li>
+            <li>Replace the |StrDecimalLiteral| production with |DecimalDigits| to not allow decimal points or exponents.</li>
+            <li>Return the BigInt which exactly corresponds to the MV, rather than rounding to a Number.</li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          Symbol
+        </td>
+        <td>
+          Throw a *TypeError* exception.
+        </td>
+      </tr>
+      </tbody>
+    </table>
+    </emu-table>
   </emu-clause>
 
   <emu-clause id="sec-to-int64" aoid="ToInt64">
