@@ -1466,9 +1466,9 @@ emu-integration-plans:before {
         </tr>
         <tr>
           <td>
-            <ins>Int64Array</ins>
+            <ins>BigInt64Array</ins>
             <br>
-            <ins>%Int64Array%</ins>
+            <ins>%BigInt64Array%</ins>
           </td>
           <td>
             <ins>Int64</ins>
@@ -1488,9 +1488,9 @@ emu-integration-plans:before {
         </tr>
         <tr>
           <td>
-            <ins>Uint64Array</ins>
+            <ins>BigUint64Array</ins>
             <br>
-            <ins>%Uint64Array%</ins>
+            <ins>%BigUint64Array%</ins>
           </td>
           <td>
             <ins>Uint64</ins>
@@ -1678,7 +1678,7 @@ emu-integration-plans:before {
           1. Perform SetValueInBuffer(_buffer_, _indexedPosition_, _elementType_, _numValue_, *true*, `"Unordered"`).
           1. Return *true*.
         </emu-alg>
-        <emu-integration-plans>Several other functions and abstract algorithms need similar treatment; for example, SetViewValue and Atomics.store. Other places in the specification need changes to their assertions, such as the assertion in SetValueInBuffer that the _value_ is passed is a Number (instead, the assertion should assert BigInt for Int64/Uint64Array).</emu-integration-plans>
+        <emu-integration-plans>Several other functions and abstract algorithms need similar treatment; for example, SetViewValue and Atomics.store. Other places in the specification need changes to their assertions, such as the assertion in SetValueInBuffer that the _value_ is passed is a Number (instead, the assertion should assert BigInt for BigInt64/BigUint64Array).</emu-integration-plans>
       </emu-clause>
 
       <emu-clause id="sec-dataview.prototype.getint64">

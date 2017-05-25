@@ -31,7 +31,7 @@ Read and add two unsigned 64-bit integers in asm.js on the heap:
 function Add64Module(stdlib, foreign, buffer) {
   "use asm";
   var cast = stdlib.BigInt.asUintN;
-  var values = new stdlib.Uint64Array(buffer);
+  var values = new stdlib.BigUint64Array(buffer);
   function add64(aIndex, bIndex) {
     aIndex = aIndex|0;
     bIndex = bIndex|0;
@@ -92,7 +92,7 @@ When called as a function, it is similar to the `Number` constructor: It convert
 ### TypedArrays and DataViews
 
 BigInts give JavaScript the ability to accurately represent 64-bit signed and unsigned integers:
-- Uint64Array and Int64Array, whose elements read from property access are BigInts
+- BigUint64Array and BigInt64Array, whose elements read from property access are BigInts
 - DataView.prototype.getInt64/getUint64, returning a BigInt
 
 Similarly, BigInts may be used by the WebAssembly FFI for 64-bit arguments and return values to functions.
@@ -130,7 +130,7 @@ Although this proposal introduces operator overloading, it throws in any of the 
 
 Analogously, `>>> 0` always returns a Number in uint32 range, throwing as `>>>` is not supported on BigInt at all. Note: asm.js itself does not require this property, as `>>>` may be an overloaded operator, and `|0` is used for all `int` parameter declarations, but `>>> 0` is a common idiom to achieve this property in JavaScrpit code.
 
-This proposal makes special allowances to make BigInt usable in asm.js code to build support for 64-bit integers, by including the standard library functions `BigInt.asUintN` and `BigInt.asIntN` as well as `Uint64Array` and `Int64Array`.
+This proposal makes special allowances to make BigInt usable in asm.js code to build support for 64-bit integers, by including the standard library functions `BigInt.asUintN` and `BigInt.asIntN` as well as `BigUint64Array` and `BigInt64Array`.
  The operator overloading in this proposal should not complicate the asm.js model: asm.js already treats operators as "overloaded" between floats, doubles, and signed and unsigned integers.
 
 ### Don't break potential future value types extensions
