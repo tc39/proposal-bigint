@@ -790,8 +790,12 @@ emu-integration-plans:before {
         1. If _x_ is *undefined* and _y_ is *null*, return *true*.
         1. If Type(_x_) is Number and Type(_y_) is String, return the result of the comparison _x_ == ToNumber(_y_).
         1. If Type(_x_) is String and Type(_y_) is Number, return the result of the comparison ToNumber(_x_) == _y_.
-        1. <ins>If Type(_x_) is BigInt and Type(_y_) is String, return the result of _x_ == ? ToBigInt(_y_).</ins>
-        1. <ins>If Type(_x_) is String and Type(_y_) is BigInt, return the result of ? ToBigInt(_x_) == y.</ins>
+        1. <ins>If Type(_x_) is BigInt and Type(_y_) is String,</ins>
+          1. <ins>Let _n_ be StringToBigInt(_y_).</ins>
+          1. <ins>If _n_ is ~empty~, return _x_ === *0n*.</ins>
+          1. <ins>If _n_ is ~empty~, return *false*.</ins>
+          1. <ins>Return the result of _x_ == _n_.</ins>
+        1. <ins>If Type(_x_) is String and Type(_y_) is BigInt, return the result of ? _y_ == _x_.</ins>
         1. If Type(_x_) is Boolean, <del>return the result of the comparison ToNumber(_x_) == _y_.</del>
           1. <ins>Let _primY_ be ToPrimitive(_y_).</ins>
           1. <ins>If Type(_primY_) is BigInt,</ins>
@@ -1517,6 +1521,15 @@ emu-integration-plans:before {
     </emu-table>
   </emu-clause>
 
+  <emu-clause id="sec-string-to-bigint" aoid="StringToBigInt">
+    <h1>StringToBigInt ( _argument_ )</h1>
+          Apply the algorithm in <emu-xref href="#sec-tonumber-applied-to-the-string-type"></emu-xref> with the following changes:
+          <ul>
+            <li>If the grammar fails to apply, rather than returning *NaN*, return ~empty~ if _argument_ is an empty String, and return ~error~.</li>
+            <li>Replace the |StrDecimalLiteral| production with |DecimalDigits| to not allow decimal points or exponents.</li>
+            <li>Return the BigInt which exactly corresponds to the MV, rather than rounding to a Number.</li>
+  </emu-clause>
+
   <emu-clause id="sec-to-bigint" aoid="ToBigInt">
     <h1>ToBigInt ( _argument_ )</h1>
     <p>The abstract operation ToBigInt converts its argument _argument_ to a BigInt value, or throws if an implicit conversion from Number would be required.</p>
@@ -1573,12 +1586,11 @@ emu-integration-plans:before {
           String
         </td>
         <td>
-          Apply the algorithm in <emu-xref href="#sec-tonumber-applied-to-the-string-type"></emu-xref> with the following changes:
-          <ul>
-            <li>If the grammar fails to apply, throw a *SyntaxError* rather than returning *NaN*.</li>
-            <li>Replace the |StrDecimalLiteral| production with |DecimalDigits| to not allow decimal points or exponents.</li>
-            <li>Return the BigInt which exactly corresponds to the MV, rather than rounding to a Number.</li>
-          </ul>
+          <emu-alg>
+            1. Let _n_ be StringToBigInt(_prim_).
+            1. If _n_ is ~empty~ or ~error~, throw a *SyntaxError*.
+            1. Return _n_.
+          </emu-alg>
         </td>
       </tr>
       <tr>
