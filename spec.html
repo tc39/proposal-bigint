@@ -806,6 +806,7 @@ emu-integration-plans:before {
         1. If Type(_x_) is either String, Number, <ins>BigInt,</ins> or Symbol and Type(_y_) is Object, return the result of the comparison _x_ == ! ToPrimitive(_y_).
         1. If Type(_x_) is Object and Type(_y_) is either String, Number, <ins>BigInt,</ins> or Symbol, return the result of the comparison ! ToPrimitive(_x_) == _y_.
         1. <ins>If Type(_x_) is BigInt and Type(_y_) is Number, or if Type(_x_) is Number and Type(_y_) is BigInt,</ins>
+          1. <ins>If _x_ or _y_ are any of *NaN*, *+&infin;*, or *-&infin;*, return *false*.</ins>
           1. <ins>If the mathematical value of _x_ is equal to the mathematical value of _y_, return *true*, otherwise return *false*.</ins>
         1. Return *false*.
       </emu-alg>
