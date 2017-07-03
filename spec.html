@@ -754,6 +754,9 @@ emu-integration-plans:before {
           1. <ins>Let _ny_ be ? ToNumeric(_py_).</ins>
           1. <ins>If Type(_nx_) is Type(_ny_), return ? Type(_nx_)::lessThan(_nx_, _ny_).</ins>
           1. <ins>Assert: Type(_nx_) is BigInt and Type(_ny_) is Number, or if Type(_nx_) is Number and Type(_ny_) is BigInt.</ins>
+          1. <ins>If _x_ or _y_ are any of *NaN*, return *undefined*.</ins>
+          1. <ins>If _x_ is *-&infin;*, or _y_ is *+&infin;*, return *true*.</ins>
+          1. <ins>If _x_ is *+&infin;*, or _y_ is *-&infin;*, return *false*.</ins>
           1. <ins>If the mathematical value of _nx_ is less than the mathematical value of _ny_, return *true*, otherwise return *false*.</ins>
       </emu-alg>
       <emu-integration-plans>The previous Number-related contents of this algorithm will be moved into Number::lessThan.</emu-integration-plans>
