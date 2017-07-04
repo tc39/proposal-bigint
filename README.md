@@ -52,8 +52,10 @@ In many cases in JavaScript coding, integers larger than 2<sup>53</sup> come up,
   - `stat` may give some data as 64-bit integers
   - Accurate timestamps
 - Bigger than 64-bit int cases
+  - Generally meeting a reasonable user expectation of a high-level language that integer arithmetic will be "correct" and not suddenly overflow
   - Basis for implementing BigDecimal; perhaps some applications would be happy with fixpoint calculations based on a BigInt
   - Any mathematical calculation with larger integers, e.g., solving Project Euler problems
+  - Exact geometric calculations
 
 This proposal provides a new, second primitive numeric type, `BigInt`, to meet those use cases.
 
@@ -76,6 +78,7 @@ BigInts are, logically, arbitrary mathematic integers, with operator definitions
 
 Literals for BigInts are similar to Number literals, but followed by `n`. They can be written with binary, octal or hexadecimal notation, e.g., `0x100n`. Legacy octal syntax (`0640`) is not allowed, only new-style (`0o064n`).
 
+The choice of `BigInt` comes from an attempt to preserve user intuition about the lack of compatibility of `BigInt` with things that are currently based on `Number`s. Because implicit coercisions lead to TypeErrors, the guidance is that existing users of Numbers should stay with Numbers if it works for the application, and only large usages need to upgrade to `BigInt`. The name `BigInt` is hoped to emphasize this not-by-default usage. The suffix `n` is basically arbitrary.
 
 ### The BigInt constructor
 
@@ -107,7 +110,9 @@ Many (all?) other dynamically typed programming languages which have multiple nu
 
 Silently losing precision sometimes may be a problem, but in most dynamically typed programming languages which provide integers and floats, integers are written like `1` and floats are written like `1.0`. It's possible to scan code for operations which may introduce floating point precision by looking for a decimal point. JavaScript exacerbates the scope of losing precision by making the unfortunate decision that a simple literal like `1` is a float. So, if mixed-precision were allowed, an innocent calculation such as `2n ** 53n + 1` would produce the float `2**53`--defeating the core functionality of this feature.
 
-To avoid this problem, this proposal bans implicit coercions between Numbers and BigInts, including operations which are mixed type. `1n + 1` throws a TypeError. So does passing `1n` as an argument into any JavaScript standard library function or Web API which expects a Number. Instead, to convert between types, an explicit call to `Number()` or `BigInt()` needs to be made to decide which domain to operate in. `0 === 0n` returns `false`, and `0 == 0n` and `0 < 0n` throw a `TypeError`.
+To avoid this problem, this proposal bans implicit coercions between Numbers and BigInts, including operations which are mixed type. `1n + 1` throws a TypeError. So does passing `1n` as an argument into any JavaScript standard library function or Web API which expects a Number. Instead, to convert between types, an explicit call to `Number()` or `BigInt()` needs to be made to decide which domain to operate in. `0 === 0n` returns `false`.
+
+Comparisons form an exception to this rule: It's mathematically well-defined to allow comparison operators such as `<` and `==` compare between Numbers and BigInts. Unlike operators like `+`, there is no loss of precision, since the output is just a Boolean. Further, `==` is extended in comparisons with strings in analogous ways, such as `0n == ""` is `true`. Although we may not be able to extend this support to user-defined types, it seems sufficiently important for meeting user expectations that this proposal adds them as a one-off.
 
 ## Design goals
 
@@ -137,7 +142,7 @@ This proposal makes special allowances to make BigInt usable in asm.js code to b
 
 - Should pave the cowpath to value types, as previously discussed, in conjunction with the work done on SIMD.js.
  - BigInts are a new primitive type, and have associated wrappers, as do the other primitives, and SIMD.js, and as value types would get.
- - Operator overloading on value types may follow a similar pattern of requiring uniform argument types; this avoids the very difficult proposition of double dispatch. By not supporting mixed operands, BigInt gets no superpowers which would be very difficult to generalize.
+ - Operator overloading on value types may follow a similar pattern of requiring uniform argument types; this avoids the very difficult proposition of double dispatch. By not supporting mixed operands, BigInt gets no superpowers which would be very difficult to generalize. Mixed comparisons are a one-off exception to this principle, however.
 - `L` has been proposed as a literal suffix for positive Int64 values. This proposal uses `n` to leave that space free for later (bikeshedding welcome!).
 
 ### Don't break JavaScript ergonomics
@@ -156,32 +161,7 @@ We need to choose a web-compatible name to add to the global object. There is so
 
 Design work here is being done in conjunction with planned prototyping in V8; this will be used to develop feedback to ensure that the proposal is efficiently implementable.
 
-## Open questions
-
-### Mixed comparison operators ([bug](https://github.com/tc39/proposal-bigint/issues/2))
-
-It would be mathematically well-defined to allow comparison operators such as `<` and `==` compare between Numbers and BigInts. Unlike operators like `+`, there is no loss of precision, since the output is just a Boolean.
-
-A couple arguments for why we should throw on `0 < 0n` and `0 == 0n`:
-- It's more straightforward to imagine how single-dispatch, matching-only operator overloading could be generalized to user-defined types and objects, whereas multiple dispatch is more difficult.
-- Throwing here leads to a simple, regular rule: You never have any operator at all work between types, just as it is prohibited for `+`. The simplicity of the rule may help developers understand what they can do.
-- Not supporting it is a "more minimal" proposal; we can likely to back and support mixed operands here, but it would be hard to go in the other direction.
-
-With "MVP" as a tiebreaker, this proposal starts with banning mixed operations.
-
-### Bikeshedding ([bug](https://github.com/tc39/proposal-bigint/issues/1))
-
-This proposal uses `n` as the literal suffix; `N`, `I`, `L` and `l` are some other proposed alternatives.
-
-This proposal calls the class `BigInt`; other proposed alternatives are `Integer` and `BigNum`.
-
-The choice of `BigInt` comes from an attempt to preserve user intuition about the lack of compatibility of `BigInt` with things that are currently based on `Number`s. Because implicit coercisions lead to TypeErrors, the guidance is that existing users of Numbers should stay with Numbers if it works for the application, and only large usages need to upgrade to `BigInt`. The name `BigInt` is hoped to emphasize this not-by-default usage.
-
-### And much, much more
-
-There are many [open bugs](https://github.com/tc39/proposal-bigint/issues) to discuss various issues. Come and join the discussion, and file some of your own!
-
-## Design alternatives not proposed here
+## Design alternatives not selected here
 
 ### Int64/Uint64
 
@@ -200,6 +180,7 @@ One possibility would be to wait until a potential future Int64/Uint64 proposal 
 ### Function and constant library ([bug](https://github.com/tc39/proposal-bigint/issues/20))
 
 It would be reasonable to add integer-related mathematical library functions, especially those which could be more efficiently based on instructions found on CPUs likely to be used by implementations. This includes:
+- Bitcast between BigInt and Number
 - Find first set/unset bit
 - Popcount
 - Find most significant set/unset bit
