@@ -780,11 +780,11 @@ emu-integration-plans:before {
           1. <ins>Return the result of _x_ == _n_.</ins>
         1. <ins>If Type(_x_) is String and Type(_y_) is BigInt, return the result of ? _y_ == _x_.</ins>
         1. If Type(_x_) is Boolean, <del>return the result of the comparison ToNumber(_x_) == _y_.</del>
-          1. <ins>Let _primY_ be ToPrimitive(_y_).</ins>
+          1. <ins>Let _primY_ be ToPrimitive(_y_, hint Number).</ins>
           1. <ins>If Type(_primY_) is BigInt,</ins>
-            1. <ins>Return ! ToBigInt(_primY_) == _primY_</ins>
+            1. <ins>Return ! ToBigInt(_primX_) == _primY_</ins>
           1. <ins>Otherwise,</ins>
-            1. <ins>Return ! ToNumber(_primY_) == _primY_</ins>
+            1. <ins>Return ! ToNumber(_primX_) == _primY_</ins>
         1. If Type(_y_) is Boolean, <del>return the result of the comparison _x_ == ToNumber(_y_)</del><ins>return the result of _y_ == _x_</ins>.
         1. If Type(_x_) is either String, Number, <ins>BigInt,</ins> or Symbol and Type(_y_) is Object, return the result of the comparison _x_ == ! ToPrimitive(_y_).
         1. If Type(_x_) is Object and Type(_y_) is either String, Number, <ins>BigInt,</ins> or Symbol, return the result of the comparison ! ToPrimitive(_x_) == _y_.
@@ -1279,7 +1279,7 @@ emu-integration-plans:before {
         <p>When the `BigInt.asUintN` function is called with two argument _bits_ and _bigint_, the following steps are taken:</p>
         <emu-alg>
           1. Let _bits_ be ? ToIndex(_bits_).
-          1. Let _bigint_ ToBigInt(_bigint_).
+          1. Let _bigint_ ? ToBigInt(_bigint_).
           1. Return a BigInt representing _bigint_ modulo 2<sup>_bits_</sup>.
         </emu-alg>
       </emu-clause>
@@ -1290,7 +1290,7 @@ emu-integration-plans:before {
         <p>When the `BigInt.asIntN` is called with two argument _bits_ and _bigint_, the following steps are taken:</p>
         <emu-alg>
           1. Let _bits_ be ? ToIndex(_bits_).
-          1. Let _bigint_ ToBigInt(_bigint_).
+          1. Let _bigint_ ? ToBigInt(_bigint_).
           1. Let _mod_ be a BigInt representing _bigint_ modulo 2<sup>_bits_</sup>.
           1. If _mod_ &ge; 2<sup>_bits_ - 1</sup>, return _mod_ - 2<sup>_bits_</sup>; otherwise, return _mod_.
         </emu-alg>
@@ -1589,7 +1589,7 @@ emu-integration-plans:before {
     <h1>ToInt64 ( _argument_ )</h1>
     <p>The abstract operation ToInt64 converts _argument_ to one of 2<sup>64</sup> integer values in the range -2<sup>63</sup> through 2<sup>63</sup>-1, inclusive. This abstract operation functions as follows:</p>
     <emu-alg>
-      1. Let _n_ ToBigInt(_argument_).
+      1. Let _n_ ? ToBigInt(_argument_).
       1. Let _int64bit_ be _n_ modulo 2<sup>64</sup>.
       1. If _int64bit_ &ge; 2<sup>64</sup>, return _int64bit_ - 2<sup>63</sup>; otherwise return _int64bit_.
     </emu-alg>
@@ -1599,7 +1599,7 @@ emu-integration-plans:before {
     <h1>ToUint64 ( _argument_ )</h1>
     <p>The abstract operation ToUint64 converts _argument_ to one of 2<sup>64</sup> integer values in the range 0 through 2<sup>64</sup>-1, inclusive. This abstract operation functions as follows:</p>
     <emu-alg>
-      1. Let _n_ ToBigInt(_argument_).
+      1. Let _n_ ? ToBigInt(_argument_).
       1. Let _int64bit_ be _n_ modulo 2<sup>64</sup>.
       1. Return _int64bit_.
     </emu-alg>
