@@ -1278,8 +1278,8 @@ emu-integration-plans:before {
         <h1>BigInt.asUintN ( _bits_, _bigint_ )</h1>
         <p>When the `BigInt.asUintN` function is called with two argument _bits_ and _bigint_, the following steps are taken:</p>
         <emu-alg>
-          1. Let _bigint_ ToBigInt(_bigint_).
           1. Let _bits_ be ? ToIndex(_bits_).
+          1. Let _bigint_ ToBigInt(_bigint_).
           1. Return a BigInt representing _bigint_ modulo 2<sup>_bits_</sup>.
         </emu-alg>
       </emu-clause>
@@ -1289,8 +1289,8 @@ emu-integration-plans:before {
         <h1>BigInt.asIntN ( _bits_, _bigint_ )</h1>
         <p>When the `BigInt.asIntN` is called with two argument _bits_ and _bigint_, the following steps are taken:</p>
         <emu-alg>
-          1. Let _bigint_ ToBigInt(_bigint_).
           1. Let _bits_ be ? ToIndex(_bits_).
+          1. Let _bigint_ ToBigInt(_bigint_).
           1. Let _mod_ be a BigInt representing _bigint_ modulo 2<sup>_bits_</sup>.
           1. If _mod_ &ge; 2<sup>_bits_ - 1</sup>, return _mod_ - 2<sup>_bits_</sup>; otherwise, return _mod_.
         </emu-alg>
