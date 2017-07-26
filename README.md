@@ -96,7 +96,7 @@ When called as a function, it is similar to the `Number` constructor: It convert
 
 BigInts give JavaScript the ability to accurately represent 64-bit signed and unsigned integers:
 - BigUint64Array and BigInt64Array, whose elements read from property access are BigInts
-- DataView.prototype.getInt64/getUint64, returning a BigInt
+- DataView.prototype.getBigInt64/getBigUint64, returning a BigInt
 
 Similarly, BigInts may be used by the WebAssembly FFI for 64-bit arguments and return values to functions.
 
