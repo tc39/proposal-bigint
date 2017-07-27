@@ -1,6 +1,6 @@
 # BigInt: Arbitrary precision integers in JavaScript
 
-Daniel Ehrenberg, Igalia. Stage 2
+Daniel Ehrenberg, Igalia. Stage 3
 
 Thanks for help and feedback on this effort from Brendan Eich, Waldemar Horwat, Jaro Sevcik, Benedikt Meurer, Michael Saboff, Adam Klein and others.
 
