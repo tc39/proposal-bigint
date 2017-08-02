@@ -832,7 +832,7 @@ emu-integration-plans:before {
         <emu-grammar>UpdateExpression : LeftHandSideExpression `++`</emu-grammar>
         <emu-alg>
           1. Let _lhs_ be the result of evaluating |LeftHandSideExpression|.
-          1. <del>Let _oldValue_ be ? ToNumber(? GetValue(_expr_)).</del>
+          1. <del>Let _oldValue_ be ? ToNumber(? GetValue(_lhs_)).</del>
           1. <del>Let _newValue_ be the result of adding the value 1 to _oldValue_, using the same rules as for the `+` operator (see <emu-xref href="#sec-applying-the-additive-operators-to-numbers"></emu-xref>).</del>
           1. <ins>Let _oldValue_ be ? ToNumeric(? GetValue(_lhs_)).</ins>
           1. <ins>Let _newValue_ be ? Type(_oldvalue_)::add(_oldValue_, Type(_oldValue_)::unit).</ins>
@@ -852,7 +852,7 @@ emu-integration-plans:before {
         <emu-grammar>UpdateExpression : LeftHandSideExpression `--`</emu-grammar>
         <emu-alg>
           1. Let _lhs_ be the result of evaluating |LeftHandSideExpression|.
-          1. <del>Let _oldValue_ be ? ToNumber(? GetValue(_expr_)).</del>
+          1. <del>Let _oldValue_ be ? ToNumber(? GetValue(_lhs)).</del>
           1. <del>Let _newValue_ be the result of subtracting the value 1 from _oldValue_, using the same rules as for the `-` operator (see <emu-xref href="#sec-applying-the-additive-operators-to-numbers"></emu-xref>).</del>
           1. <ins>Let _oldValue_ be ? ToNumeric(? GetValue(_lhs_)).</ins>
           1. <ins>Let _newValue_ be ? Type(_oldvalue_)::subtract(_oldValue_, Type(_oldValue_)::unit).</ins>
@@ -874,7 +874,7 @@ emu-integration-plans:before {
           1. Let _expr_ be the result of evaluating |UnaryExpression|.
           1. <del>Let _oldValue_ be ? ToNumber(? GetValue(_expr_)).</del>
           1. <del>Let _newValue_ be the result of adding the value 1 to _oldValue_, using the same rules as for the `+` operator (see <emu-xref href="#sec-applying-the-additive-operators-to-numbers"></emu-xref>).</del>
-          1. <ins>Let _oldValue_ be ? ToNumeric(? GetValue(_lhs_)).</ins>
+          1. <ins>Let _oldValue_ be ? ToNumeric(? GetValue(_expr_)).</ins>
           1. <ins>Let _newValue_ be ? Type(_oldvalue_)::add(_oldValue_, Type(_oldValue_)::unit).</ins>
           1. Perform ? PutValue(_expr_, _newValue_).
           1. Return _newValue_.
@@ -894,7 +894,7 @@ emu-integration-plans:before {
           1. Let _expr_ be the result of evaluating |UnaryExpression|.
           1. <del>Let _oldValue_ be ? ToNumber(? GetValue(_expr_)).</del>
           1. <del>Let _newValue_ be the result of subtracting the value 1 from _oldValue_, using the same rules as for the `-` operator (see <emu-xref href="#sec-applying-the-additive-operators-to-numbers"></emu-xref>).</del>
-          1. <ins>Let _oldValue_ be ? ToNumeric(? GetValue(_lhs_)).</ins>
+          1. <ins>Let _oldValue_ be ? ToNumeric(? GetValue(_expr_)).</ins>
           1. <ins>Let _newValue_ be ? Type(_oldvalue_)::subtract(_oldValue_, Type(_oldValue_)::unit).</ins>
           1. Perform ? PutValue(_expr_, _newValue_).
           1. Return _newValue_.
