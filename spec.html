@@ -259,7 +259,8 @@ emu-integration-plans:before {
 
     <emu-clause id="sec-numeric-types-bigint-unaryMinus">
       <h1>BigInt::unaryMinus (_x_)</h1>
-      <p>The abstract operation BigInt::unaryMinus with an argument _x_ of BigInt type returns the result of negating _x_; that is, compute a BigInt with the same magnitude but opposite sign.</p>
+      <p>The abstract operation BigInt::unaryMinus with an argument _x_ of BigInt type returns the result of negating _x_.</p>
+      <emu-note>There is only one *0n* value; `-0n` is the same as *0n*.</emu-note>
     </emu-clause>
 
     <emu-clause id="sec-numeric-types-bigint-bitwiseNOT">
