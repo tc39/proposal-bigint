@@ -1240,8 +1240,7 @@ emu-integration-plans:before {
         <emu-alg>
           1. Assert: Type(_number_) is Number.
           1. If IsSafeInteger(_number_) is *false*, throw a *RangeError* exception.
-          1. Let _int_ be the mathematical value that is the same sign as _number_ and whose magnitude is floor(abs(_number_)).
-          1. Return a BigInt value representing _int_.
+          1. Return a BigInt value representing the mathematical value of _number_.
         </emu-alg>
       </emu-clause>
 
