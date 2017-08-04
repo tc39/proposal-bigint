@@ -1391,7 +1391,7 @@ emu-integration-plans:before {
             1. If _value_ is finite, return ! ToString(_value_).
             1. Else, return `"null"`.
           1. <ins>If Type(_value_) is BigInt,</ins>
-            1. <ins>Let _toJSON_ be ? Get(_value_, `"toJSON"`).</ins>
+            1. <ins>Let _toJSON_ be ? GetV(_value_, `"toJSON"`).</ins>
             1. <ins>If IsCallable(_toJSON_) is *true*, then</ins>
               1. <ins>Set _value_ to ? Call(_toJSON_, _value_, &laquo; _key_ &raquo;).</ins>
             1. <ins>Otherwise, throw a *TypeError* exception.</ins>
