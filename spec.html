@@ -550,7 +550,7 @@ emu-integration-plans:before {
         </table>
       </emu-table>
       <emu-motivation>
-        Although it would be possible to define a conversion here, to find the nearest Number for a BigInt, such a conversion may lose precision. ToNumber is called implicitly from so many places, but BigInts would not add any value if they lost precision all the time; you might as well just use Numbers instead in the first place. A key <a href="https://github.com/tc39/proposal-bigint/blob/master/README.md#no-implicit-conversions-or-mixed-operands">design decision</a> of this specification is to disallow implicit conversions, and force programmers to to explicit conversions themselves instead.
+        Although it would be possible to define a conversion here, to find the nearest Number for a BigInt, such a conversion may lose precision. ToNumber is called implicitly from so many places, but BigInts would not add any value if they lost precision all the time; you might as well just use Numbers instead in the first place. A key <a href="https://github.com/tc39/proposal-bigint/blob/master/README.md#no-implicit-conversions-or-mixed-operands">design decision</a> of this specification is to disallow implicit conversions, and force programmers to use explicit conversions themselves instead.
       </emu-motivation>
 
       <emu-clause id="sec-tonumber-applied-to-the-string-type">
