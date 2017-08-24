@@ -1250,8 +1250,8 @@ emu-integration-plans:before {
         <emu-alg>
           1. If NewTarget is not *undefined*, throw a *TypeError* exception.
           1. Let _prim_ be ? ToPrimitive(_value_, hint Number).
-          1. If Type(_prim_) is Number, let _n_ be ? NumberToBigInt(_prim_).
-          1. Otherwise, let _n_ be ? ToBigInt(_value_).
+          1. If Type(_prim_) is Number, return ? NumberToBigInt(_prim_).
+          1. Otherwise, return ? ToBigInt(_value_).
         </emu-alg>
       </emu-clause>
     </emu-clause>
