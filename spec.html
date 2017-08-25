@@ -412,43 +412,35 @@ emu-integration-plans:before {
   <h1>Modifications to the Number grammar</h1>
   <emu-grammar>
     NumericLiteral ::
-      <del>DecimalLiteral</del>
+      DecimalLiteral
+      <ins>DecimalIntegerLiteral BigIntLiteralSuffix</ins>
       <del>BinaryIntegerLiteral</del>
       <del>OctalIntegerLiteral</del>
       <del>HexIntegerLiteral</del>
       <ins>NumericLiteralBase</ins>
-      <ins>NumericLiteralBase NumericLiteralSuffix</ins>
+      <ins>NumericLiteralBase BigIntLiteralSuffix</ins>
       LegacyOctalIntegerLiteral
 
     <ins>NumericLiteralBase ::
-          DecimalLiteral
           BinaryIntegerLiteral
           OctalIntegerLiteral
           HexIntegerLiteral</ins>
 
-    <ins>NumericLiteralSuffix :: `n`</ins>
+    <ins>BigIntLiteralSuffix :: `n`</ins>
   </emu-grammar>
-
-  <emu-clause id="sec-numeric-literal-static-semantics-early-errors">
-    <h1>Static Semantics: Early Errors</h1>
-    <emu-grammar>NumericLiteral :: NumericLiteralBase NumericLiteralSuffix</emu-grammar>
-    <ul>
-      <li>
-        It is a Syntax Error if the MV is not an integer.
-      </li>
-      <li>
-        It is a Syntax Error if the |NumericLiteralBase| contains an |ExponentPart|.
-      </li>
-    </ul>
-  </emu-clause>
 
   <emu-clause id="sec-numeric-literal-static-semantics-bigint-value">
     <h1>Static Semantics: BigInt Value</h1>
-    <emu-grammar>NumericLiteral :: NumericLiteralBase NumericLiteralSuffix</emu-grammar>
+    <emu-grammar>NumericLiteral :: NumericLiteralBase BigIntLiteralSuffix</emu-grammar>
     <ul>
-      <li>Assert: |NumericLiteralSuffix| is `n`.</li>
       <li>
         Let the value of |NumericLiteral| be the MV of |NumericLiteralBase| represented as BigInt.
+      </li>
+    </ul>
+    <emu-grammar>NumericLiteral :: DecimalIntegerLiteral BigIntLiteralSuffix</emu-grammar>
+    <ul>
+      <li>
+        Let the value of |NumericLiteral| be the MV of |DecimalIntegerLiteral| represented as BigInt.
       </li>
     </ul>
   </emu-clause>
@@ -558,7 +550,7 @@ emu-integration-plans:before {
         <emu-note>
           <p>Some differences should be noted between the syntax of a |StringNumericLiteral| and a |NumericLiteral|:</p>
             <li>
-              <ins>A |StringNumericLiteral| may not include a |NumericLiteralSuffix|.</ins>
+              <ins>A |StringNumericLiteral| may not include a |BigIntLiteralSuffix|.</ins>
             </li>
         </emu-note>
       </emu-clause>
