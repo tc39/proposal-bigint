@@ -1359,8 +1359,8 @@ emu-integration-plans:before {
         <p>The abstract operation SerializeJSONProperty with arguments _key_, and _holder_ has access to _ReplacerFunction_ from the invocation of the `stringify` method. Its algorithm is as follows:</p>
         <emu-alg>
           1. Let _value_ be ? Get(_holder_, _key_).
-          1. If Type(_value_) is Object, then
-            1. Let _toJSON_ be ? Get(_value_, `"toJSON"`).
+          1. If Type(_value_) is Object <ins>or BigInt</ins>, then
+            1. Let _toJSON_ be ? <del>Get</del><ins>GetV</ins>(_value_, `"toJSON"`).
             1. If IsCallable(_toJSON_) is *true*, then
               1. Set _value_ to ? Call(_toJSON_, _value_, &laquo; _key_ &raquo;).
           1. If _ReplacerFunction_ is not *undefined*, then
@@ -1374,12 +1374,6 @@ emu-integration-plans:before {
               1. Set _value_ to _value_.[[BooleanData]].
             1. <ins>Else if _value_ has a [[BigIntData]] internal slot, then</ins>
               1. <ins>Set _value_ to _value_.[[BigIntData]].</ins>
-          1. <ins>If Type(_value_) is BigInt,</ins>
-            1. <ins>Let _toJSON_ be ? GetV(_value_, `"toJSON"`).</ins>
-            1. <ins>If IsCallable(_toJSON_) is *true*, then</ins>
-              1. <ins>Set _value_ to ? Call(_toJSON_, _value_, &laquo; _key_ &raquo;).</ins>
-            1. <ins>Otherwise, throw a *TypeError* exception.</ins>
-            1. <ins>If Type(_value_) is BigInt, throw a *TypeError* exception.</ins>
           1. If _value_ is *null*, return `"null"`.
           1. If _value_ is *true*, return `"true"`.
           1. If _value_ is *false*, return `"false"`.
@@ -1387,6 +1381,7 @@ emu-integration-plans:before {
           1. If Type(_value_) is Number, then
             1. If _value_ is finite, return ! ToString(_value_).
             1. Else, return `"null"`.
+          1. <ins>If Type(_value_) is BigInt, throw a *TypeError* exception</ins>
           1. If Type(_value_) is Object and IsCallable(_value_) is *false*, then
             1. Let _isArray_ be ? IsArray(_value_).
             1. If _isArray_ is *true*, return ? SerializeJSONArray(_value_).
