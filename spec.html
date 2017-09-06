@@ -206,7 +206,7 @@ emu-integration-plans:before {
           _T_::sameValue(x,&nbsp;y)
         </td>
         <td>
-          A specification function invoked when applying <emu-xref href="#sec-samevalue">abstract operation SameValue</emu-xref>. The return value must be *false* or *true*. Called from Object internal methods to test exact value equality.
+          A specification function invoked when applying <emu-xref href="#sec-samevalue">abstract operation SameValue</emu-xref>. The return value must be *false* or *true*. Called from Object internal methods to test exact value equality. May not throw an exception.
         </td>
       </tr>
       <tr>
@@ -214,7 +214,7 @@ emu-integration-plans:before {
           _T_::sameValueZero(x,&nbsp;y)
         </td>
         <td>
-          A specification function invoked when applying <emu-xref href="#sec-samevaluezero">abstract operation SameValueZero</emu-xref>. The return value must be *false* or *true*. Called from Array, Map, and Set methods to test value equality ignoring differences among members of the zero cohort (e.g., *-0* and *+0*).
+          A specification function invoked when applying <emu-xref href="#sec-samevaluezero">abstract operation SameValueZero</emu-xref>. The return value must be *false* or *true*. Called from Array, Map, and Set methods to test value equality ignoring differences among members of the zero cohort (e.g., *-0* and *+0*). May not throw an exception.
         </td>
       </tr>
       <tr>
@@ -670,7 +670,7 @@ emu-integration-plans:before {
            1. <del>If _x_ is *-0* and _y_ is *+0*, return *false*.</del>
            1. <del>If _x_ is the same Number value as _y_, return *true*.</del>
            1. <del>Return *false*.</del>
-           1. <ins>Return ? Type(_x_)::sameValue(_x_, _y_).</ins>
+           1. <ins>Return ! Type(_x_)::sameValue(_x_, _y_).</ins>
          1. Return <a href="sec-samevaluenonnumber">SameValueNon<del>Number</del><ins>Numeric</ins></a>(_x_, _y_).
        </emu-alg>
        <emu-integration-plans>The previous Number-related contents of this algorithm will be moved into Number::sameValue.</emu-integration-plans>
@@ -688,7 +688,7 @@ emu-integration-plans:before {
            1. <del>If _x_ is *-0* and _y_ is *+0*, return *true*.</del>
            1. <del>If _x_ is the same Number value as _y_, return *true*.</del>
            1. <del>Return *false*.</del>
-           1. <ins>Return ? Type(_x_)::sameValueZero(_x_, _y_).</ins>
+           1. <ins>Return ! Type(_x_)::sameValueZero(_x_, _y_).</ins>
          1. Return <a href="sec-samevaluenonnumber">SameValueNon<del>Number</del><ins>Numeric</ins></a>(_x_, _y_).
        </emu-alg>
        <emu-integration-plans>The previous Number-related contents of this algorithm will be moved into Number::sameValueZero.</emu-integration-plans>
@@ -1215,7 +1215,7 @@ emu-integration-plans:before {
           1. Assert: Type(_number_) is Number.
           1. If _number_ is *NaN*, *+&infin;*, or *-&infin;*, return *false*.
           1. Let _integer_ be ! ToInteger(_number_).
-          1. If SameValueZero(_integer_, _number_) is *false*, return *false*.
+          1. If ! SameValueZero(_integer_, _number_) is *false*, return *false*.
           1. If abs(_integer_) &le; 2<sup>53</sup>-1, return *true*.
           1. Otherwise, return *false*.
         </emu-alg>
