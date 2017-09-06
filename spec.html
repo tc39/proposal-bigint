@@ -1392,9 +1392,9 @@ emu-integration-plans:before {
         <emu-alg>
           1. If no arguments were passed to this function invocation, let _n_ be *+0*.
           1. Else,
-            1. Let _prim_ be ? ToPrimitive(_value_, hint Number).
+            1. Let _prim_ be ? ToNumeric(_value_).
             1. If Type(_prim_) is BigInt, let _n_ be the Number value for _prim_.
-            1. Otherwise, let _n_ be ? ToNumber(_value_).
+            1. Otherwise, let _n_ be _prim_.
           1. If NewTarget is *undefined*, return _n_.
           1. Let _O_ be ? OrdinaryCreateFromConstructor(NewTarget, `"%NumberPrototype%"`, &laquo; [[NumberData]] &raquo;).
           1. Set _O_.[[NumberData]] to _n_.
