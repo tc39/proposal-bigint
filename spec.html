@@ -771,13 +771,8 @@ emu-integration-plans:before {
           1. <ins>If _n_ is *NaN*, return *false*.</ins>
           1. <ins>Return the result of _x_ == _n_.</ins>
         1. <ins>If Type(_x_) is String and Type(_y_) is BigInt, return the result of _y_ == _x_.</ins>
-        1. If Type(_x_) is Boolean, <del>return the result of the comparison ToNumber(_x_) == _y_.</del>
-          1. <ins>Let _primY_ be ToPrimitive(_y_, hint Number).</ins>
-          1. <ins>If Type(_primY_) is BigInt,</ins>
-            1. <ins>Return ! ToBigInt(_primX_) == _primY_</ins>
-          1. <ins>Otherwise,</ins>
-            1. <ins>Return ! ToNumber(_primX_) == _primY_</ins>
-        1. If Type(_y_) is Boolean, <del>return the result of the comparison _x_ == ToNumber(_y_)</del><ins>return the result of _y_ == _x_</ins>.
+        1. If Type(_x_) is Boolean, return the result of the comparison ToNumber(_x_) == _y_.
+        1. If Type(_y_) is Boolean, return the result of the comparison _x_ == ToNumber(_y_).
         1. If Type(_x_) is either String, Number, <ins>BigInt,</ins> or Symbol and Type(_y_) is Object, return the result of the comparison _x_ == ? ToPrimitive(_y_).
         1. If Type(_x_) is Object and Type(_y_) is either String, Number, <ins>BigInt,</ins> or Symbol, return the result of the comparison ? ToPrimitive(_x_) == _y_.
         1. <ins>If Type(_x_) is BigInt and Type(_y_) is Number, or if Type(_x_) is Number and Type(_y_) is BigInt,</ins>
