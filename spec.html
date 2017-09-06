@@ -1441,13 +1441,13 @@ emu-integration-plans:before {
             <ins>%BigInt64Array%</ins>
           </td>
           <td>
-            <ins>Int64</ins>
+            <ins>BigInt64</ins>
           </td>
           <td>
             <ins>8</ins>
           </td>
           <td>
-            <ins>ToInt64</ins>
+            <ins>ToBigInt64</ins>
           </td>
           <td>
             <ins>64-bit 2's complement signed integer</ins>
@@ -1463,13 +1463,13 @@ emu-integration-plans:before {
             <ins>%BigUint64Array%</ins>
           </td>
           <td>
-            <ins>Uint64</ins>
+            <ins>BigUint64</ins>
           </td>
           <td>
             <ins>8</ins>
           </td>
           <td>
-            <ins>ToUint64</ins>
+            <ins>ToBigUint64</ins>
           </td>
           <td>
             <ins>64-bit unsigned integer</ins>
@@ -1576,9 +1576,9 @@ emu-integration-plans:before {
     </emu-table>
   </emu-clause>
 
-  <emu-clause id="sec-to-int64" aoid="ToInt64">
-    <h1>ToInt64 ( _argument_ )</h1>
-    <p>The abstract operation ToInt64 converts _argument_ to one of 2<sup>64</sup> integer values in the range -2<sup>63</sup> through 2<sup>63</sup>-1, inclusive. This abstract operation functions as follows:</p>
+  <emu-clause id="sec-to-big-int64" aoid="ToBigInt64">
+    <h1>ToBigInt64 ( _argument_ )</h1>
+    <p>The abstract operation ToBigInt64 converts _argument_ to one of 2<sup>64</sup> integer values in the range -2<sup>63</sup> through 2<sup>63</sup>-1, inclusive. This abstract operation functions as follows:</p>
     <emu-alg>
       1. Let _n_ ? ToBigInt(_argument_).
       1. Let _int64bit_ be _n_ modulo 2<sup>64</sup>.
@@ -1586,9 +1586,9 @@ emu-integration-plans:before {
     </emu-alg>
   </emu-clause>
 
-  <emu-clause id="sec-to-uint64" aoid="ToUint64">
-    <h1>ToUint64 ( _argument_ )</h1>
-    <p>The abstract operation ToUint64 converts _argument_ to one of 2<sup>64</sup> integer values in the range 0 through 2<sup>64</sup>-1, inclusive. This abstract operation functions as follows:</p>
+  <emu-clause id="sec-to-big-uint64" aoid="ToBigUint64">
+    <h1>ToBigUint64 ( _argument_ )</h1>
+    <p>The abstract operation ToBigUint64 converts _argument_ to one of 2<sup>64</sup> integer values in the range 0 through 2<sup>64</sup>-1, inclusive. This abstract operation functions as follows:</p>
     <emu-alg>
       1. Let _n_ ? ToBigInt(_argument_).
       1. Let _int64bit_ be _n_ modulo 2<sup>64</sup>.
@@ -1614,7 +1614,7 @@ emu-integration-plans:before {
             1. Let _intValue_ be the byte elements of _rawBytes_ concatenated and interpreted as a bit string encoding of an unsigned little-endian binary number.
           1. Else,
             1. Let _intValue_ be the byte elements of _rawBytes_ concatenated and interpreted as a bit string encoding of a binary little-endian 2's complement number of bit length _elementSize_ &times; 8.
-          1. <ins>If _type_ is `"Uint64"` or `"Int64"`, return the BigInt value that corresponds to _intValue_.</ins>
+          1. <ins>If _type_ is `"BigUint64"` or `"BigInt64"`, return the BigInt value that corresponds to _intValue_.</ins>
           1. <ins>Otherwise, </ins>return the Number value that corresponds to _intValue_.
         </emu-alg>
       </emu-clause>
@@ -1648,10 +1648,8 @@ emu-integration-plans:before {
           1. Assert: _O_ is an Object that has [[ViewedArrayBuffer]], [[ArrayLength]], [[ByteOffset]], and [[TypedArrayName]] internal slots.
           1. Let _arrayTypeName_ be the String value of _O_.[[TypedArrayName]].
           1. Let _elementType_ be the String value of the Element Type value in <emu-xref href="#table-49"></emu-xref> for _arrayTypeName_.
-          1. Let _numValue_ be ? <del>ToNumber</del><ins>ToNumeric</ins>(_value_).
-          1. <ins>If _elementType_ is `"Int64"` or `"Uint64"`,</ins>
-            1. <ins>If Type(_numValue_) is not BigInt, throw a *TypeError*.</ins>
-          1. <ins>Otherwise, if Type(_numValue_) is not Number, throw a *TypeError*.</ins>
+          1. <ins>If _arrayTypeName_ is `"BigUint64Array"` or `"BigInt64Array"`, let _numValue_ be ? ToBigInt(_v_).
+          1. <ins>Otherwise,</ins> let _numValue_ be ? ToNumber(_value_).
           1. Let _buffer_ be _O_.[[ViewedArrayBuffer]].
           1. If IsDetachedBuffer(_buffer_) is *true*, throw a *TypeError* exception.
           1. If IsInteger(_index_) is *false*, return *false*.
@@ -1664,7 +1662,218 @@ emu-integration-plans:before {
           1. Perform SetValueInBuffer(_buffer_, _indexedPosition_, _elementType_, _numValue_, *true*, `"Unordered"`).
           1. Return *true*.
         </emu-alg>
-        <emu-integration-plans>Several other functions and abstract algorithms need similar treatment; for example, SetViewValue and Atomics.store. Other places in the specification need changes to their assertions, such as the assertion in SetValueInBuffer that the _value_ is passed is a Number (instead, the assertion should assert BigInt for BigInt64/BigUint64Array).</emu-integration-plans>
+      </emu-clause>
+
+      <!-- es6num="24.1.1.5" -->
+      <emu-clause id="sec-getvaluefrombuffer" aoid="GetValueFromBuffer">
+        <h1>GetValueFromBuffer ( _arrayBuffer_, _byteIndex_, _type_, _isTypedArray_, _order_ [ , _isLittleEndian_ ] )</h1>
+        <p>The abstract operation GetValueFromBuffer takes six parameters, an ArrayBuffer or SharedArrayBuffer _arrayBuffer_, an integer _byteIndex_, a String _type_, a Boolean _isTypedArray_, a String _order_, and optionally a Boolean _isLittleEndian_. This operation performs the following steps:</p>
+        <emu-alg>
+          1. Assert: IsDetachedBuffer(_arrayBuffer_) is *false*.
+          1. Assert: There are sufficient bytes in _arrayBuffer_ starting at _byteIndex_ to represent a value of _type_.
+          1. Assert: _byteIndex_ is an integer value &ge; 0.
+          1. Let _block_ be _arrayBuffer_.[[ArrayBufferData]].
+          1. Let _elementSize_ be the Number value of the Element Size value specified in <emu-xref href="#table-49"></emu-xref> for Element Type _type_.
+          1. If IsSharedArrayBuffer(_arrayBuffer_) is *true*, then
+            1. Let _execution_ be the [[CandidateExecution]] field of the surrounding agent's Agent Record.
+            1. Let _eventList_ be the [[EventList]] field of the element in _execution_.[[EventLists]] whose [[AgentSignifier]] is AgentSignifier().
+            1. If _isTypedArray_ is *true* and _type_ is `"Int8"`, `"Uint8"`, `"Int16"`, `"Uint16"`, `"Int32"`, or `"Uint32"`, let _noTear_ be *true*; otherwise let _noTear_ be *false*.
+            1. Let _rawValue_ be a List of length _elementSize_ of nondeterministically chosen byte values.
+            1. NOTE: In implementations, _rawValue_ is the result of a non-atomic or atomic read instruction on the underlying hardware. The nondeterminism is a semantic prescription of the memory model to describe observable behaviour of hardware with weak consistency.
+            1. Let _readEvent_ be ReadSharedMemory{ [[Order]]: _order_, [[NoTear]]: _noTear_, [[Block]]: _block_, [[ByteIndex]]: _byteIndex_, [[ElementSize]]: _elementSize_ }.
+            1. Append _readEvent_ to _eventList_.
+            1. Append Chosen Value Record { [[Event]]: _readEvent_, [[ChosenValue]]: _rawValue_ } to _execution_.[[ChosenValues]].
+          1. Else, let _rawValue_ be a List of _elementSize_ containing, in order, the _elementSize_ sequence of bytes starting with _block_[_byteIndex_].
+          1. If _isLittleEndian_ is not present, set _isLittleEndian_ to the value of the [[LittleEndian]] field of the surrounding agent's Agent Record.
+          1. Return RawBytesToNumber(_type_, _rawValue_, _isLittleEndian_).
+        </emu-alg>
+      </emu-clause>
+
+      <!-- es6num="24.1.1.6" -->
+      <emu-clause id="sec-setvalueinbuffer" aoid="SetValueInBuffer">
+        <h1>SetValueInBuffer ( _arrayBuffer_, _byteIndex_, _type_, _value_, _isTypedArray_, _order_ [ , _isLittleEndian_ ] )</h1>
+        <p>The abstract operation SetValueInBuffer takes seven parameters, an ArrayBuffer or SharedArrayBuffer _arrayBuffer_, an integer _byteIndex_, a String _type_, a Number _value_, a Boolean _isTypedArray_, a String _order_, and optionally a Boolean _isLittleEndian_. This operation performs the following steps:</p>
+        <emu-alg>
+          1. Assert: IsDetachedBuffer(_arrayBuffer_) is *false*.
+          1. Assert: There are sufficient bytes in _arrayBuffer_ starting at _byteIndex_ to represent a value of _type_.
+          1. Assert: _byteIndex_ is an integer value &ge; 0.
+          1. Assert: Type(_value_) is Number <ins>if _type_ is not `"BigInt64"` or `"BigUint64"`; otherwise, Type(_value_) is BigInt</ins>.
+          1. Let _block_ be _arrayBuffer_.[[ArrayBufferData]].
+          1. Let _elementSize_ be the Number value of the Element Size value specified in <emu-xref href="#table-49"></emu-xref> for Element Type _type_.
+          1. If _isLittleEndian_ is not present, set _isLittleEndian_ to the value of the [[LittleEndian]] field of the surrounding agent's Agent Record.
+          1. Let _rawBytes_ be NumberToRawBytes(_type_, _value_, _isLittleEndian_).
+          1. If IsSharedArrayBuffer(_arrayBuffer_) is *true*, then
+            1. Let _execution_ be the [[CandidateExecution]] field of the surrounding agent's Agent Record.
+            1. Let _eventList_ be the [[EventList]] field of the element in _execution_.[[EventLists]] whose [[AgentSignifier]] is AgentSignifier().
+            1. If _isTypedArray_ is *true* and _type_ is `"Int8"`, `"Uint8"`, `"Int16"`, `"Uint16"`, `"Int32"`, or `"Uint32"`, let _noTear_ be *true*; otherwise let _noTear_ be *false*.
+            1. Append WriteSharedMemory{ [[Order]]: _order_, [[NoTear]]: _noTear_, [[Block]]: _block_, [[ByteIndex]]: _byteIndex_, [[ElementSize]]: _elementSize_, [[Payload]]: _rawBytes_ } to _eventList_.
+          1. Else, store the individual bytes of _rawBytes_ into _block_, in order, starting at _block_[_byteIndex_].
+          1. Return NormalCompletion(*undefined*).
+        </emu-alg>
+        <emu-note type=editor>BigInt64 and BigUint64, like Float64, are excluded from the list of types which experience noTear writes. That is, non-atomic writes may be observed in a partially completed state.</emu-note>
+      </emu-clause>
+
+      <emu-clause id="sec-getmodifysetvalueinbuffer" aoid="GetModifySetValueInBuffer">
+        <h1>GetModifySetValueInBuffer( _arrayBuffer_, _byteIndex_, _type_, _value_, _op_ [ , _isLittleEndian_ ] )</h1>
+        <p>The abstract operation GetModifySetValueInBuffer takes six parameters, a SharedArrayBuffer _arrayBuffer_, a nonnegative integer _byteIndex_, a String _type_, a Number _value_, a semantic function _op_, and optionally a Boolean _isLittleEndian_. This operation performs the following steps:</p>
+        <emu-alg>
+          1. Assert: IsSharedArrayBuffer(_arrayBuffer_) is *true*.
+          1. Assert: There are sufficient bytes in _arrayBuffer_ starting at _byteIndex_ to represent a value of _type_.
+          1. Assert: _byteIndex_ is an integer value &ge; 0.
+          1. Assert: Type(_value_) is Number <ins>if _type_ is not `"BigInt64"` or `"BigUint64"`; otherwise, Type(_value_) is BigInt</ins>.
+          1. Let _block_ be _arrayBuffer_.[[ArrayBufferData]].
+          1. Let _elementSize_ be the Number value of the Element Size value specified in <emu-xref href="#table-49"></emu-xref> for Element Type _type_.
+          1. If _isLittleEndian_ is not present, set _isLittleEndian_ to the value of the [[LittleEndian]] field of the surrounding agent's Agent Record.
+          1. Let _rawBytes_ be NumberToRawBytes(_type_, _value_, _isLittleEndian_).
+          1. Let _execution_ be the [[CandidateExecution]] field of the surrounding agent's Agent Record.
+          1. Let _eventList_ be the [[EventList]] field of the element in _execution_.[[EventLists]] whose [[AgentSignifier]] is AgentSignifier().
+          1. Let _rawBytesRead_ be a List of length _elementSize_ of nondeterministically chosen byte values.
+          1. NOTE: In implementations, _rawBytesRead_ is the result of a load-link, of a load-exclusive, or of an operand of a read-modify-write instruction on the underlying hardware. The nondeterminism is a semantic prescription of the memory model to describe observable behaviour of hardware with weak consistency.
+          1. Let _rmwEvent_ be ReadModifyWriteSharedMemory{ [[Order]]: `"SeqCst"`, [[NoTear]]: *true*, [[Block]]: _block_, [[ByteIndex]]: _byteIndex_, [[ElementSize]]: _elementSize_, [[Payload]]: _rawBytes_, [[ModifyOp]]: _op_ }.
+          1. Append _rmwEvent_ to _eventList_.
+          1. Append Chosen Value Record { [[Event]]: _rmwEvent_, [[ChosenValue]]: _rawBytesRead_ } to _execution_.[[ChosenValues]].
+          1. Return RawBytesToNumber(_type_, _rawBytesRead_, _isLittleEndian_).
+        </emu-alg>
+      </emu-clause>
+
+      <emu-clause id="sec-validatesharedintegertypedarray" aoid="ValidateSharedIntegerTypedArray">
+        <h1>ValidateSharedIntegerTypedArray(_typedArray_ [ , _waitable_ ] )</h1>
+        <p>The abstract operation ValidateSharedIntegerTypedArray takes one argument _typedArray_ and an optional Boolean _waitable_. It performs the following steps:</p>
+        <emu-alg>
+          1. If the _waitable_ argument was not provided, set _waitable_ to *false*.
+          1. If Type(_typedArray_) is not Object, throw a *TypeError* exception.
+          1. If _typedArray_ does not have a [[TypedArrayName]] internal slot, throw a *TypeError* exception.
+          1. Let _typeName_ be _typedArray_.[[TypedArrayName]].
+          1. If _waitable_ is *true*, then
+            1. If _typeName_ is not `"Int32Array"` <ins>or `"BigInt64Array"`</ins>, throw a *TypeError* exception.
+          1. Else,
+            1. If _typeName_ is not `"Int8Array"`, `"Uint8Array"`, `"Int16Array"`, `"Uint16Array"`, `"Int32Array"`, `"Uint32Array"`, <ins>`"BigUint64Array"`, or `"BigInt64Array"`</ins> throw a *TypeError* exception.
+          1. Assert: _typedArray_ has a [[ViewedArrayBuffer]] internal slot.
+          1. Let _buffer_ be _typedArray_.[[ViewedArrayBuffer]].
+          1. If IsSharedArrayBuffer(_buffer_) is *false*, throw a *TypeError* exception.
+          1. Return _buffer_.
+        </emu-alg>
+      </emu-clause>
+
+      <emu-clause id="sec-atomicreadmodifywrite" aoid="AtomicReadModifyWrite">
+        <h1>AtomicReadModifyWrite( _typedArray_, _index_, _value_, _op_ )</h1>
+        <p>The abstract operation AtomicReadModifyWrite takes four arguments, _typedArray_, _index_, _value_, and a pure combining operation _op_. The pure combining operation _op_ takes two List of byte values arguments and returns a List of byte values. The operation atomically loads a value, combines it with another value, and stores the result of the combination. It returns the loaded value. It performs the following steps:</p>
+        <emu-alg>
+          1. Let _buffer_ be ? ValidateSharedIntegerTypedArray(_typedArray_).
+          1. Let _i_ be ? ValidateAtomicAccess(_typedArray_, _index_).
+          1. Let _arrayTypeName_ be _typedArray_.[[TypedArrayName]].
+          1. <ins>If _arrayTypeName_ is `"BigUint64Array"` or `"BigInt64Array"`, let _v_ be ? ToBigInt(_v_).
+          1. <ins>Otherwise,</ins> let _v_ be ? ToInteger(_value_).
+          1. Let _elementSize_ be the Number value of the Element Size value specified in <emu-xref href="#table-49"></emu-xref> for _arrayTypeName_.
+          1. Let _elementType_ be the String value of the Element Type value in <emu-xref href="#table-49"></emu-xref> for _arrayTypeName_.
+          1. Let _offset_ be _typedArray_.[[ByteOffset]].
+          1. Let _indexedPosition_ be (_i_ &times; _elementSize_) + _offset_.
+          1. Return GetModifySetValueInBuffer(_buffer_, _indexedPosition_, _elementType_, _v_, _op_).
+        </emu-alg>
+      </emu-clause>
+
+    <emu-clause id="sec-atomics.wait">
+      <h1>Atomics.wait( _typedArray_, _index_, _value_, _timeout_ )</h1>
+      <p>`Atomics.wait` puts the calling agent in a wait queue and puts it to sleep until it is awoken or the sleep times out. The following steps are taken:</p>
+      <emu-alg>
+        1. Let _buffer_ be ? ValidateSharedIntegerTypedArray(_typedArray_, *true*).
+        1. Let _i_ be ? ValidateAtomicAccess(_typedArray_, _index_).
+        1. <ins>If _typedArray_.[[TypedArrayName]] is `"BigInt64Array"`, let _v_ be ? ToBigInt64(_value_)</ins>
+        1. <ins>Otherwise,</ins> let _v_ be ? ToInt32(_value_).
+        1. Let _q_ be ? ToNumber(_timeout_).
+        1. If _q_ is *NaN*, let _t_ be *+&infin;*, else let _t_ be max(_q_, 0).
+        1. Let _B_ be AgentCanSuspend().
+        1. If _B_ is *false*, throw a *TypeError* exception.
+        1. Let _block_ be _buffer_.[[ArrayBufferData]].
+        1. Let _offset_ be _typedArray_.[[ByteOffset]].
+        1. <ins> Let _elementSize_ be the Number value of the Element Size value specified in <emu-xref href="#table-49"></emu-xref> for _arrayTypeName_.</ins>
+        1. Let _indexedPosition_ be (_i_ &times; <del>4</del><ins>_elementSize_</ins>) + _offset_.
+        1. Let _WL_ be GetWaiterList(_block_, _indexedPosition_).
+        1. Perform EnterCriticalSection(_WL_).
+        1. Let _w_ be ! AtomicLoad(_typedArray_, _i_).
+        1. If _v_ is not equal to _w_, then
+          1. Perform LeaveCriticalSection(_WL_).
+          1. Return the String `"not-equal"`.
+        1. Let _W_ be AgentSignifier().
+        1. Perform AddWaiter(_WL_, _W_).
+        1. Let _awoken_ be Suspend(_WL_, _W_, _t_).
+        1. If _awoken_ is *true*, then
+          1. Assert: _W_ is not on the list of waiters in _WL_.
+        1. Else,
+          1. Perform RemoveWaiter(_WL_, _W_).
+        1. Perform LeaveCriticalSection(_WL_).
+        1. If _awoken_ is *true*, return the String `"ok"`.
+        1. Return the String `"timed-out"`.
+      </emu-alg>
+    </emu-clause>
+
+    <emu-clause id="sec-atomics.wake">
+      <h1>Atomics.wake( _typedArray_, _index_, _count_ )</h1>
+      <p>`Atomics.wake` wakes up some agents that are sleeping in the wait queue.  The following steps are taken:</p>
+      <emu-alg>
+        1. Let _buffer_ be ? ValidateSharedIntegerTypedArray(_typedArray_, *true*).
+        1. Let _i_ be ? ValidateAtomicAccess(_typedArray_, _index_).
+        1. If _count_ is *undefined*, let _c_ be *+&infin;*.
+        1. Else,
+          1. Let _intCount_ be ? ToInteger(_count_).
+          1. Let _c_ be max(_intCount_, 0).
+        1. Let _block_ be _buffer_.[[ArrayBufferData]].
+        1. Let _offset_ be _typedArray_.[[ByteOffset]].
+        1. <ins> Let _elementSize_ be the Number value of the Element Size value specified in <emu-xref href="#table-49"></emu-xref> for _arrayTypeName_.</ins>
+        1. Let _indexedPosition_ be (_i_ &times; <del>4</del><ins>_elementSize_</ins>) + _offset_.
+        1. Let _WL_ be GetWaiterList(_block_, _indexedPosition_).
+        1. Let _n_ be 0.
+        1. Perform EnterCriticalSection(_WL_).
+        1. Let _S_ be RemoveWaiters(_WL_, _c_).
+        1. Repeat, while _S_ is not an empty List,
+          1. Let _W_ be the first agent in _S_.
+          1. Remove _W_ from the front of _S_.
+          1. Perform WakeWaiter(_WL_, _W_).
+          1. Add 1 to _n_.
+        1. Perform LeaveCriticalSection(_WL_).
+        1. Return _n_.
+      </emu-alg>
+    </emu-clause>
+
+    <emu-clause id="sec-atomics.store">
+      <h1>Atomics.store( _typedArray_, _index_, _value_ )</h1>
+      <p>The following steps are taken:</p>
+      <emu-alg>
+        1. Let _buffer_ be ? ValidateSharedIntegerTypedArray(_typedArray_).
+        1. Let _i_ be ? ValidateAtomicAccess(_typedArray_, _index_).
+        1. <ins>If _arrayTypeName_ is `"BigUint64Array"` or `"BigInt64Array"`, let _v_ be ? ToBigInt(_value_).
+        1. <ins>Otherwise,</ins> let _v_ be ? ToInteger(_value_).
+        1. Let _arrayTypeName_ be _typedArray_.[[TypedArrayName]].
+        1. Let _elementSize_ be the Number value of the Element Size value specified in <emu-xref href="#table-49"></emu-xref> for _arrayTypeName_.
+        1. Let _elementType_ be the String value of the Element Type value in <emu-xref href="#table-49"></emu-xref> for _arrayTypeName_.
+        1. Let _offset_ be _typedArray_.[[ByteOffset]].
+        1. Let _indexedPosition_ be (_i_ &times; _elementSize_) + _offset_.
+        1. Perform SetValueInBuffer(_buffer_, _indexedPosition_, _elementType_, _v_, *true*, `"SeqCst"`).
+        1. Return _v_.
+      </emu-alg>
+    </emu-clause>
+
+      <!-- es6num="24.2.1.2" -->
+      <emu-clause id="sec-setviewvalue" aoid="SetViewValue">
+        <h1>SetViewValue ( _view_, _requestIndex_, _isLittleEndian_, _type_, _value_ )</h1>
+        <p>The abstract operation SetViewValue with arguments _view_, _requestIndex_, _isLittleEndian_, _type_, and _value_ is used by functions on DataView instances to store values into the view's buffer. It performs the following steps:</p>
+        <emu-alg>
+          1. If Type(_view_) is not Object, throw a *TypeError* exception.
+          1. If _view_ does not have a [[DataView]] internal slot, throw a *TypeError* exception.
+          1. Assert: _view_ has a [[ViewedArrayBuffer]] internal slot.
+          1. Let _getIndex_ be ? ToIndex(_requestIndex_).
+          1. <ins>If _arrayTypeName_ is `"BigUint64Array"` or `"BigInt64Array"`, let _v_ be ? ToBigInt(_value_).
+          1. <ins>Otherwise,</ins> let _v_ be ? ToInteger(_value_).
+          1. Set _isLittleEndian_ to ToBoolean(_isLittleEndian_).
+          1. Let _buffer_ be _view_.[[ViewedArrayBuffer]].
+          1. If IsDetachedBuffer(_buffer_) is *true*, throw a *TypeError* exception.
+          1. Let _viewOffset_ be _view_.[[ByteOffset]].
+          1. Let _viewSize_ be _view_.[[ByteLength]].
+          1. Let _elementSize_ be the Number value of the Element Size value specified in <emu-xref href="#table-49"></emu-xref> for Element Type _type_.
+          1. If _getIndex_ + _elementSize_ &gt; _viewSize_, throw a *RangeError* exception.
+          1. Let _bufferIndex_ be _getIndex_ + _viewOffset_.
+          1. Return SetValueInBuffer(_buffer_, _bufferIndex_, _type_, _v_, *false*, `"Unordered"`, _isLittleEndian_).
+        </emu-alg>
       </emu-clause>
 
       <emu-clause id="sec-dataview.prototype.getbigint64">
