@@ -70,7 +70,7 @@ BigInts are, logically, arbitrary mathematic integers, with operator definitions
 - `/` and `%` round towards 0
 - Bitwise operations `|`, `&`, `<<`, `>>`, `^` operate logically
   - Negative numbers to be interpreted as infinite-length two's complement (see [discussion](https://github.com/tc39/proposal-bigint/issues/3)).
-- When applied to two BigInts, comparison operators `==`, `===`, `<`, `>`, `>=`, and `<=` perform a mathematical comparson
+- When applied to two BigInts, comparison operators `==`, `===`, `<`, `>`, `>=`, and `<=` perform a mathematical comparison
 - Missing operators
   - `>>>` is not supported, as all BigInts are signed; to get an unsigned shift, pass in a positive BigInt to `>>` ([discussion](https://github.com/tc39/proposal-bigint/issues/6))
   - Unary `+` is unsupported on BigInts due to asm.js requirements; details explained below
@@ -129,7 +129,7 @@ The semantics of all operators should ideally be based on some mathematical firs
 ### Don't break asm.js
 
 Although this proposal introduces operator overloading, it throws in any of the cases that asm.js depends on for setting up type checking. asm.js relies on a few identies:
-- Unary `+` followed by an expression is always either a Number, or results in throwing. For this reason, unfortunately, `+` on a BigInt needs to throw, rather than being symmetrical with `+` on Number: Otherwise, previosly "type-declared" asm.js code would now be polymorphic.
+- Unary `+` followed by an expression is always either a Number, or results in throwing. For this reason, unfortunately, `+` on a BigInt needs to throw, rather than being symmetrical with `+` on Number: Otherwise, previously "type-declared" asm.js code would now be polymorphic.
 - `|0` always returns a Number in int32 range, or throws. This proposal maintains that, as it would throw on a BigInt for being a mixed operand type.
 - `Math.fround` always returns a Number in float32 range, or throws. This proposal would throw if `Math.fround` is called with a BigInt, preserving the property.
 
