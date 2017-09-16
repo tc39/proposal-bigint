@@ -412,16 +412,29 @@ emu-integration-plans:before {
 </emu-clause>
 
 <emu-clause id="sec-grammar-change">
-  <h1>Modifications to the Number grammar</h1>
+  <h1>Grammar</h1>
   <emu-grammar>
+    Literal :
+      NullLiteral
+      BooleanLiteral
+      NumericLiteral
+      StringLiteral
+      <ins>BigIntLiteral</ins>
+
+    CommonToken ::
+      IdentifierName
+      Punctuator
+      NumericLiteral
+      StringLiteral
+      Template
+      <ins>BigIntLiteral</ins>
+
     NumericLiteral ::
       DecimalLiteral
-      <ins>DecimalIntegerLiteral BigIntLiteralSuffix</ins>
       <del>BinaryIntegerLiteral</del>
       <del>OctalIntegerLiteral</del>
       <del>HexIntegerLiteral</del>
       <ins>NumericLiteralBase</ins>
-      <ins>NumericLiteralBase BigIntLiteralSuffix</ins>
       LegacyOctalIntegerLiteral
 
     <ins>NumericLiteralBase ::
@@ -429,35 +442,56 @@ emu-integration-plans:before {
           OctalIntegerLiteral
           HexIntegerLiteral</ins>
 
-    <ins>BigIntLiteralSuffix :: `n`</ins>
+    <ins>BigIntLiteral ::
+      NumericLiteralBase `n`
+      DecimalIntegerLiteral `n`</ins>
   </emu-grammar>
+      <p>The |SourceCharacter| immediately following a |NumericLiteral| <ins>or |BigIntLiteral|</ins> must not be an |IdentifierStart| or |DecimalDigit|.</p>
 
-  <emu-clause id="sec-numeric-literal-static-semantics-bigint-value">
-    <h1>Static Semantics: BigInt Value</h1>
-    <emu-grammar>NumericLiteral :: NumericLiteralBase BigIntLiteralSuffix</emu-grammar>
+  <emu-clause id="sec-numeric-literal-static-semantics-bigint-value" aoid="BigIntValue">
+    <h1>Static Semantics: BigIntValue</h1>
+    <emu-grammar>BigIntLiteral :: NumericLiteralBase BigIntLiteralSuffix</emu-grammar>
     <ul>
       <li>
-        Let the value of |NumericLiteral| be the MV of |NumericLiteralBase| represented as BigInt.
+        Let the BigIntValue of |BigIntLiteral| be the MV of |NumericLiteralBase| represented as a BigInt.
       </li>
     </ul>
-    <emu-grammar>NumericLiteral :: DecimalIntegerLiteral BigIntLiteralSuffix</emu-grammar>
+    <emu-grammar>BigIntLiteral :: DecimalIntegerLiteral BigIntLiteralSuffix</emu-grammar>
     <ul>
       <li>
-        Let the value of |NumericLiteral| be the MV of |DecimalIntegerLiteral| represented as BigInt.
+        Let the BigIntValue of |BigIntLiteral| be the MV of |DecimalIntegerLiteral| represented as a BigInt.
       </li>
     </ul>
   </emu-clause>
 
-   <emu-clause id="sec-numeric-literal-static-semantics-number-value">
-     <h1>Static Semantics: Number Value</h1>
-     <emu-grammar>NumericLiteral :: NumericLiteralBase</emu-grammar>
-       <p>The MV is rounded to a value of the Number type.</p>
-    </emu-clause>
-
+   <emu-clause id="sec-numeric-literal-static-semantics-number-value" aoid="NumberValue">
+     <h1>Static Semantics: NumberValue</h1>
+     <p>The NumberValue of a |NumberLiteral| is defined as follows: The MV is rounded to a value of the Number type. If the MV is 0, then the rounded value is *+0* unless the first non white space code point in the String numeric literal is `"-"`, in which case the rounded value is *-0*. Otherwise, the rounded value must be the Number value for the MV (in the sense defined in <emu-xref href="#sec-ecmascript-language-types-number-type"></emu-xref>), unless the literal includes a |StrUnsignedDecimalLiteral| and the literal has more than 20 significant digits, in which case the Number value may be either the Number value for the MV of a literal produced by replacing each significant digit after the 20th with a 0 digit or the Number value for the MV of a literal produced by replacing each significant digit after the 20th with a 0 digit and then incrementing the literal at the 20th digit position. A digit is significant if it is not part of an |ExponentPart| and</p>
+          <ul>
+            <li>
+              it is not `0`; or
+            </li>
+            <li>
+              there is a nonzero digit to its left and there is a nonzero digit, not in the |ExponentPart|, to its right.
+            </li>
+          </ul>
     <emu-integration-plans>
-      Rounding to the nearest Number will be moved from the MV calcuation to a Number Value Static Semantics section so that it doesn't apply to BigInts.
+      Rounding to the nearest Number are moved from the MV calcuation to a Number Value Static Semantics section so that it doesn't apply to BigInts. Most existing uses of MV will switch to NumberValue.
     </emu-integration-plans>
   </emu-clause>
+
+      <!-- es6num="12.2.4.1" -->
+      <emu-clause id="sec-literals-runtime-semantics-evaluation">
+        <h1>Runtime Semantics: Evaluation</h1>
+        <emu-grammar>Literal : NumericLiteral</emu-grammar>
+        <emu-alg>
+          1. Return the number whose value is <del>MV</del><ins>NumberValue</ins> of |NumericLiteral|.
+        </emu-alg>
+        <emu-grammar><ins>Literal : BigIntLiteral</ins></emu-grammar>
+        <emu-alg>
+          1. <ins>Return the BigInt whose value is BigIntValue of |BigIntLiteral|.</ins>
+        </emu-alg>
+      </emu-clause>
 </emu-clause>
 
 <emu-clause id="sec-abstract-operations">
