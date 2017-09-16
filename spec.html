@@ -293,11 +293,14 @@ emu-integration-plans:before {
     </emu-clause>
 
     <emu-clause id="sec-numeric-types-bigint-remainder">
-      <h1>BigInt::remainder (_x_, _y_)</h1>
+      <h1>BigInt::remainder (_n_, _d_)</h1>
       <emu-alg>
         1. If _y_ is `0n`, throw a *RangeError* exception.
-        1. Return the BigInt representing <emu-eqn>_x_ modulo _y_</emu-eqn>.
+        1. If _x_ is `0n`, return `0n`.
+        1. Let _r_ be the BigInt  defined by the mathematical relation _r_ = _n_ - (_d_ &times; _q_) where _q_ is a BigInt that is negative only if _n_/_d_ is negative and positive only if _n_/_d_ is positive, and whose magnitude is as large as possible without exceeding the magnitude of the true mathematical quotient of _n_ and _d_.
+        1. Return _r_.
       </emu-alg>
+      <emu-note>The sign of the result equals the sign of the dividend.</emu-note>
     </emu-clause>
 
     <emu-clause id="sec-numeric-types-bigint-add">
