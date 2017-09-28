@@ -78,7 +78,7 @@ BigInts are, logically, arbitrary mathematic integers, with operator definitions
 
 Literals for BigInts are similar to Number literals, but followed by `n`. They can be written with binary, octal or hexadecimal notation, e.g., `0x100n`. Legacy octal syntax (`0640`) is not allowed, only new-style (`0o064n`).
 
-The choice of `BigInt` comes from an attempt to preserve user intuition about the lack of compatibility of `BigInt` with things that are currently based on `Number`s. Because implicit coercisions lead to TypeErrors, the guidance is that existing users of Numbers should stay with Numbers if it works for the application, and only large usages need to upgrade to `BigInt`. The name `BigInt` is hoped to emphasize this not-by-default usage. The suffix `n` is basically arbitrary.
+The choice of `BigInt` comes from an attempt to preserve user intuition about the lack of compatibility of `BigInt` with things that are currently based on `Number`s. Because implicit coercions lead to TypeErrors, the guidance is that existing users of Numbers should stay with Numbers if it works for the application, and only large usages need to upgrade to `BigInt`. The name `BigInt` is hoped to emphasize this not-by-default usage. The suffix `n` is basically arbitrary.
 
 ### The BigInt constructor
 
@@ -128,12 +128,12 @@ The semantics of all operators should ideally be based on some mathematical firs
 
 ### Don't break asm.js
 
-Although this proposal introduces operator overloading, it throws in any of the cases that asm.js depends on for setting up type checking. asm.js relies on a few identies:
+Although this proposal introduces operator overloading, it throws in any of the cases that asm.js depends on for setting up type checking. asm.js relies on a few identities:
 - Unary `+` followed by an expression is always either a Number, or results in throwing. For this reason, unfortunately, `+` on a BigInt needs to throw, rather than being symmetrical with `+` on Number: Otherwise, previously "type-declared" asm.js code would now be polymorphic.
 - `|0` always returns a Number in int32 range, or throws. This proposal maintains that, as it would throw on a BigInt for being a mixed operand type.
 - `Math.fround` always returns a Number in float32 range, or throws. This proposal would throw if `Math.fround` is called with a BigInt, preserving the property.
 
-Analogously, `>>> 0` always returns a Number in uint32 range, throwing as `>>>` is not supported on BigInt at all. Note: asm.js itself does not require this property, as `>>>` may be an overloaded operator, and `|0` is used for all `int` parameter declarations, but `>>> 0` is a common idiom to achieve this property in JavaScrpit code.
+Analogously, `>>> 0` always returns a Number in uint32 range, throwing as `>>>` is not supported on BigInt at all. Note: asm.js itself does not require this property, as `>>>` may be an overloaded operator, and `|0` is used for all `int` parameter declarations, but `>>> 0` is a common idiom to achieve this property in JavaScript code.
 
 This proposal makes special allowances to make BigInt usable in asm.js code to build support for 64-bit integers, by including the standard library functions `BigInt.asUintN` and `BigInt.asIntN` as well as `BigUint64Array` and `BigInt64Array`.
  The operator overloading in this proposal should not complicate the asm.js model: asm.js already treats operators as "overloaded" between floats, doubles, and signed and unsigned integers.

@@ -78,7 +78,7 @@ emu-integration-plans:before {
 <p>This proposal adds arbitrary-precision integers to ECMAScript. For motivation and a high-level introduction, see <a href="https://github.com/tc39/proposal-bigint/blob/master/README.md">the explainer document</a>.</p>
 
 <emu-integration-plans>
-  <p>I attempted to write this specification draft with an eye towards intelligiblity and clarifying issues, rather than looking exactly like the final specification. In particular, the translation of the operations on the Number type into the new form are omitted, as they are identical to the previous definitions and would be expressed only as a lengthy refactoring to skip when reading this text.</p>
+  <p>I attempted to write this specification draft with an eye towards intelligibility and clarifying issues, rather than looking exactly like the final specification. In particular, the translation of the operations on the Number type into the new form are omitted, as they are identical to the previous definitions and would be expressed only as a lengthy refactoring to skip when reading this text.</p>
   <p>If you find any part of this specification unclear or confusing, please <a href="https://github.com/tc39/proposal-bigint/issues/new">file an issue</a>.</p>
 </emu-integration-plans>
 </emu-intro>
@@ -142,7 +142,7 @@ emu-integration-plans:before {
         </td>
         <td>
           A specification function invoked when applying the truncating remainder ("mod") operator. Called by the semantics of the <emu-xref href="#sec-applying-the-mod-operator">`%` operator</emu-xref> for `x % y`.
-          <emu-todo>Revist this name, as Number::remainder explicitly doesn't do the IEEE 754 remainder operation. However, modulo also seems problematic. (<a href="https://github.com/tc39/proposal-bigint/issues/37">issue</a>)</emu-todo>
+          <emu-todo>Revisit this name, as Number::remainder explicitly doesn't do the IEEE 754 remainder operation. However, modulo also seems problematic. (<a href="https://github.com/tc39/proposal-bigint/issues/37">issue</a>)</emu-todo>
         </td>
       </tr>
       <tr>
@@ -245,7 +245,7 @@ emu-integration-plans:before {
     </table>
   </emu-table>
   <p>The _T_::unit value and _T_::_op_ operations are not a part of the ECMAScript language; they are defined here solely to aid the specification of the semantics of the ECMAScript language. Other abstract operations are defined throughout this specification.</p>
-  <p>Because the numeric types are in general not interconvertible without loss of precision or truncation, the ECMAScript language provides no implicit conversion among these types. Programmers must explicitly call `Number` and `BigInt` functions to convert among types when calling a function which requires another type.</p>
+  <p>Because the numeric types are in general not convertible without loss of precision or truncation, the ECMAScript language provides no implicit conversion among these types. Programmers must explicitly call `Number` and `BigInt` functions to convert among types when calling a function which requires another type.</p>
   <emu-note>
    <p>The first and subsequent editions of ECMAScript have provided, for certain operators, implicit numeric conversions that could lose precision or truncate. These legacy implicit conversions are maintained for backward compatibility, but not provided for BigInt in order to minimize opportunity for programmer error, and to leave open the option of generalized <em>value types</em> in a future edition.</p>
   </emu-note>
@@ -455,7 +455,7 @@ emu-integration-plans:before {
     </emu-clause>
 
     <emu-integration-plans>
-      Rounding to the nearest Number will be moved from the MV calcuation to a Number Value Static Semantics section so that it doesn't apply to BigInts.
+      Rounding to the nearest Number will be moved from the MV calculation to a Number Value Static Semantics section so that it doesn't apply to BigInts.
     </emu-integration-plans>
   </emu-clause>
 </emu-clause>
