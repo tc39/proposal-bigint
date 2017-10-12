@@ -1406,6 +1406,19 @@ emu-integration-plans:before {
         <emu-note>See <emu-xref href="#sec-ecmascript-language-types-number-type"></emu-xref> in the second-to-last paragraph for the definition of the phrase "The Number value for _prim_".</emu-note>
         <emu-integration-plans>That paragraph should possibly be refactored into a separate abstract operation; see <a href="https://github.com/tc39/proposal-bigint/issues/10">this bug</a> for more discussion about the integration of different numeric types and casting operations between them.</emu-integration-plans>
       </emu-clause>
+
+    <emu-clause id="sec-topropertykey" aoid="ToPropertyKey">
+      <h1>ToPropertyKey ( _argument_ )</h1>
+      <p>The abstract operation ToPropertyKey converts _argument_ to a value that can be used as a property key by performing the following steps:</p>
+      <emu-alg>
+        1. Let _key_ be ? ToPrimitive(_argument_, hint String).
+        1. If Type(_key_) is Symbol, then
+          1. Return _key_.
+        1. <ins>If Type(_key_) is BigInt, then</ins>
+          1. <ins>Throw a *TypeError* exception.</ins>
+        1. Return ! ToString(_key_).
+      </emu-alg>
+    </emu-clause>
 </emu-clause>
 
 <emu-clause id="sec-typedarrays-and-dataview">
