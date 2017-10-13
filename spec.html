@@ -980,6 +980,7 @@ emu-integration-plans:before {
           1. Let _expr_ be the result of evaluating |UnaryExpression|.
           1. Let _oldValue_ be ? <del>ToInt32</del><ins>ToNumeric</ins>(? GetValue(_expr_)).
           1. <del>Return the result of applying bitwise complement to _oldValue_. The result is a signed 32-bit integer.</del>
+          1. <ins>Let _T_ be Type(_oldValue_).</ins>
           1. <ins>Return ? _T_::bitwiseNOT(_oldValue_).</ins>
         </emu-alg>
       </emu-clause>
