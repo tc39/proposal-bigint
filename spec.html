@@ -1901,20 +1901,22 @@ emu-integration-plans:before {
       </emu-clause>
 
       <emu-clause id="sec-dataview.prototype.setbigint64">
-        <h1>DataView.prototype.setBigInt64 ( _byteOffset_, _value_ )</h1>
+        <h1>DataView.prototype.setBigInt64 ( _byteOffset_, _value_ [ , _littleEndian_ ] )</h1>
         <p>When the `setBigInt64` method is called with arguments _byteOffset_ and _value_, the following steps are taken:</p>
         <emu-alg>
           1. Let _v_ be the *this* value.
-          1. Return ? SetViewValue(_v_, _byteOffset_, *true*, `"Int64"`, _value_).
+          1. If _littleEndian_ is not present, let _littleEndian_ be *false*.
+          1. Return ? SetViewValue(_v_, _byteOffset_, _littleEndian_, `"Int64"`, _value_).
         </emu-alg>
       </emu-clause>
 
       <emu-clause id="sec-dataview.prototype.setbiguint64">
-        <h1>DataView.prototype.setBigUint64 ( _byteOffset_, _value_ )</h1>
+        <h1>DataView.prototype.setBigUint64 ( _byteOffset_, _value_ [ , _littleEndian_ ] )</h1>
         <p>When the `setBigUint64` method is called with arguments _byteOffset_ and _value_, the following steps are taken:</p>
         <emu-alg>
           1. Let _v_ be the *this* value.
-          1. Return ? SetViewValue(_v_, _byteOffset_, *true*, `"Uint64"`, _value_).
+          1. If _littleEndian_ is not present, let _littleEndian_ be *false*.
+          1. Return ? SetViewValue(_v_, _byteOffset_, _littleEndian_, `"Uint64"`, _value_).
         </emu-alg>
       </emu-clause>
 
