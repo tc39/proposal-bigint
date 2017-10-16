@@ -1905,7 +1905,7 @@ emu-integration-plans:before {
         <p>When the `setBigInt64` method is called with arguments _byteOffset_ and _value_, the following steps are taken:</p>
         <emu-alg>
           1. Let _v_ be the *this* value.
-          1. If _littleEndian_ is not present, let _littleEndian_ be *false*.
+          1. If _littleEndian_ is not present, let _littleEndian_ be *undefined*.
           1. Return ? SetViewValue(_v_, _byteOffset_, _littleEndian_, `"Int64"`, _value_).
         </emu-alg>
       </emu-clause>
@@ -1915,7 +1915,7 @@ emu-integration-plans:before {
         <p>When the `setBigUint64` method is called with arguments _byteOffset_ and _value_, the following steps are taken:</p>
         <emu-alg>
           1. Let _v_ be the *this* value.
-          1. If _littleEndian_ is not present, let _littleEndian_ be *false*.
+          1. If _littleEndian_ is not present, let _littleEndian_ be *undefined*.
           1. Return ? SetViewValue(_v_, _byteOffset_, _littleEndian_, `"Uint64"`, _value_).
         </emu-alg>
       </emu-clause>
