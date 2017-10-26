@@ -1407,6 +1407,16 @@ emu-integration-plans:before {
         <emu-note>See <emu-xref href="#sec-ecmascript-language-types-number-type"></emu-xref> in the second-to-last paragraph for the definition of the phrase "The Number value for _prim_".</emu-note>
         <emu-integration-plans>That paragraph should possibly be refactored into a separate abstract operation; see <a href="https://github.com/tc39/proposal-bigint/issues/10">this bug</a> for more discussion about the integration of different numeric types and casting operations between them.</emu-integration-plans>
       </emu-clause>
+
+      <!-- es6num="20.2.2.26" -->
+      <emu-clause id="sec-math.pow">
+        <h1>Math.pow ( _base_, _exponent_ )</h1>
+        <emu-alg>
+          1. Let _base_ be ? ToNumber(_base_).
+          1. Let _exponent_ be ? ToNumber(_exponent_).
+          1. Return Number::exponentiate(_base_, _exponent_).
+        <emu-alg>
+      </emu-clause>
 </emu-clause>
 
 <emu-clause id="sec-typedarrays-and-dataview">
