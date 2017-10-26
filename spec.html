@@ -318,7 +318,7 @@ emu-integration-plans:before {
       <p>The abstract operation BigInt::leftShift with two arguments _x_ and _y_ of BigInt:</p>
       <emu-alg>
         1. If _y_ &lt; 0,
-          1. Return a BigInt representing _x_ divided by 2<sup>-_y_</sup>, rounding down to the nearest integer, including for negative numbers.
+          1. Throw a *RangeError* exception.
         1. Return a BigInt representing _x_ multiplied by 2<sup>_y_</sup>.
       </emu-alg>
       <emu-note>Semantics here should be equivalent to a bitwise shift, treating the BigInt as an infinite length string of binary two's complement digits.</emu-note>
@@ -328,7 +328,9 @@ emu-integration-plans:before {
       <h1>BigInt::signedRightShift (_x_, _y_)</h1>
       <p>The abstract operation BigInt::signedRightShift with arguments _x_ and _y_ of type BigInt:</p>
       <emu-alg>
-        1. Return BigInt::leftShift(_x_, -_y_).
+        1. If _y_ &lt; 0,
+          1. Throw a *RangeError* exception.
+        1. Return a BigInt representing _x_ divided by 2<sup>_y_</sup>, rounding down to the nearest integer, including for negative numbers.
       </emu-alg>
     </emu-clause>
 
