@@ -193,7 +193,9 @@ In the course of development of ES2015, the proposal to add 64-bit integers was 
 
 ## Implementation status
 
-- [V8](https://developers.google.com/v8/) (https://github.com/v8/v8/blob/master/src/objects/bigint.cc)
+- [V8](https://bugs.chromium.org/p/v8/issues/detail?id=6791) by Georg Neis and Jakob Kummerow
+- [JSC](https://bugs.webkit.org/show_bug.cgi?id=175359) by Caio Lima and Robin Morisset
+- [SpiderMonkey](https://bugzilla.mozilla.org/show_bug.cgi?id=1366287) by Robin Templeton
 
 ## Specification
 
