@@ -193,7 +193,7 @@ In the course of development of ES2015, the proposal to add 64-bit integers was 
 
 ## Implementation status
 
-No current (known) implementations exist.
+- [V8](https://developers.google.com/v8/) (https://github.com/v8/v8/blob/master/src/objects/bigint.cc)
 
 ## Specification
 
