@@ -1254,7 +1254,7 @@ emu-integration-plans:before {
 
     <emu-clause id="sec-bigint-parseint-string-radix">
       <h1>BigInt.parseInt ( _string_, _radix_ )</h1>
-      <p>The `BigInt.parseInt` function produces an integer value dictated by interpretation of the contents of the _string_ argument according to the specified _radix_. Leading white space in _string_ is ignored. If _radix_ is *undefined* or 0, it is assumed to be 10 except when the number begins with the code unit pairs `0x` or `0X`, in which case a radix of 16 is assumed. If _radix_ is 16, the number may also optionally begin with the code unit pairs `0x` or `0X`.</p>
+      <p>The `BigInt.parseInt` function produces an integer value dictated by interpretation of the contents of the _string_ argument according to the specified _radix_. Leading and trailing white space in _string_ is ignored. If _radix_ is *undefined* or 0, it is assumed to be 10.</p>
       <p>When the `BigInt.parseInt` function is called, the following steps are taken:</p>
       <emu-alg>
         1. Let _inputString_ be ? ToString(_string_).
@@ -1263,23 +1263,21 @@ emu-integration-plans:before {
         1. If _S_ is not empty and the first code unit of _S_ is the code unit 0x002D (HYPHEN-MINUS), let _sign_ be -1.
         1. If _S_ is not empty and the first code unit of _S_ is the code unit 0x002B (PLUS SIGN) or the code unit 0x002D (HYPHEN-MINUS), remove the first code unit from _S_.
         1. Let _R_ be ? ToInt32(_radix_).
-        1. Let _stripPrefix_ be *true*.
         1. If _R_ &ne; 0, then
-          1. If _R_ &lt; 2 or _R_ &gt; 36, throw a *SyntaxError* exception.
+          1. If _R_ &lt; 2 or _R_ &gt; 36, throw a *RangeError* exception.
           1. If _R_ &ne; 16, let _stripPrefix_ be *false*.
         1. Else _R_ = 0,
           1. Let _R_ be 10.
-        1. If _stripPrefix_ is *true*, then
-          1. If the length of _S_ is at least 2 and the first two code units of _S_ are either `"0x"` or `"0X"`, remove the first two code units from _S_ and let _R_ be 16.
-        1. If _S_ contains a code unit that is not a radix-_R_ digit, let _Z_ be the substring of _S_ consisting of all code units before the first such code unit; otherwise, let _Z_ be _S_.
+        1. If _S_ contains a code unit that is not a radix-_R_ digit,
+          1. Let _Z_ be the substring of _S_ consisting of all code units before the first such code unit.
+          1. Let _padding_ be the substring of _S_ after _Z_.
+          1. If _padding_ contains any code unit which is not a |StrWhiteSpaceChar|, throw a *SyntaxError* exception.
+        1. Otherwise, let _Z_ be _S_.
         1. If _Z_ is empty, throw a *SyntaxError* exception.
         1. Let _mathInt_ be the mathematical integer value that is represented by _Z_ in radix-_R_ notation, using the letters <b>A</b>-<b>Z</b> and <b>a</b>-<b>z</b> for digits with values 10 through 35.
         1. Let _number_ be _sign_ &times; _mathInt_.
         1. Return the BigInt value for _number_.
       </emu-alg>
-      <emu-note>
-        <p>`parseInt` may interpret only a leading portion of _string_ as an integer value; it ignores any code units that cannot be interpreted as part of the notation of an integer, and no indication is given that any such code units were ignored.</p>
-      </emu-note>
     </emu-clause>
 
       <!-- es6num="20.1.2.2" -->
