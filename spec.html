@@ -1898,6 +1898,30 @@ emu-integration-plans:before {
         </emu-note>
       </emu-clause>
 
+      <!-- es6num="22.2.3.8" -->
+      <emu-clause id="sec-%typedarray%.prototype.fill">
+        <h1>%TypedArray%.prototype.fill ( _value_ [ , _start_ [ , _end_ ] ] )</h1>
+        <p>The interpretation and use of the arguments of %TypedArray%`.prototype.fill` are the same as for `Array.prototype.fill` as defined in <emu-xref href="#sec-array.prototype.fill"></emu-xref>.</p>
+        <p>The following steps are taken:</p>
+        <emu-alg>
+          1. Let _O_ be the *this* value.
+          1. Perform ? ValidateTypedArray(_O_).
+          1. Let _len_ be _O_.[[ArrayLength]].
+          1. <ins>If _typedArray_.[[TypedArrayName]] is `"BigUint64Array"` or `"BigInt64Array"`, let _value_ be ? ToBigInt64(_value_)</ins>
+          1. <ins>Otherwise,</ins> let _value_ be ? ToNumber(_value_).
+          1. Let _relativeStart_ be ? ToInteger(_start_).
+          1. If _relativeStart_ &lt; 0, let _k_ be max((_len_ + _relativeStart_), 0); else let _k_ be min(_relativeStart_, _len_).
+          1. If _end_ is *undefined*, let _relativeEnd_ be _len_; else let _relativeEnd_ be ? ToInteger(_end_).
+          1. If _relativeEnd_ &lt; 0, let _final_ be max((_len_ + _relativeEnd_), 0); else let _final_ be min(_relativeEnd_, _len_).
+          1. If IsDetachedBuffer(_O_.[[ViewedArrayBuffer]]) is *true*, throw a *TypeError* exception.
+          1. Repeat, while _k_ &lt; _final_
+            1. Let _Pk_ be ! ToString(_k_).
+            1. Perform ! Set(_O_, _Pk_, _value_, *true*).
+            1. Increase _k_ by 1.
+          1. Return _O_.
+        </emu-alg>
+      </emu-clause>
+
       <!-- es6num="24.2.1.2" -->
       <emu-clause id="sec-setviewvalue" aoid="SetViewValue">
         <h1>SetViewValue ( _view_, _requestIndex_, _isLittleEndian_, _type_, _value_ )</h1>
