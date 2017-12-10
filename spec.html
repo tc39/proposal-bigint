@@ -1619,7 +1619,7 @@ emu-integration-plans:before {
             1. Let _value_ be the byte elements of _rawBytes_ concatenated and interpreted as a little-endian bit string encoding of an IEEE 754-2008 binary64 value.
             1. If _value_ is an IEEE 754-2008 binary64 NaN value, return the *NaN* Number value.
             1. Return the Number value that corresponds to _value_.
-          1. If the first code unit of _type_ is `"U"`, then
+          1. If the first code unit of _type_ is `"U"`<ins> or _type_ is `"BigUint64Array"`</ins>, then
             1. Let _intValue_ be the byte elements of _rawBytes_ concatenated and interpreted as a bit string encoding of an unsigned little-endian binary number.
           1. Else,
             1. Let _intValue_ be the byte elements of _rawBytes_ concatenated and interpreted as a bit string encoding of a binary little-endian 2's complement number of bit length _elementSize_ &times; 8.
