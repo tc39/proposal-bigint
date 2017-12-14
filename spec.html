@@ -1882,7 +1882,7 @@ emu-integration-plans:before {
           1. Let _O_ be the *this* value.
           1. Perform ? ValidateTypedArray(_O_).
           1. Let _len_ be _O_.[[ArrayLength]].
-          1. <ins>If _typedArray_.[[TypedArrayName]] is `"BigUint64Array"` or `"BigInt64Array"`, let _value_ be ? ToBigInt64(_value_)</ins>
+          1. <ins>If _O_.[[TypedArrayName]] is `"BigUint64Array"` or `"BigInt64Array"`, let _value_ be ? ToBigInt64(_value_)</ins>
           1. <ins>Otherwise,</ins> let _value_ be ? ToNumber(_value_).
           1. Let _relativeStart_ be ? ToInteger(_start_).
           1. If _relativeStart_ &lt; 0, let _k_ be max((_len_ + _relativeStart_), 0); else let _k_ be min(_relativeStart_, _len_).
@@ -1926,7 +1926,7 @@ emu-integration-plans:before {
               1. Let _Pk_ be ! ToString(_k_).
               1. <del>Let _kNumber_ be ? ToNumber(? Get(_src_, _Pk_)).</del>
               1. <ins>Let _value_ be ? Get(_src_, _Pk_)</ins>
-              1. <ins>If _typedArray_.[[TypedArrayName]] is `"BigUint64Array"` or `"BigInt64Array"`, let _value_ be ? ToBigInt64(_value_)</ins>
+              1. <ins>If _target_.[[TypedArrayName]] is `"BigUint64Array"` or `"BigInt64Array"`, let _value_ be ? ToBigInt64(_value_)</ins>
               1. <ins>Otherwise, let _value_ be ? ToNumber(_value_).</ins>
               1. If IsDetachedBuffer(_targetBuffer_) is *true*, throw a *TypeError* exception.
               1. Perform SetValueInBuffer(_targetBuffer_, _targetByteIndex_, _targetType_, <del>_kNumber_</del><ins>value</ins>, *true*, `"Unordered"`).
