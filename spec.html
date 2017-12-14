@@ -1873,6 +1873,20 @@ emu-integration-plans:before {
         </emu-note>
       </emu-clause>
 
+      <emu-clause id="typedarray-species-create" aoid="TypedArraySpeciesCreate">
+        <h1>TypedArraySpeciesCreate ( _exemplar_, _argumentList_ )</h1>
+        <p>The abstract operation TypedArraySpeciesCreate with arguments _exemplar_ and _argumentList_ is used to specify the creation of a new TypedArray object using a constructor function that is derived from _exemplar_. It performs the following steps:</p>
+        <emu-alg>
+          1. Assert: _exemplar_ is an Object that has a [[TypedArrayName]] internal slot.
+          1. Let _defaultConstructor_ be the intrinsic object listed in column one of <emu-xref href="#table-49"></emu-xref> for _exemplar_.[[TypedArrayName]].
+          1. Let _constructor_ be ? SpeciesConstructor(_exemplar_, _defaultConstructor_).
+          1. <del>Return</del><ins>Let _result_ be</ins> ? TypedArrayCreate(_constructor_, _argumentList_).
+          1. <ins>Assert: _result_ has a [[TypedArrayName]] internal slot.</ins>
+          1. <ins>If _result_.[[TypedArrayName]] contains the substring `"Big"` and _exemplar_.[[TypedArrayName]] does not contain the substring `"Big"`, or vice versa, throw a *TypeError* exception.</ins>
+          1. <ins>Return _result_.</ins>
+        </emu-alg>
+      </emu-clause>
+
       <!-- es6num="22.2.3.8" -->
       <emu-clause id="sec-%typedarray%.prototype.fill">
         <h1>%TypedArray%.prototype.fill ( _value_ [ , _start_ [ , _end_ ] ] )</h1>
