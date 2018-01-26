@@ -452,7 +452,6 @@ emu-integration-plans:before {
      <h1>Static Semantics: Number Value</h1>
      <emu-grammar>NumericLiteral :: NumericLiteralBase</emu-grammar>
        <p>The MV is rounded to a value of the Number type.</p>
-    </emu-clause>
 
     <emu-integration-plans>
       Rounding to the nearest Number will be moved from the MV calculation to a Number Value Static Semantics section so that it doesn't apply to BigInts.
@@ -963,7 +962,7 @@ emu-integration-plans:before {
           1. <del>If _oldValue_ is *NaN*, return *NaN*.</del>
           1. <del>Return the result of negating _oldValue_; that is, compute a Number with the same magnitude but opposite sign.</del>
           1. <ins>Let _T_ be Type(_oldValue_).</ins>
-          1. </ins>Return ? _T_::unaryMinus(_oldValue_).</ins>
+          1. <ins>Return ? _T_::unaryMinus(_oldValue_).</ins>
         </emu-alg>
       </emu-clause>
     </emu-clause>
@@ -1410,7 +1409,7 @@ emu-integration-plans:before {
           1. Let _base_ be ? ToNumber(_base_).
           1. Let _exponent_ be ? ToNumber(_exponent_).
           1. Return Number::exponentiate(_base_, _exponent_).
-        <emu-alg>
+        </emu-alg>
       </emu-clause>
 </emu-clause>
 
@@ -1657,7 +1656,7 @@ emu-integration-plans:before {
           1. Assert: _O_ is an Object that has [[ViewedArrayBuffer]], [[ArrayLength]], [[ByteOffset]], and [[TypedArrayName]] internal slots.
           1. Let _arrayTypeName_ be the String value of _O_.[[TypedArrayName]].
           1. Let _elementType_ be the String value of the Element Type value in <emu-xref href="#table-49"></emu-xref> for _arrayTypeName_.
-          1. <ins>If _arrayTypeName_ is `"BigUint64Array"` or `"BigInt64Array"`, let _numValue_ be ? ToBigInt(_v_).
+          1. <ins>If _arrayTypeName_ is `"BigUint64Array"` or `"BigInt64Array"`, let _numValue_ be ? ToBigInt(_v_).</ins>
           1. <ins>Otherwise,</ins> let _numValue_ be ? ToNumber(_value_).
           1. Let _buffer_ be _O_.[[ViewedArrayBuffer]].
           1. If IsDetachedBuffer(_buffer_) is *true*, throw a *TypeError* exception.
@@ -1746,7 +1745,7 @@ emu-integration-plans:before {
           1. Let _buffer_ be ? ValidateSharedIntegerTypedArray(_typedArray_).
           1. Let _i_ be ? ValidateAtomicAccess(_typedArray_, _index_).
           1. Let _arrayTypeName_ be _typedArray_.[[TypedArrayName]].
-          1. <ins>If _arrayTypeName_ is `"BigUint64Array"` or `"BigInt64Array"`, let _v_ be ? ToBigInt(_v_).
+          1. <ins>If _arrayTypeName_ is `"BigUint64Array"` or `"BigInt64Array"`, let _v_ be ? ToBigInt(_v_).</ins>
           1. <ins>Otherwise,</ins> let _v_ be ? ToInteger(_value_).
           1. Let _elementSize_ be the Number value of the Element Size value specified in <emu-xref href="#table-49"></emu-xref> for _arrayTypeName_.
           1. Let _elementType_ be the String value of the Element Type value in <emu-xref href="#table-49"></emu-xref> for _arrayTypeName_.
@@ -1825,7 +1824,7 @@ emu-integration-plans:before {
       <emu-alg>
         1. Let _buffer_ be ? ValidateSharedIntegerTypedArray(_typedArray_).
         1. Let _i_ be ? ValidateAtomicAccess(_typedArray_, _index_).
-        1. <ins>If _arrayTypeName_ is `"BigUint64Array"` or `"BigInt64Array"`, let _v_ be ? ToBigInt(_value_).
+        1. <ins>If _arrayTypeName_ is `"BigUint64Array"` or `"BigInt64Array"`, let _v_ be ? ToBigInt(_value_).</ins>
         1. <ins>Otherwise,</ins> let _v_ be ? ToInteger(_value_).
         1. Let _arrayTypeName_ be _typedArray_.[[TypedArrayName]].
         1. Let _elementSize_ be the Number value of the Element Size value specified in <emu-xref href="#table-49"></emu-xref> for _arrayTypeName_.
@@ -2064,7 +2063,7 @@ emu-integration-plans:before {
           1. If _view_ does not have a [[DataView]] internal slot, throw a *TypeError* exception.
           1. Assert: _view_ has a [[ViewedArrayBuffer]] internal slot.
           1. Let _getIndex_ be ? ToIndex(_requestIndex_).
-          1. <ins>If _arrayTypeName_ is `"BigUint64Array"` or `"BigInt64Array"`, let _v_ be ? ToBigInt(_value_).
+          1. <ins>If _arrayTypeName_ is `"BigUint64Array"` or `"BigInt64Array"`, let _v_ be ? ToBigInt(_value_).</ins>
           1. <ins>Otherwise,</ins> let _v_ be ? ToInteger(_value_).
           1. Set _isLittleEndian_ to ToBoolean(_isLittleEndian_).
           1. Let _buffer_ be _view_.[[ViewedArrayBuffer]].
