@@ -1239,9 +1239,7 @@ emu-integration-plans:before {
         <h1>ForceToBigInt ( _value_ )</h1>
         <emu-alg>
           1. Let _prim_ be ? ToPrimitive(_value_, hint Number).
-          1. If Type(_prim_) is Number,
-            1. Let _int_ be the mathematical value that is the same sign as _number_ and whose magnitude is floor(abs(_number_)).
-            1. Return a BigInt value representing _int_.
+          1. If Type(_prim_) is Number, return ? NumberToBigInt(_prim_).
           1. Otherwise, return ? ToBigInt(_value_).
         </emu-alg>
       </emu-clause>
