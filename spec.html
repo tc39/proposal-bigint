@@ -247,15 +247,15 @@ emu-integration-plans:before {
   <p>The _T_::unit value and _T_::_op_ operations are not a part of the ECMAScript language; they are defined here solely to aid the specification of the semantics of the ECMAScript language. Other abstract operations are defined throughout this specification.</p>
   <p>Because the numeric types are in general not convertible without loss of precision or truncation, the ECMAScript language provides no implicit conversion among these types. Programmers must explicitly call `Number` and `BigInt` functions to convert among types when calling a function which requires another type.</p>
   <emu-note>
-   <p>The first and subsequent editions of ECMAScript have provided, for certain operators, implicit numeric conversions that could lose precision or truncate. These legacy implicit conversions are maintained for backward compatibility, but not provided for BigInt in order to minimize opportunity for programmer error, and to leave open the option of generalized <em>value types</em> in a future edition.</p>
+    <p>The first and subsequent editions of ECMAScript have provided, for certain operators, implicit numeric conversions that could lose precision or truncate. These legacy implicit conversions are maintained for backward compatibility, but not provided for BigInt in order to minimize opportunity for programmer error, and to leave open the option of generalized <em>value types</em> in a future edition.</p>
   </emu-note>
 
 
   <emu-clause id="sec-ecmascript-language-types-bigint-type">
-   <h1>The BigInt Type</h1>
-   <p>The BigInt type represents a mathematical integer value. The value may be any size and is not limited to a particular bit-width. Generally, where not otherwise noted, operations are designed to return exact mathematically-based answers. For binary operations, BigInts act as two's complement binary strings, with negative numbers treated as having bits set infinitely to the left.</p>
+    <h1>The BigInt Type</h1>
+    <p>The BigInt type represents a mathematical integer value. The value may be any size and is not limited to a particular bit-width. Generally, where not otherwise noted, operations are designed to return exact mathematically-based answers. For binary operations, BigInts act as two's complement binary strings, with negative numbers treated as having bits set infinitely to the left.</p>
 
-   <p>The BigInt::unit value is *1n*.</p>
+    <p>The BigInt::unit value is *1n*.</p>
 
     <emu-clause id="sec-numeric-types-bigint-unaryMinus">
       <h1>BigInt::unaryMinus (_x_)</h1>
@@ -448,10 +448,10 @@ emu-integration-plans:before {
     </ul>
   </emu-clause>
 
-   <emu-clause id="sec-numeric-literal-static-semantics-number-value">
-     <h1>Static Semantics: Number Value</h1>
-     <emu-grammar>NumericLiteral :: NumericLiteralBase</emu-grammar>
-       <p>The MV is rounded to a value of the Number type.</p>
+  <emu-clause id="sec-numeric-literal-static-semantics-number-value">
+    <h1>Static Semantics: Number Value</h1>
+    <emu-grammar>NumericLiteral :: NumericLiteralBase</emu-grammar>
+    <p>The MV is rounded to a value of the Number type.</p>
 
     <emu-integration-plans>
       Rounding to the nearest Number will be moved from the MV calculation to a Number Value Static Semantics section so that it doesn't apply to BigInts.
@@ -462,8 +462,8 @@ emu-integration-plans:before {
 <emu-clause id="sec-abstract-operations">
   <h1>Abstract Operations</h1>
   <emu-clause id="sec-type-conversion">
-     <h1>Type Conversion</h1>
-     <p>The BigInt type has no implicit conversions in the ECMAScript language; programmers must call BigInt explicitly to convert values from other types.</p>
+    <h1>Type Conversion</h1>
+    <p>The BigInt type has no implicit conversions in the ECMAScript language; programmers must call BigInt explicitly to convert values from other types.</p>
 
     <emu-clause id="sec-toprimitive" aoid="ToPrimitive">
       <h1>ToPrimitive ( _input_ [ , _PreferredType_ ] )</h1>
@@ -584,7 +584,7 @@ emu-integration-plans:before {
           </tr>
           </tbody>
         </table>
-       </emu-table>
+      </emu-table>
 
       <emu-clause id="sec-tostring-applied-to-the-bigint-type" aoid="ToString Applied to the BigInt Type">
         <h1>ToString Applied to the BigInt Type</h1>
@@ -594,7 +594,7 @@ emu-integration-plans:before {
           1. Return the String consisting of the code units of the digits of the decimal representation of _i_.
         </emu-alg>
       </emu-clause>
-     </emu-clause>
+    </emu-clause>
 
     <emu-clause id="sec-toobject" aoid="ToObject">
       <h1>ToObject ( _argument_ )</h1>
@@ -665,54 +665,54 @@ emu-integration-plans:before {
     <h1>Testing and Comparison Operations</h1>
     <emu-clause id="sec-samevalue" aoid="SameValue">
       <h1>SameValue ( _x_, _y_ )</h1>
-       <p>The internal comparison abstract operation SameValue(_x_, _y_), where _x_ and _y_ are ECMAScript language values, produces *true* or *false*. Such a comparison is performed as follows:</p>
-       <emu-alg>
-         1. If Type(_x_) is different from Type(_y_), return *false*.
-         1. If Type(_x_) is Number <ins>or BigInt</ins>, then
-           1. <del>If _x_ is *NaN* and _y_ is *NaN*, return *true*.</del>
-           1. <del>If _x_ is *+0* and _y_ is *-0*, return *false*.</del>
-           1. <del>If _x_ is *-0* and _y_ is *+0*, return *false*.</del>
-           1. <del>If _x_ is the same Number value as _y_, return *true*.</del>
-           1. <del>Return *false*.</del>
-           1. <ins>Return ! Type(_x_)::sameValue(_x_, _y_).</ins>
-         1. Return <a href="sec-samevaluenonnumber">SameValueNon<del>Number</del><ins>Numeric</ins></a>(_x_, _y_).
-       </emu-alg>
-       <emu-integration-plans>The previous Number-related contents of this algorithm will be moved into Number::sameValue.</emu-integration-plans>
+      <p>The internal comparison abstract operation SameValue(_x_, _y_), where _x_ and _y_ are ECMAScript language values, produces *true* or *false*. Such a comparison is performed as follows:</p>
+      <emu-alg>
+        1. If Type(_x_) is different from Type(_y_), return *false*.
+        1. If Type(_x_) is Number <ins>or BigInt</ins>, then
+          1. <del>If _x_ is *NaN* and _y_ is *NaN*, return *true*.</del>
+          1. <del>If _x_ is *+0* and _y_ is *-0*, return *false*.</del>
+          1. <del>If _x_ is *-0* and _y_ is *+0*, return *false*.</del>
+          1. <del>If _x_ is the same Number value as _y_, return *true*.</del>
+          1. <del>Return *false*.</del>
+          1. <ins>Return ! Type(_x_)::sameValue(_x_, _y_).</ins>
+        1. Return <a href="sec-samevaluenonnumber">SameValueNon<del>Number</del><ins>Numeric</ins></a>(_x_, _y_).
+      </emu-alg>
+      <emu-integration-plans>The previous Number-related contents of this algorithm will be moved into Number::sameValue.</emu-integration-plans>
     </emu-clause>
 
     <!-- es6num="7.2.10" -->
     <emu-clause id="sec-samevaluezero" aoid="SameValueZero">
       <h1>SameValueZero ( _x_, _y_ )</h1>
-       <p>The internal comparison abstract operation SameValueZero(_x_, _y_), where _x_ and _y_ are ECMAScript language values, produces *true* or *false*. Such a comparison is performed as follows:</p>
-       <emu-alg>
-         1. If Type(_x_) is different from Type(_y_), return *false*.
-         1. If Type(_x_) is Number <ins>or BigInt</ins>, then
-           1. <del>If _x_ is *NaN* and _y_ is *NaN*, return *true*.</del>
-           1. <del>If _x_ is *+0* and _y_ is *-0*, return *true*.</del>
-           1. <del>If _x_ is *-0* and _y_ is *+0*, return *true*.</del>
-           1. <del>If _x_ is the same Number value as _y_, return *true*.</del>
-           1. <del>Return *false*.</del>
-           1. <ins>Return ! Type(_x_)::sameValueZero(_x_, _y_).</ins>
-         1. Return <a href="sec-samevaluenonnumber">SameValueNon<del>Number</del><ins>Numeric</ins></a>(_x_, _y_).
-       </emu-alg>
-       <emu-integration-plans>The previous Number-related contents of this algorithm will be moved into Number::sameValueZero.</emu-integration-plans>
-     </emu-clause>
+      <p>The internal comparison abstract operation SameValueZero(_x_, _y_), where _x_ and _y_ are ECMAScript language values, produces *true* or *false*. Such a comparison is performed as follows:</p>
+      <emu-alg>
+        1. If Type(_x_) is different from Type(_y_), return *false*.
+        1. If Type(_x_) is Number <ins>or BigInt</ins>, then
+          1. <del>If _x_ is *NaN* and _y_ is *NaN*, return *true*.</del>
+          1. <del>If _x_ is *+0* and _y_ is *-0*, return *true*.</del>
+          1. <del>If _x_ is *-0* and _y_ is *+0*, return *true*.</del>
+          1. <del>If _x_ is the same Number value as _y_, return *true*.</del>
+          1. <del>Return *false*.</del>
+          1. <ins>Return ! Type(_x_)::sameValueZero(_x_, _y_).</ins>
+        1. Return <a href="sec-samevaluenonnumber">SameValueNon<del>Number</del><ins>Numeric</ins></a>(_x_, _y_).
+      </emu-alg>
+      <emu-integration-plans>The previous Number-related contents of this algorithm will be moved into Number::sameValueZero.</emu-integration-plans>
+    </emu-clause>
 
     <emu-clause id="sec-samevaluenonnumber" aoid="SameValueNonNumeric">
       <h1>SameValueNon<del>Number</del><ins>Numeric</ins> ( _x_, _y_ )</h1>
       <p>The internal comparison abstract operation SameValueNonNumeric(_x_, _y_), where neither _x_ nor _y_ are numeric type values, produces *true* or *false*. Such a comparison is performed as follows:</p>
-       <emu-alg>
-         1. Assert: Type(_x_) is not Number <ins>or BigInt</ins>.
-         1. Assert: Type(_x_) is the same as Type(_y_).
-         1. If Type(_x_) is Undefined, return *true*.
-         1. If Type(_x_) is Null, return *true*.
-         1. If Type(_x_) is String, then
-           1. If _x_ and _y_ are exactly the same sequence of code units (same length and same code units at corresponding indices), return *true*; otherwise, return *false*.
-         1. If Type(_x_) is Boolean, then
-           1. If _x_ and _y_ are both *true* or both *false*, return *true*; otherwise, return *false*.
-         1. If Type(_x_) is Symbol, then
-           1. If _x_ and _y_ are both the same Symbol value, return *true*; otherwise, return *false*.
-         1. Return *true* if _x_ and _y_ are the same Object value. Otherwise, return *false*.
+      <emu-alg>
+        1. Assert: Type(_x_) is not Number <ins>or BigInt</ins>.
+        1. Assert: Type(_x_) is the same as Type(_y_).
+        1. If Type(_x_) is Undefined, return *true*.
+        1. If Type(_x_) is Null, return *true*.
+        1. If Type(_x_) is String, then
+          1. If _x_ and _y_ are exactly the same sequence of code units (same length and same code units at corresponding indices), return *true*; otherwise, return *false*.
+        1. If Type(_x_) is Boolean, then
+          1. If _x_ and _y_ are both *true* or both *false*, return *true*; otherwise, return *false*.
+        1. If Type(_x_) is Symbol, then
+          1. If _x_ and _y_ are both the same Symbol value, return *true*; otherwise, return *false*.
+        1. Return *true* if _x_ and _y_ are the same Object value. Otherwise, return *false*.
       </emu-alg>
     </emu-clause>
 
