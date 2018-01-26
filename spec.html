@@ -1235,21 +1235,14 @@ emu-integration-plans:before {
         </emu-alg>
       </emu-clause>
 
-      <emu-clause id="sec-force-to-bigint" aoid="ForceToBigInt">
-        <h1>ForceToBigInt ( _value_ )</h1>
-        <emu-alg>
-          1. Let _prim_ be ? ToPrimitive(_value_, hint Number).
-          1. If Type(_prim_) is Number, return ? NumberToBigInt(_prim_).
-          1. Otherwise, return ? ToBigInt(_value_).
-        </emu-alg>
-      </emu-clause>
-
       <emu-clause id="sec-bigint-constructor-number-value">
         <h1>BigInt ( _value_ )</h1>
         <p>When `BigInt` is called with argument _value_, the following steps are taken:</p>
         <emu-alg>
           1. If NewTarget is not *undefined*, throw a *TypeError* exception.
-          1. Return ? ForceToBigInt(_value_).
+          1. Let _prim_ be ? ToPrimitive(_value_, hint Number).
+          1. If Type(_prim_) is Number, return ? NumberToBigInt(_prim_).
+          1. Otherwise, return ? ToBigInt(_value_).
         </emu-alg>
       </emu-clause>
     </emu-clause>
@@ -1391,22 +1384,16 @@ emu-integration-plans:before {
         </emu-alg>
       </emu-clause>
 
-      <emu-clause id="sec-force-to-number" aoid="ForceToNumber">
-        <h1>ForceToNumber ( _value_ )</h1>
-        <emu-alg>
-          1. Let _prim_ be ? ToNumeric(_value_).
-          1. If Type(_prim_) is BigInt, return the Number value for _prim_.
-          1. Otherwise, return _prim_.
-        </emu-alg>
-      </emu-clause>
-
       <!-- es6num="20.1.1.1" -->
       <emu-clause id="sec-number-constructor-number-value">
         <h1>Number ( _value_ )</h1>
         <p>When `Number` is called with argument _number_, the following steps are taken:</p>
         <emu-alg>
           1. If no arguments were passed to this function invocation, let _n_ be *+0*.
-          1. Else, let _n_ be ? ForceToNumber( _value_ ).
+          1. Else,
+            1. Let _prim_ be ? ToNumeric(_value_).
+            1. If Type(_prim_) is BigInt, let _n_ be the Number value for _prim_.
+            1. Otherwise, let _n_ be _prim_.
           1. If NewTarget is *undefined*, return _n_.
           1. Let _O_ be ? OrdinaryCreateFromConstructor(NewTarget, `"%NumberPrototype%"`, &laquo; [[NumberData]] &raquo;).
           1. Set _O_.[[NumberData]] to _n_.
@@ -1458,202 +1445,6 @@ emu-integration-plans:before {
         </tr>
         <tr>
           <td>
-            Int8Array
-            <br>
-            %Int8Array%
-          </td>
-          <td>
-            Int8
-          </td>
-          <td>
-            1
-          </td>
-          <td>
-            <ins>Force</ins>ToInt8
-          </td>
-          <td>
-            8-bit 2's complement signed integer
-          </td>
-          <td>
-            signed char
-          </td>
-        </tr>
-        <tr>
-          <td>
-            Uint8Array
-            <br>
-            %Uint8Array%
-          </td>
-          <td>
-            Uint8
-          </td>
-          <td>
-            1
-          </td>
-          <td>
-            <ins>Force</ins>ToUint8
-          </td>
-          <td>
-            8-bit unsigned integer
-          </td>
-          <td>
-            unsigned char
-          </td>
-        </tr>
-        <tr>
-          <td>
-            Uint8ClampedArray
-            <br>
-            %Uint8ClampedArray%
-          </td>
-          <td>
-            Uint8C
-          </td>
-          <td>
-            1
-          </td>
-          <td>
-            <ins>Force</ins>ToUint8Clamp
-          </td>
-          <td>
-            8-bit unsigned integer (clamped conversion)
-          </td>
-          <td>
-            unsigned char
-          </td>
-        </tr>
-        <tr>
-          <td>
-            Int16Array
-            <br>
-            %Int16Array%
-          </td>
-          <td>
-            Int16
-          </td>
-          <td>
-            2
-          </td>
-          <td>
-            <ins>Force</ins>ToInt16
-          </td>
-          <td>
-            16-bit 2's complement signed integer
-          </td>
-          <td>
-            short
-          </td>
-        </tr>
-        <tr>
-          <td>
-            Uint16Array
-            <br>
-            %Uint16Array%
-          </td>
-          <td>
-            Uint16
-          </td>
-          <td>
-            2
-          </td>
-          <td>
-            <ins>Force</ins>ToUint16
-          </td>
-          <td>
-            16-bit unsigned integer
-          </td>
-          <td>
-            unsigned short
-          </td>
-        </tr>
-        <tr>
-          <td>
-            Int32Array
-            <br>
-            %Int32Array%
-          </td>
-          <td>
-            Int32
-          </td>
-          <td>
-            4
-          </td>
-          <td>
-            <ins>Force</ins>ToInt32
-          </td>
-          <td>
-            32-bit 2's complement signed integer
-          </td>
-          <td>
-            int
-          </td>
-        </tr>
-        <tr>
-          <td>
-            Uint32Array
-            <br>
-            %Uint32Array%
-          </td>
-          <td>
-            Uint32
-          </td>
-          <td>
-            4
-          </td>
-          <td>
-            <ins>Force</ins>ToUint32
-          </td>
-          <td>
-            32-bit unsigned integer
-          </td>
-          <td>
-            unsigned int
-          </td>
-        </tr>
-        <tr>
-          <td>
-            Float32Array
-            <br>
-            %Float32Array%
-          </td>
-          <td>
-            Float32
-          </td>
-          <td>
-            4
-          </td>
-          <td>
-          </td>
-          <td>
-            32-bit IEEE floating point
-          </td>
-          <td>
-            float
-          </td>
-        </tr>
-        <tr>
-          <td>
-            Float64Array
-            <br>
-            %Float64Array%
-          </td>
-          <td>
-            Float64
-          </td>
-          <td>
-            8
-          </td>
-          <td>
-          </td>
-          <td>
-            64-bit IEEE floating point
-          </td>
-          <td>
-            double
-          </td>
-        </tr>
-        <tr>
-          <td>
             <ins>BigInt64Array</ins>
             <br>
             <ins>%BigInt64Array%</ins>
@@ -1665,7 +1456,7 @@ emu-integration-plans:before {
             <ins>8</ins>
           </td>
           <td>
-            <ins>ForceToBigInt64</ins>
+            <ins>ToBigInt64</ins>
           </td>
           <td>
             <ins>64-bit 2's complement signed integer</ins>
@@ -1687,7 +1478,7 @@ emu-integration-plans:before {
             <ins>8</ins>
           </td>
           <td>
-            <ins>ForceToBigUint64</ins>
+            <ins>ToBigUint64</ins>
           </td>
           <td>
             <ins>64-bit unsigned integer</ins>
@@ -1794,89 +1585,25 @@ emu-integration-plans:before {
     </emu-table>
   </emu-clause>
 
-  <emu-clause id="sec-force-to-big-int64" aoid="ForceToBigInt64">
-    <h1>ForceToBigInt64 ( _argument_ )</h1>
-    <p>The abstract operation ForceToBigInt64 converts _argument_ to one of 2<sup>64</sup> integer values in the range -2<sup>63</sup> through 2<sup>63</sup>-1, inclusive. This abstract operation functions as follows:</p>
+  <emu-clause id="sec-to-big-int64" aoid="ToBigInt64">
+    <h1>ToBigInt64 ( _argument_ )</h1>
+    <p>The abstract operation ToBigInt64 converts _argument_ to one of 2<sup>64</sup> integer values in the range -2<sup>63</sup> through 2<sup>63</sup>-1, inclusive. This abstract operation functions as follows:</p>
     <emu-alg>
-      1. Let _n_ ? ForceToBigInt(_argument_).
+      1. Let _n_ ? ToBigInt(_argument_).
       1. Let _int64bit_ be _n_ modulo 2<sup>64</sup>.
       1. If _int64bit_ &ge; 2<sup>64</sup>, return _int64bit_ - 2<sup>63</sup>; otherwise return _int64bit_.
     </emu-alg>
   </emu-clause>
 
-  <emu-clause id="sec-force-to-big-uint64" aoid="ForceToBigUint64">
-    <h1>ForceToBigUint64 ( _argument_ )</h1>
-    <p>The abstract operation ForceToBigUint64 converts _argument_ to one of 2<sup>64</sup> integer values in the range 0 through 2<sup>64</sup>-1, inclusive. This abstract operation functions as follows:</p>
+  <emu-clause id="sec-to-big-uint64" aoid="ToBigUint64">
+    <h1>ToBigUint64 ( _argument_ )</h1>
+    <p>The abstract operation ToBigUint64 converts _argument_ to one of 2<sup>64</sup> integer values in the range 0 through 2<sup>64</sup>-1, inclusive. This abstract operation functions as follows:</p>
     <emu-alg>
-      1. Let _n_ ? ForceToBigInt(_argument_).
+      1. Let _n_ ? ToBigInt(_argument_).
       1. Let _int64bit_ be _n_ modulo 2<sup>64</sup>.
       1. Return _int64bit_.
     </emu-alg>
   </emu-clause>
-
-    <emu-clause id="sec-force-tointeger" aoid="ForceToInteger">
-      <h1>ForceToInteger ( _argument_ )</h1>
-      <emu-alg>
-        1. Let _number_ be ? ForceToNumber(_argument_).
-        1. Return ! ToInteger(_number_).
-      </emu-alg>
-    </emu-clause>
-
-    <emu-clause id="sec-force-toint32" aoid="ForceToInt32">
-      <h1>ForceToInt32 ( _argument_ )</h1>
-      <emu-alg>
-        1. Let _number_ be ? ForceToNumber(_argument_).
-        1. Return ! ToInt32(_number_).
-      </emu-alg>
-    </emu-clause>
-
-    <emu-clause id="sec-force-touint32" aoid="ForceToUint32">
-      <h1>ForceToUint32 ( _argument_ )</h1>
-      <emu-alg>
-        1. Let _number_ be ? ForceToNumber(_argument_).
-        1. Return ! ToUint32(_number_).
-      </emu-alg>
-    </emu-clause>
-
-    <emu-clause id="sec-force-toint16" aoid="ForceToInt16">
-      <h1>ForceToInt16 ( _argument_ )</h1>
-      <emu-alg>
-        1. Let _number_ be ? ForceToNumber(_argument_).
-        1. Return ! ToInt16(_number_).
-      </emu-alg>
-    </emu-clause>
-
-    <emu-clause id="sec-force-touint16" aoid="ForceToUint16">
-      <h1>ForceToUint16 ( _argument_ )</h1>
-      <emu-alg>
-        1. Let _number_ be ? ForceToNumber(_argument_).
-        1. Return ! ToUint16(_number_).
-      </emu-alg>
-    </emu-clause>
-
-    <emu-clause id="sec-force-toint8" aoid="ForceToInt8">
-      <h1>ForceToInt8 ( _argument_ )</h1>
-      <emu-alg>
-        1. Let _number_ be ? ForceToNumber(_argument_).
-        1. Return ! ToInt8(_number_).
-      </emu-alg>
-    </emu-clause>
-
-    <emu-clause id="sec-force-touint8" aoid="ForceToUint8">
-      <h1>ForceToUint8 ( _argument_ )</h1>
-      <emu-alg>
-        1. Let _number_ be ? ForceToNumber(_argument_).
-        1. Return ! ToUint8(_number_).
-      </emu-alg>
-    </emu-clause>
-
-    <emu-clause id="sec-force-touint8clamp" aoid="ForceToUint8Clamp">
-      <h1>ForceToUint8Clamp ( _argument_ )</h1>
-      <emu-alg>
-        1. Let _number_ be ? ForceToNumber(_argument_).
-        1. Return ! ToUint8Clamp(_number_).
-      </emu-alg>
-    </emu-clause>
 
       <emu-clause id="sec-rawbytestonumber" aoid="RawBytesToNumber">
         <h1>RawBytesToNumber( _type_, _rawBytes_, _isLittleEndian_ )</h1>
@@ -1930,8 +1657,8 @@ emu-integration-plans:before {
           1. Assert: _O_ is an Object that has [[ViewedArrayBuffer]], [[ArrayLength]], [[ByteOffset]], and [[TypedArrayName]] internal slots.
           1. Let _arrayTypeName_ be the String value of _O_.[[TypedArrayName]].
           1. Let _elementType_ be the String value of the Element Type value in <emu-xref href="#table-49"></emu-xref> for _arrayTypeName_.
-          1. <ins>If _arrayTypeName_ is `"BigUint64Array"` or `"BigInt64Array"`, let _numValue_ be ? ForceToBigInt(_value_).
-          1. <ins>Otherwise,</ins> let _numValue_ be ? <ins>Force</ins>ToNumber(_value_).
+          1. <ins>If _arrayTypeName_ is `"BigUint64Array"` or `"BigInt64Array"`, let _numValue_ be ? ToBigInt(_v_).
+          1. <ins>Otherwise,</ins> let _numValue_ be ? ToNumber(_value_).
           1. Let _buffer_ be _O_.[[ViewedArrayBuffer]].
           1. If IsDetachedBuffer(_buffer_) is *true*, throw a *TypeError* exception.
           1. If IsInteger(_index_) is *false*, return *false*.
@@ -2027,7 +1754,6 @@ emu-integration-plans:before {
           1. Let _indexedPosition_ be (_i_ &times; _elementSize_) + _offset_.
           1. Return GetModifySetValueInBuffer(_buffer_, _indexedPosition_, _elementType_, _v_, _op_).
         </emu-alg>
-        <emu-note type=editor>This algorithm is amended to use the appropriate cast, to Number of BigInt, based on the underlying TypedArray type. Because it is an operation, and operations remain homoegoneous, the cast is not forgiving.</emu-note>
       </emu-clause>
 
     <emu-clause id="sec-atomics.wait">
@@ -2036,8 +1762,8 @@ emu-integration-plans:before {
       <emu-alg>
         1. Let _buffer_ be ? ValidateSharedIntegerTypedArray(_typedArray_, *true*).
         1. Let _i_ be ? ValidateAtomicAccess(_typedArray_, _index_).
-        1. <ins>If _typedArray_.[[TypedArrayName]] is `"BigInt64Array"`, let _v_ be ? ForceToBigInt64(_value_)</ins>
-        1. <ins>Otherwise,</ins> let _v_ be ? <ins>Force</ins>ToInt32(_value_).
+        1. <ins>If _typedArray_.[[TypedArrayName]] is `"BigInt64Array"`, let _v_ be ? ToBigInt64(_value_)</ins>
+        1. <ins>Otherwise,</ins> let _v_ be ? ToInt32(_value_).
         1. Let _q_ be ? ToNumber(_timeout_).
         1. If _q_ is *NaN*, let _t_ be *+&infin;*, else let _t_ be max(_q_, 0).
         1. Let _B_ be AgentCanSuspend().
@@ -2099,8 +1825,8 @@ emu-integration-plans:before {
       <emu-alg>
         1. Let _buffer_ be ? ValidateSharedIntegerTypedArray(_typedArray_).
         1. Let _i_ be ? ValidateAtomicAccess(_typedArray_, _index_).
-        1. <ins>If _arrayTypeName_ is `"BigUint64Array"` or `"BigInt64Array"`, let _v_ be ? ForceToBigInt(_value_).
-        1. <ins>Otherwise,</ins> let _v_ be ? <ins>Force</ins>ToInteger(_value_).
+        1. <ins>If _arrayTypeName_ is `"BigUint64Array"` or `"BigInt64Array"`, let _v_ be ? ToBigInt(_value_).
+        1. <ins>Otherwise,</ins> let _v_ be ? ToInteger(_value_).
         1. Let _arrayTypeName_ be _typedArray_.[[TypedArrayName]].
         1. Let _elementSize_ be the Number value of the Element Size value specified in <emu-xref href="#table-49"></emu-xref> for _arrayTypeName_.
         1. Let _elementType_ be the String value of the Element Type value in <emu-xref href="#table-49"></emu-xref> for _arrayTypeName_.
@@ -2156,8 +1882,8 @@ emu-integration-plans:before {
           1. Let _O_ be the *this* value.
           1. Perform ? ValidateTypedArray(_O_).
           1. Let _len_ be _O_.[[ArrayLength]].
-          1. <ins>If _O_.[[TypedArrayName]] is `"BigUint64Array"` or `"BigInt64Array"`, let _value_ be ? ForceToBigInt(_value_)</ins>
-          1. <ins>Otherwise,</ins> let _value_ be ? <ins>Force</ins>ToNumber(_value_).
+          1. <ins>If _O_.[[TypedArrayName]] is `"BigUint64Array"` or `"BigInt64Array"`, let _value_ be ? ToBigInt(_value_)</ins>
+          1. <ins>Otherwise,</ins> let _value_ be ? ToNumber(_value_).
           1. Let _relativeStart_ be ? ToInteger(_start_).
           1. If _relativeStart_ &lt; 0, let _k_ be max((_len_ + _relativeStart_), 0); else let _k_ be min(_relativeStart_, _len_).
           1. If _end_ is *undefined*, let _relativeEnd_ be _len_; else let _relativeEnd_ be ? ToInteger(_end_).
@@ -2200,10 +1926,10 @@ emu-integration-plans:before {
               1. Let _Pk_ be ! ToString(_k_).
               1. <del>Let _kNumber_ be ? ToNumber(? Get(_src_, _Pk_)).</del>
               1. <ins>Let _value_ be ? Get(_src_, _Pk_)</ins>
-              1. <ins>If _target_.[[TypedArrayName]] is `"BigUint64Array"` or `"BigInt64Array"`, let _value_ be ? ForceToBigInt(_value_)</ins>
-              1. <ins>Otherwise, let _value_ be ? <ins>Force</ins>ToNumber(_value_).</ins>
+              1. <ins>If _target_.[[TypedArrayName]] is `"BigUint64Array"` or `"BigInt64Array"`, let _value_ be ? ToBigInt(_value_)</ins>
+              1. <ins>Otherwise, let _value_ be ? ToNumber(_value_).</ins>
               1. If IsDetachedBuffer(_targetBuffer_) is *true*, throw a *TypeError* exception.
-              1. Perform SetValueInBuffer(_targetBuffer_, _targetByteIndex_, _targetType_, <del>_kNumber_</del><ins>_value_</ins>, *true*, `"Unordered"`).
+              1. Perform SetValueInBuffer(_targetBuffer_, _targetByteIndex_, _targetType_, <del>_kNumber_</del><ins>value</ins>, *true*, `"Unordered"`).
               1. Set _k_ to _k_ + 1.
               1. Set _targetByteIndex_ to _targetByteIndex_ + _targetElementSize_.
             1. Return *undefined*.
@@ -2237,6 +1963,7 @@ emu-integration-plans:before {
             1. Let _srcLength_ be _typedArray_.[[ArrayLength]].
             1. Let _srcByteOffset_ be _typedArray_.[[ByteOffset]].
             1. If _srcLength_ + _targetOffset_ &gt; _targetLength_, throw a *RangeError* exception.
+            1. <ins>If one of _srcType_ and _targetType_ contains the substring `"Big"` and the other does not, throw a *TypeError* exception.</ins>
             1. If both IsSharedArrayBuffer(_srcBuffer_) and IsSharedArrayBuffer(_targetBuffer_) are *true*, then
               1. If _srcBuffer_.[[ArrayBufferData]] and _targetBuffer_.[[ArrayBufferData]] are the same Shared Data Block values, let _same_ be *true*; else let _same_ be *false*.
             1. Else, let _same_ be SameValue(_srcBuffer_, _targetBuffer_).
@@ -2252,16 +1979,12 @@ emu-integration-plans:before {
               1. NOTE: If _srcType_ and _targetType_ are the same, the transfer must be performed in a manner that preserves the bit-level encoding of the source data.
               1. Repeat, while _targetByteIndex_ &lt; _limit_
                 1. Let _value_ be GetValueFromBuffer(_srcBuffer_, _srcByteIndex_, `"Uint8"`, *true*, `"Unordered"`).
-                1. <ins>If _targetType_ is `"BigUint64Array"` or `"BigInt64Array"`, let _numValue_ be ? ForceToBigInt(_value_).</ins>
-                1. <ins>Otherwise, let _numValue_ be ? ForceToNumber(_value_).</ins>
                 1. Perform SetValueInBuffer(_targetBuffer_, _targetByteIndex_, `"Uint8"`, _value_, *true*, `"Unordered"`).
                 1. Set _srcByteIndex_ to _srcByteIndex_ + 1.
                 1. Set _targetByteIndex_ to _targetByteIndex_ + 1.
             1. Else,
               1. Repeat, while _targetByteIndex_ &lt; _limit_
                 1. Let _value_ be GetValueFromBuffer(_srcBuffer_, _srcByteIndex_, _srcType_, *true*, `"Unordered"`).
-                1. <ins>If _targetType_ is `"BigUint64Array"` or `"BigInt64Array"`, let _numValue_ be ? ForceToBigInt(_value_).</ins>
-                1. <ins>Otherwise, let _numValue_ be ? ForceToNumber(_value_).</ins>
                 1. Perform SetValueInBuffer(_targetBuffer_, _targetByteIndex_, _targetType_, _value_, *true*, `"Unordered"`).
                 1. Set _srcByteIndex_ to _srcByteIndex_ + _srcElementSize_.
                 1. Set _targetByteIndex_ to _targetByteIndex_ + _targetElementSize_.
@@ -2300,13 +2023,12 @@ emu-integration-plans:before {
           1. Else,
             1. Let _data_ be ? AllocateArrayBuffer(_bufferConstructor_, _byteLength_).
             1. If IsDetachedBuffer(_srcData_) is *true*, throw a *TypeError* exception.
+            1. <ins>If one of _srcType_ and _targetType_ contains the substring `"Big"` and the other does not, throw a *TypeError* exception.</ins>
             1. Let _srcByteIndex_ be _srcByteOffset_.
             1. Let _targetByteIndex_ be 0.
             1. Let _count_ be _elementLength_.
             1. Repeat, while _count_ &gt; 0
               1. Let _value_ be GetValueFromBuffer(_srcData_, _srcByteIndex_, _srcType_, *true*, `"Unordered"`).
-                1. <ins>If _targetType_ is `"BigUint64Array"` or `"BigInt64Array"`, let _value_ be ? ForceToBigInt(_value_).</ins>
-                1. <ins>Otherwise, let _value_ be ? ForceToNumber(_value_).</ins>
               1. Perform SetValueInBuffer(_data_, _targetByteIndex_, _elementType_, _value_, *true*, `"Unordered"`).
               1. Set _srcByteIndex_ to _srcByteIndex_ + _srcElementSize_.
               1. Set _targetByteIndex_ to _targetByteIndex_ + _elementSize_.
@@ -2328,8 +2050,8 @@ emu-integration-plans:before {
           1. If _view_ does not have a [[DataView]] internal slot, throw a *TypeError* exception.
           1. Assert: _view_ has a [[ViewedArrayBuffer]] internal slot.
           1. Let _getIndex_ be ? ToIndex(_requestIndex_).
-          1. <ins>If _arrayTypeName_ is `"BigUint64Array"` or `"BigInt64Array"`, let _v_ be ? ForceToBigInt(_value_).
-          1. <ins>Otherwise,</ins> let _v_ be ? <ins>Force</ins>ToInteger(_value_).
+          1. <ins>If _arrayTypeName_ is `"BigUint64Array"` or `"BigInt64Array"`, let _v_ be ? ToBigInt(_value_).
+          1. <ins>Otherwise,</ins> let _v_ be ? ToInteger(_value_).
           1. Set _isLittleEndian_ to ToBoolean(_isLittleEndian_).
           1. Let _buffer_ be _view_.[[ViewedArrayBuffer]].
           1. If IsDetachedBuffer(_buffer_) is *true*, throw a *TypeError* exception.
