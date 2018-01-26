@@ -463,7 +463,7 @@ emu-integration-plans:before {
   <h1>Abstract Operations</h1>
   <emu-clause id="sec-type-conversion">
      <h1>Type Conversion</h1>
-     The BigInt type has no implicit conversions in the ECMAScript language; programmers must call BigInt explicitly to convert values from other types.
+     <p>The BigInt type has no implicit conversions in the ECMAScript language; programmers must call BigInt explicitly to convert values from other types.</p>
 
     <emu-clause id="sec-toprimitive" aoid="ToPrimitive">
       <h1>ToPrimitive ( _input_ [ , _PreferredType_ ] )</h1>
@@ -551,9 +551,11 @@ emu-integration-plans:before {
         <h1>ToNumber Applied to the String Type</h1>
         <emu-note>
           <p>Some differences should be noted between the syntax of a |StringNumericLiteral| and a |NumericLiteral|:</p>
+          <ul>
             <li>
               <ins>A |StringNumericLiteral| may not include a |BigIntLiteralSuffix|.</ins>
             </li>
+          </ul>
         </emu-note>
       </emu-clause>
     </emu-clause>
@@ -1415,7 +1417,7 @@ emu-integration-plans:before {
 
 <emu-clause id="sec-typedarrays-and-dataview">
   <h1>TypedArrays and DataViews</h1>
-  BigInt is integrated into TypedArray, DataView, SharedArrayBuffer and Atomics by providing Int64 and Uint64 access as represented by BigInts on the ECMAScript side.
+  <p>BigInt is integrated into TypedArray, DataView, SharedArrayBuffer and Atomics by providing Int64 and Uint64 access as represented by BigInts on the ECMAScript side.</p>
 
   <emu-clause id="sec-typedarray-objects">
     <h1>TypedArray Objects</h1>
@@ -1493,7 +1495,7 @@ emu-integration-plans:before {
 
   <emu-clause id="sec-string-to-bigint" aoid="StringToBigInt">
     <h1>StringToBigInt ( _argument_ )</h1>
-          Apply the algorithm in <emu-xref href="#sec-tonumber-applied-to-the-string-type"></emu-xref> with the following changes:
+          <p>Apply the algorithm in <emu-xref href="#sec-tonumber-applied-to-the-string-type"></emu-xref> with the following changes:</p>
           <ul>
             <li>Replace the |StrUnsignedDecimalLiteral| production with |DecimalDigits| to not allow decimal points or exponents.</li>
             <li>If the MV is *NaN*, return *NaN*, otherwise return the BigInt which exactly corresponds to the MV, rather than rounding to a Number.</li>
