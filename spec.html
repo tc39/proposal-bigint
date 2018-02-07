@@ -1631,7 +1631,7 @@ emu-integration-plans:before {
 
       <emu-clause id="sec-numbertorawbytes" aoid="NumberToRawBytes">
         <h1>NumberToRawBytes( _type_, _value_, _isLittleEndian_ )</h1>
-        <p>The abstract operation NumberToRawBytes takes three parameters, a String _type_, a <ins>BigInt or </ins>Number _value_, and a Boolean _isLittleEndian_. This operation performs the following steps:</p>
+        <p>The abstract operation NumberToRawBytes takes three parameters, a String _type_, a <ins>BigInt or a </ins>Number _value_, and a Boolean _isLittleEndian_. This operation performs the following steps:</p>
         <emu-alg>
           1. If _type_ is `"Float32"`, then
             1. Set _rawBytes_ to a List containing the 4 bytes that are the result of converting _value_ to IEEE 754-2008 binary32 format using &ldquo;Round to nearest, ties to even&rdquo; rounding mode. If _isLittleEndian_ is *false*, the bytes are arranged in big endian order. Otherwise, the bytes are arranged in little endian order. If _value_ is *NaN*, _rawValue_ may be set to any implementation chosen IEEE 754-2008 binary32 format Not-a-Number encoding. An implementation must always choose the same encoding for each implementation distinguishable *NaN* value.
@@ -1682,7 +1682,7 @@ emu-integration-plans:before {
           1. Assert: IsDetachedBuffer(_arrayBuffer_) is *false*.
           1. Assert: There are sufficient bytes in _arrayBuffer_ starting at _byteIndex_ to represent a value of _type_.
           1. Assert: _byteIndex_ is an integer value &ge; 0.
-          1. Assert: Type(_value_) is Number <ins>if _type_ is not `"BigInt64"` or `"BigUint64"`; otherwise, Type(_value_) is BigInt</ins>.
+          1. Assert: Type(_value_) is <ins>BigInt if _type_ is `"BigInt64"` or `"BigUint64"`; otherwise, Type(_value_) is Number</ins>.
           1. Let _block_ be _arrayBuffer_.[[ArrayBufferData]].
           1. Let _elementSize_ be the Number value of the Element Size value specified in <emu-xref href="#table-49"></emu-xref> for Element Type _type_.
           1. If _isLittleEndian_ is not present, set _isLittleEndian_ to the value of the [[LittleEndian]] field of the surrounding agent's Agent Record.
@@ -1705,7 +1705,7 @@ emu-integration-plans:before {
           1. Assert: IsSharedArrayBuffer(_arrayBuffer_) is *true*.
           1. Assert: There are sufficient bytes in _arrayBuffer_ starting at _byteIndex_ to represent a value of _type_.
           1. Assert: _byteIndex_ is an integer value &ge; 0.
-          1. Assert: Type(_value_) is Number <ins>if _type_ is not `"BigInt64"` or `"BigUint64"`; otherwise, Type(_value_) is BigInt</ins>.
+          1. Assert: Type(_value_) is <ins>BigInt if _type_ is `"BigInt64"` or `"BigUint64"`; otherwise, Type(_value_) is Number</ins>.
           1. Let _block_ be _arrayBuffer_.[[ArrayBufferData]].
           1. Let _elementSize_ be the Number value of the Element Size value specified in <emu-xref href="#table-49"></emu-xref> for Element Type _type_.
           1. If _isLittleEndian_ is not present, set _isLittleEndian_ to the value of the [[LittleEndian]] field of the surrounding agent's Agent Record.
