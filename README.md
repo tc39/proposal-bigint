@@ -4,6 +4,10 @@ Daniel Ehrenberg, Igalia. Stage 3
 
 Thanks for help and feedback on this effort from Brendan Eich, Waldemar Horwat, Jaro Sevcik, Benedikt Meurer, Michael Saboff, Adam Klein and others.
 
+## Current spec:
+
+[https://tc39.github.io/proposal-bigint/](https://tc39.github.io/proposal-bigint/)
+
 ## Code samples:
 
 Find the nth prime:
