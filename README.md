@@ -43,6 +43,122 @@ function Add64Module(stdlib, foreign, buffer) {
 }
 ```
 
+get/set in localStorage
+
+```js
+var bigInt1, bigInt2;
+bigInt1 = 1234n;
+// set-item foo as string "1234n"
+window.localStorage.foo = String(bigInt1);
+// get-item foo as string "1234n"
+bigInt2 = new window.BigInt(window.localStorage.foo);
+```
+
+set/get in indexedDb with sortable signed 64-bit integer
+
+```js
+// this code assumes indexedDb cannot natively sort bigInt as signed 64-bit integer
+var bigInt64ToSortableRawBytes, bigInt64FromSortableRawBytes;
+bigInt64ToSortableRawBytes = function (value) {
+/*
+ * this function will convert the signed 64-bit BigInt value to a sortable rawByte-representation
+ */
+    var rawBytes;
+    // keep extra 9th element for signed-bit
+    rawBytes = new window.Uint8Array(9);
+    // handle positive number case
+    if (value >= 0) {
+        window.SetValueInBuffer(rawBytes, 1, 'BigInt64', value);
+        // set sortable signed-bit to positive
+        rawBytes[0] = 1;
+    // handle negative number case
+    } else {
+        window.SetValueInBuffer(rawBytes, 0, 'BigInt64', value);
+        // reverse-order for negative number
+        rawBytes.reverse();
+        // set sortable signed-bit to negative
+        rawBytes[0] = 0;
+    }
+    return rawBytes;
+};
+
+bigInt64FromSortableRawBytes = function (rawBytes) {
+/*
+ * this function will convert the sortable rawBytes back to a signed bigInt
+ * note it has side-effects and will inplace modify rawBytes
+ */
+    // handle positive number case
+    if (rawBytes[0]) {
+        return window.RawBytesToNumber('BigInt64', rawBytes.slice(1));
+    }
+    // handle negative number case
+    return window.RawBytesToNumber('BigInt64', rawBytes.reverse().slice(1));
+};
+
+var cursor, objectStore, rawBytes, request, requestCursor, storage, value;
+request = window.indexedDB.open('myStorage');
+request.onerror = console.error;
+request.onupgradeneeded = function () {
+    objectStore = request.result.createObjectStore('myStorage');
+    objectStore.createIndex('bigInt');
+};
+request.onsuccess = function () {
+    storage = request.result;
+    objectStore = storage
+        .transaction('myStorage', 'readwrite')
+        .objectStore('myStorage');
+    // keep extra 9th element for signed-bit
+    rawBytes = new window.Uint8Array(9);
+    // set-item obj1 as sortable raw-bytes representation of 1234n
+    objectStore.put({ bigInt64: new window.Blob([bigInt64ToSortableRawBytes(1234n)]) }, 'obj1');
+    // set-item obj2 as sortable raw-bytes representation of -1234n
+    objectStore.put({ bigInt64: new window.Blob([bigInt64ToSortableRawBytes(-1234n)]) }, 'obj2');
+
+    // get sorted values
+    requestCursor = objectStore.index('bigInt').openCursor();
+    requestCursor.onsuccess = function (event) {
+        cursor = event.result;
+        if (!cursor) {
+            console.log("No more entries");
+            return;
+        }
+        value = bigInt64FromSortableRawBytes(cursor.value.bigInt);
+        console.log('sorted BigInt from indexedDb: ' + value);
+    };
+};
+```
+
+mysql using backwards-compatible string-interface
+
+```js
+// mysql
+var connection, bigIntValue;
+// ... init connection ...
+bigIntValue = 1234n;
+connection.query('INSERT INTO posts SET ?', {
+    big_int_id: String(bigIntValue),
+    title: 'test'
+}, function (error) {
+    if (error) {
+        throw error;
+    }
+    connection.query('SELECT * FROM posts', function (error, results) {
+        if (error) {
+            throw error;
+        }
+        results.forEach(function (row) {
+            bigIntValue = row.big_int_id;
+            console.log('big_int_id: ' + String(bigIntValue));
+        });
+    });
+});
+```
+
+mysql using native-types
+```js
+// can someone fill-in-the blanks?
+```
+
 ## Use cases
 
 In many cases in JavaScript coding, integers larger than 2<sup>53</sup> come up, where casting to a double-precision float would lose real, relevant data:
