@@ -200,3 +200,9 @@ In the course of development of ES2015, the proposal to add 64-bit integers was 
 ## Specification
 
 See the [specification](https://tc39.github.io/proposal-bigint/) for more fine details.
+
+### Related specification proposals
+
+- [BigInt WebAssembly JS API integration proposal](https://github.com/WebAssembly/spec/pull/707)
+- [HTML serialization of BigInt](https://github.com/whatwg/html/pull/3480)
+- [BigInt as an IndexedDB key](https://github.com/w3c/IndexedDB/pull/231)
