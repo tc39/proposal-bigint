@@ -1690,12 +1690,37 @@ emu-integration-plans:before {
           1. If IsSharedArrayBuffer(_arrayBuffer_) is *true*, then
             1. Let _execution_ be the [[CandidateExecution]] field of the surrounding agent's Agent Record.
             1. Let _eventList_ be the [[EventList]] field of the element in _execution_.[[EventLists]] whose [[AgentSignifier]] is AgentSignifier().
-            1. If _isTypedArray_ is *true* and _type_ is `"Int8"`, `"Uint8"`, `"Int16"`, `"Uint16"`, `"Int32"`, or `"Uint32"`, let _noTear_ be *true*; otherwise let _noTear_ be *false*.
+            1. If _isTypedArray_ is *true* and _type_ is `"Int8"`, `"Uint8"`, `"Int16"`, `"Uint16"`, `"Int32"`, or `"Uint32"`, <ins>or if _type_ is `"BigInt64"` or `"BigUint64"` and _order_ is not `"Init"` or `"Unordered"`</ins>, let _noTear_ be *true*; otherwise let _noTear_ be *false*.
             1. Append WriteSharedMemory{ [[Order]]: _order_, [[NoTear]]: _noTear_, [[Block]]: _block_, [[ByteIndex]]: _byteIndex_, [[ElementSize]]: _elementSize_, [[Payload]]: _rawBytes_ } to _eventList_.
           1. Else, store the individual bytes of _rawBytes_ into _block_, in order, starting at _block_[_byteIndex_].
           1. Return NormalCompletion(*undefined*).
         </emu-alg>
         <emu-note type=editor>BigInt64 and BigUint64, like Float64, are excluded from the list of types which experience noTear writes. That is, non-atomic writes may be observed in a partially completed state.</emu-note>
+      </emu-clause>
+
+      <!-- es6num="24.1.1.5" -->
+      <emu-clause id="sec-getvaluefrombuffer" aoid="GetValueFromBuffer">
+        <h1>GetValueFromBuffer ( _arrayBuffer_, _byteIndex_, _type_, _isTypedArray_, _order_ [ , _isLittleEndian_ ] )</h1>
+        <p>The abstract operation GetValueFromBuffer takes six parameters, an ArrayBuffer or SharedArrayBuffer _arrayBuffer_, an integer _byteIndex_, a String _type_, a Boolean _isTypedArray_, a String _order_, and optionally a Boolean _isLittleEndian_. This operation performs the following steps:</p>
+        <emu-alg>
+          1. Assert: IsDetachedBuffer(_arrayBuffer_) is *false*.
+          1. Assert: There are sufficient bytes in _arrayBuffer_ starting at _byteIndex_ to represent a value of _type_.
+          1. Assert: _byteIndex_ is an integer value &ge; 0.
+          1. Let _block_ be _arrayBuffer_.[[ArrayBufferData]].
+          1. Let _elementSize_ be the Number value of the Element Size value specified in <emu-xref href="#table-49"></emu-xref> for Element Type _type_.
+          1. If IsSharedArrayBuffer(_arrayBuffer_) is *true*, then
+            1. Let _execution_ be the [[CandidateExecution]] field of the surrounding agent's Agent Record.
+            1. Let _eventList_ be the [[EventList]] field of the element in _execution_.[[EventLists]] whose [[AgentSignifier]] is AgentSignifier().
+            1. If _isTypedArray_ is *true* and _type_ is `"Int8"`, `"Uint8"`, `"Int16"`, `"Uint16"`, `"Int32"`, or `"Uint32"` <ins>or if _type_ is `"BigInt64"` or `"BigUint64"` and _order_ is not `"Init"` or `"Unordered"`</ins>, let _noTear_ be *true*; otherwise let _noTear_ be *false*.
+            1. Let _rawValue_ be a List of length _elementSize_ of nondeterministically chosen byte values.
+            1. NOTE: In implementations, _rawValue_ is the result of a non-atomic or atomic read instruction on the underlying hardware. The nondeterminism is a semantic prescription of the memory model to describe observable behaviour of hardware with weak consistency.
+            1. Let _readEvent_ be ReadSharedMemory{ [[Order]]: _order_, [[NoTear]]: _noTear_, [[Block]]: _block_, [[ByteIndex]]: _byteIndex_, [[ElementSize]]: _elementSize_ }.
+            1. Append _readEvent_ to _eventList_.
+            1. Append Chosen Value Record { [[Event]]: _readEvent_, [[ChosenValue]]: _rawValue_ } to _execution_.[[ChosenValues]].
+          1. Else, let _rawValue_ be a List of _elementSize_ containing, in order, the _elementSize_ sequence of bytes starting with _block_[_byteIndex_].
+          1. If _isLittleEndian_ is not present, set _isLittleEndian_ to the value of the [[LittleEndian]] field of the surrounding agent's Agent Record.
+          1. Return RawBytesToNumber(_type_, _rawValue_, _isLittleEndian_).
+        </emu-alg>
       </emu-clause>
 
       <emu-clause id="sec-getmodifysetvalueinbuffer" aoid="GetModifySetValueInBuffer">
@@ -1769,6 +1794,11 @@ emu-integration-plans:before {
         1. If _n_ equals 8, return _AR_.[[IsLockFree8]].
         1. Return *false*.
       </emu-alg>
+      <emu-note>
+        <p>`Atomics.isLockFree`() is an optimization primitive. The intuition is that if the atomic step of an atomic primitive (`compareExchange`, `load`, `store`, `add`, `sub`, `and`, `or`, `xor`, or `exchange`) on a datum of size _n_ bytes will be performed without the calling agent acquiring a lock outside the _n_ bytes comprising the datum, then `Atomics.isLockFree`(_n_) will return *true*. High-performance algorithms will use Atomics.isLockFree to determine whether to use locks or atomic operations in critical sections. If an atomic primitive is not lock-free then it is often more efficient for an algorithm to provide its own locking.</p>
+        <p>`Atomics.isLockFree`(4) always returns *true* as that can be supported on all known relevant hardware. Being able to assume this will generally simplify programs.</p>
+        <p>Regardless of the value of `Atomics.isLockFree`, all atomic operations are guaranteed to be atomic. For example, they will never have a visible operation take place in the middle of the operation (e.g., "tearing").</p>
+      </emu-note>
     </emu-clause
 
     <emu-clause id="sec-atomics.wait">
@@ -2178,9 +2208,9 @@ emu-integration-plans:before {
             <td>*true* if atomic operations on two-byte values are lock-free, *false* otherwise.</td>
           </tr>
           <tr>
-            <td><ins>[[IsLockFree2]]</ins></td>
+            <td><ins>[[IsLockFree8]]</ins></td>
             <td><ins>Boolean</ins></td>
-            <td><ins>*true* if atomic operations on two-byte values are lock-free, *false* otherwise.</ins></td>
+            <td><ins>*true* if atomic operations on eight-byte values are lock-free, *false* otherwise.</ins></td>
           </tr>
           <tr>
             <td>[[CandidateExecution]]</td>
@@ -2191,7 +2221,7 @@ emu-integration-plans:before {
       </table>
     </emu-table>
 
-    <p>Once the values of [[Signifier]], [[IsLockFree1]], [[IsLockFree2]], <ins>and [[IsLockFree8]]</ins> have been observed by any agent in the agent cluster they cannot change.</p>
+    <p>Once the values of [[Signifier]], [[IsLockFree1]], [[IsLockFree8]], <ins>and [[IsLockFree8]]</ins> have been observed by any agent in the agent cluster they cannot change.</p>
 
     <emu-note>
       <p>The values of [[IsLockFree1]], [[IsLockFree2]], <ins>and [[IsLockFree8]]</ins> are not necessarily determined by the hardware, but may also reflect implementation choices that can vary over time and between ECMAScript implementations.</p>
