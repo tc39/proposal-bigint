@@ -2082,7 +2082,7 @@ emu-integration-plans:before {
           1. Else,
             1. Let _data_ be ? AllocateArrayBuffer(_bufferConstructor_, _byteLength_).
             1. If IsDetachedBuffer(_srcData_) is *true*, throw a *TypeError* exception.
-            1. <ins>If one of _srcType_ and _targetType_ contains the substring `"Big"` and the other does not, throw a *TypeError* exception.</ins>
+            1. <ins>If one of _srcType_ and _elementType_ contains the substring `"Big"` and the other does not, throw a *TypeError* exception.</ins>
             1. Let _srcByteIndex_ be _srcByteOffset_.
             1. Let _targetByteIndex_ be 0.
             1. Let _count_ be _elementLength_.
