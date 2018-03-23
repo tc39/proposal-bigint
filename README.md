@@ -90,7 +90,6 @@ When called as a function, it is similar to the `Number` constructor: It convert
 
 - `BigInt.asUintN(width, BigInt)`: Wrap a BigInt between 0 and 2<sup>width</sup>-1
 - `BigInt.asIntN(width, BigInt)`: Wrap a BigInt between -2<sup>width-1</sup> and 2<sup>width-1</sup>-1
-- `BigInt.parseInt(string[, radix])`: Analogous to `Number.parseInt`, to parse a BigInt from a String in any base.
 
 ### TypedArrays and DataViews
 
