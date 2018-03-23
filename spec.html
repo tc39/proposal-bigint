@@ -1460,7 +1460,7 @@ emu-integration-plans:before {
             <ins>ToBigInt64</ins>
           </td>
           <td>
-            <ins>64-bit 2's complement signed integer</ins>
+            <ins>64-bit two's complement signed integer</ins>
           </td>
           <td>
             <ins>signed long long</ins>
@@ -1623,7 +1623,7 @@ emu-integration-plans:before {
           1. If the first code unit of _type_ is `"U"`<ins> or _type_ is `"BigUint64Array"`</ins>, then
             1. Let _intValue_ be the byte elements of _rawBytes_ concatenated and interpreted as a bit string encoding of an unsigned little-endian binary number.
           1. Else,
-            1. Let _intValue_ be the byte elements of _rawBytes_ concatenated and interpreted as a bit string encoding of a binary little-endian 2's complement number of bit length _elementSize_ &times; 8.
+            1. Let _intValue_ be the byte elements of _rawBytes_ concatenated and interpreted as a bit string encoding of a binary little-endian two's complement number of bit length _elementSize_ &times; 8.
           1. <ins>If _type_ is `"BigUint64"` or `"BigInt64"`, return the BigInt value that corresponds to _intValue_.</ins>
           1. <ins>Otherwise, </ins>return the Number value that corresponds to _intValue_.
         </emu-alg>
@@ -1644,7 +1644,7 @@ emu-integration-plans:before {
             1. If _intValue_ &ge; 0, then
               1. Let _rawBytes_ be a List containing the _n_-byte binary encoding of _intValue_. If _isLittleEndian_ is *false*, the bytes are ordered in big endian order. Otherwise, the bytes are ordered in little endian order.
             1. Else,
-              1. Let _rawBytes_ be a List containing the _n_-byte binary 2's complement encoding of _intValue_. If _isLittleEndian_ is *false*, the bytes are ordered in big endian order. Otherwise, the bytes are ordered in little endian order.
+              1. Let _rawBytes_ be a List containing the _n_-byte binary two's complement encoding of _intValue_. If _isLittleEndian_ is *false*, the bytes are ordered in big endian order. Otherwise, the bytes are ordered in little endian order.
           1. Return _rawBytes_.
         </emu-alg>
       </emu-clause>
