@@ -735,7 +735,6 @@ emu-integration-plans:before {
           1. Let _n_ be the integer that is the code unit at index _k_ within _py_.
           1. If _m_ &lt; _n_, return *true*. Otherwise, return *false*.
         1. Else,
-          1. <ins>Let _nx_ be ? ToNumeric(_px_). Because _px_ and _py_ are primitive values evaluation order is not important.</ins>
           1. <del>Let _nx_ be ? ToNumber(_px_). Because _px_ and _py_ are primitive values evaluation order is not important.</del>
           1. <del>Let _ny_ be ? ToNumber(_py_).</del>
           1. <del>If _nx_ is *NaN*, return *undefined*.</del>
@@ -748,6 +747,15 @@ emu-integration-plans:before {
           1. <del>If _ny_ is *-&infin;*, return *false*.</del>
           1. <del>If _nx_ is *-&infin;*, return *true*.</del>
           1. <del>If the mathematical value of _nx_ is less than the mathematical value of _ny_ &mdash;note that these mathematical values are both finite and not both zero&mdash;return *true*. Otherwise, return *false*.</del>
+          1. <ins>If Type(_px_) is BigInt and Type(_py_) is String, then</ins>
+            1. <ins>Let _ny_ be StringToBigInt(_py_).</ins>
+            1. <ins>If _ny_ is *NaN*, return *undefined*.</ins>
+            1. <ins>Return BigInt::lessThan(_px_, _ny_).</ins>
+          1. <ins>If Type(_px_) is String and Type(_py_) is BigInt, then</ins>
+            1. <ins>Let _nx_ be StringToBigInt(_px_).</ins>
+            1. <ins>If _nx_ is *NaN*, return *undefined*.</ins>
+            1. <ins>Return BigInt::lessThan(_nx_, _py_).</ins>
+          1. <ins>Let _nx_ be ? ToNumeric(_px_). Because _px_ and _py_ are primitive values evaluation order is not important.</ins>
           1. <ins>Let _ny_ be ? ToNumeric(_py_).</ins>
           1. <ins>If Type(_nx_) is the same as Type(_ny_), return ? Type(_nx_)::lessThan(_nx_, _ny_).</ins>
           1. <ins>Assert: Type(_nx_) is BigInt and Type(_ny_) is Number, or Type(_nx_) is Number and Type(_ny_) is BigInt.</ins>
