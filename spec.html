@@ -1222,6 +1222,8 @@ emu-integration-plans:before {
       <h1>The BigInt Constructor</h1>
       <p>The BigInt constructor is the <dfn>%BigInt%</dfn> intrinsic object and the initial value of the `BigInt` property of the global object. When `BigInt` is called as a function, it performs a type conversion.</p>
 
+      <p>The `BigInt` constructor is not intended to be used with the `new` operator or to be subclassed. It may be used as the value of an `extends` clause of a class definition but a `super` call to the `BigInt` constructor will cause an exception.</p>
+
       <emu-clause id="sec-is-integer" aoid="IsInteger">
         <h1>IsInteger ( _number_ )</h1>
         <emu-alg>
