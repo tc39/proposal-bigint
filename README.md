@@ -38,6 +38,8 @@ const z = x + 2
 // ↪ 9007199254740992, wait, that’s the same as above!
 ```
 
+*_NOTE: This link doesn't go anywhere yet, but I envision it linking to a short document explaining 64-bit floats, probably using the illos from the JSConfEU talk._*
+
 [Learn more about how numbers are represented in Javascript.]() 
 
 ## How Does It Work?
