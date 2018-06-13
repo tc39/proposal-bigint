@@ -4,116 +4,315 @@ Daniel Ehrenberg, Igalia. Stage 3
 
 Thanks for help and feedback on this effort from Brendan Eich, Waldemar Horwat, Jaro Sevcik, Benedikt Meurer, Michael Saboff, Adam Klein and others.
 
-## Code samples:
+## Contents
+1. What Is It?
+2. How Does It Work?
+	- Syntax
+	- Example: Calculating Primes
+	- Operators
+	- Comparisons
+	- Conditionals
+	- Other API Notes
+3. Gotchas & Exceptions
+	- Interoperation with `Number` and `String`
+	- Rounding
+	- Other Exceptions
+4. About the Proposal
+- Motivation, Or Why Do We Need Such Big Numbers?
+- Design Philosophy, Or Why Is This Like This?
+- State of the Proposal
 
-Find the nth prime:
+
+## What Is It?
+
+`BigInt` is a new primitive that provides a way to represent whole numbers larger than 2^53, which is the largest number Javascript can reliably represent with the `Number` primitive.
 
 ```js
-// Takes a BigInt as an argument and returns a BigInt
-function nthPrime(nth) {
-  function isPrime(p) {
-    for (let i = 2n; i < p; i++) {
-      if (p % i === 0n) return false;
-    }
-    return true;
-  }
-  for (let i = 2n; ; i++) {
-    if (isPrime(i)) {
-      if (--nth === 0n) return i;
-    }
-  }
-}
+const x = Number.MAX_SAFE_INTEGER;
+// ↪ 9007199254740991, this is 1 less than 2^53
+
+const y = x + 1;
+// ↪ 9007199254740992, ok, checks out
+
+const z = x + 2
+// ↪ 9007199254740992, wait, that’s the same as above!
 ```
 
-Read and add two unsigned 64-bit integers in asm.js on the heap:
+[Learn more about how numbers are represented in Javascript.]() 
+
+## How Does It Work?
+
+### Syntax
+
+A `BigInt` is created by appending `n` to the end of the integer or by calling the constructor.
 
 ```js
-function Add64Module(stdlib, foreign, buffer) {
-  "use asm";
-  var cast = stdlib.BigInt.asUintN;
-  var values = new stdlib.BigUint64Array(buffer);
-  function add64(aIndex, bIndex) {
-    aIndex = aIndex|0;
-    bIndex = bIndex|0;
-    var aValue = values[aIndex>>3];
-    var bValue = values[bIndex>>3];
-    return cast(64, aValue + bValue);
-  }
-  return { add64: add64 };
-}
+
+const theBiggestInt = 9007199254740991n;
+
+const alsoHuge = BigInt(9007199254740991);
+// ↪ 9007199254740991n
+
+const hugeButString = BigInt('9007199254740991');
+// ↪ 9007199254740991n
+
 ```
 
-## Use cases
+### Example: Calculating Primes
 
-In many cases in JavaScript coding, integers larger than 2<sup>53</sup> come up, where casting to a double-precision float would lose real, relevant data:
-- Cases which would fit in a signed or unsigned 64-bit integer
-  - Reading certain machine registers, wire protocols
-  - Protobufs or JSON documents that have GUIDs in them
-  - `stat` may give some data as 64-bit integers
-  - Accurate timestamps
-- Bigger than 64-bit int cases
-  - Generally meeting a reasonable user expectation of a high-level language that integer arithmetic will be "correct" and not suddenly overflow
-  - Basis for implementing BigDecimal; perhaps some applications would be happy with fixpoint calculations based on a BigInt
-  - Any mathematical calculation with larger integers, e.g., solving Project Euler problems
-  - Exact geometric calculations
+```js
+// I think we can add a slightly simpler version of the primes example here
+```
 
-This proposal provides a new, second primitive numeric type, `BigInt`, to meet those use cases.
+### Operators
 
-## API outline
+You can use `+`, `*`, `-`, `**` and `%` with `BigInt`s, just like with `Number`s.
 
-BigInts are a new numerical type supporting literals (`1234n`) and arithmetic with operator overloading (`1n + 2n` makes `3n`).
+```js
 
-### Literals, operators and their meanings
+const previousMaxSafe = BigInt(Number.MAX_SAFE_INTEGER);
+// ↪ 9007199254740991
 
-BigInts are, logically, arbitrary mathematic integers, with operator definitions which fall out naturally:
-- Binary `+`, `-`, `*` and `**` find their mathematical answer when applied to two BigInts
-- `/` and `%` round towards 0
-- Bitwise operations `|`, `&`, `<<`, `>>`, `^` operate logically
-  - Negative numbers to be interpreted as infinite-length two's complement (see [discussion](https://github.com/tc39/proposal-bigint/issues/3)).
-- When applied to two BigInts, comparison operators `==`, `===`, `<`, `>`, `>=`, and `<=` perform a mathematical comparison
-- Missing operators
-  - `>>>` is not supported, as all BigInts are signed; to get an unsigned shift, pass in a positive BigInt to `>>` ([discussion](https://github.com/tc39/proposal-bigint/issues/6))
-  - Unary `+` is unsupported on BigInts due to asm.js requirements; details explained below
-- In a conditional, `if (0n)` executes the `else` branch.
+const maxPlusOne = previousMaxSafe + 1n;
+// ↪ 9007199254740992n
+ 
+const theFuture = previousMaxSafe + 2n;
+// ↪ 9007199254740993n, this works now!
 
-Literals for BigInts are similar to Number literals, but followed by `n`. They can be written with binary, octal or hexadecimal notation, e.g., `0x100n`. Legacy octal syntax (`0640`) is not allowed, only new-style (`0o064n`).
+const multi = previousMaxSafe * 2n;
+// ↪ 18014398509481982n
 
-The choice of `BigInt` comes from an attempt to preserve user intuition about the lack of compatibility of `BigInt` with things that are currently based on `Number`s. Because implicit coercions lead to TypeErrors, the guidance is that existing users of Numbers should stay with Numbers if it works for the application, and only large usages need to upgrade to `BigInt`. The name `BigInt` is hoped to emphasize this not-by-default usage. The suffix `n` is basically arbitrary.
+const subtr = multi – 10n;
+// ↪ 18014398509481972n
 
-### The BigInt constructor
+const mod = multi % 10n;
+// ↪ 2n
 
-BigInts are a primitive type, and `BigInt` forms a constructor which can be used analogously to `Number`--to convert various types to BigInt values, as well as to be an object wrapper for BigInt values when used with property access.
+const bigN = 2n ** 54n;
+// ↪ 18014398509481984n
 
-When called as a function, it is similar to the `Number` constructor: It converts strings, Numbers, etc into BigInts.
+bigN * -1n
+// ↪ –18014398509481984n
 
-#### Library functions
+```
 
-- `BigInt.asUintN(width, BigInt)`: Wrap a BigInt between 0 and 2<sup>width</sup>-1
-- `BigInt.asIntN(width, BigInt)`: Wrap a BigInt between -2<sup>width-1</sup> and 2<sup>width-1</sup>-1
+The `/` operator also work as expected with whole numbers. However, since these are `BigInt`s and not `BigDecimal`s, this operation will round towards 0, which is to say, it will not return any fractional digits.
 
-### TypedArrays and DataViews
+```js
 
-BigInts give JavaScript the ability to accurately represent 64-bit signed and unsigned integers:
-- BigUint64Array and BigInt64Array, whose elements read from property access are BigInts
-- DataView.prototype.getBigInt64/getBigUint64, returning a BigInt
+const expected = 4n / 2n;
+// ↪ 2n
 
-Similarly, BigInts may be used by the WebAssembly FFI for 64-bit arguments and return values to functions.
+const rounded = 5n / 2n;
+// ↪ 2n, not 2.5n
 
-### No implicit conversions or mixed operands
+```
 
-A key design decision is to disallow mixed operations between BigInts and Numbers. The driving factor: Any implicit coercions would lose information.
+[See the advanced documentation for use with bitwise operators.]()
 
-When adding two values of different numeric types, between large integers and floating point numbers, the mathematical value of the result may be outside of the domain of either. For example, `(2n**53n + 1n) + 0.5` has a value which cannot be accurately represented in either range. Floating point arithmetic is not the exact mathematical value, but at least it is well-defined by IEEE 754. The entire aim of introducing BigInt is, on the other hand, to make a way to preserve integer precision of larger values.
+### Comparisons
 
-Many (all?) other dynamically typed programming languages which have multiple numeric types implement a *numeric tower*. This forms an ordering between types--on the built-in numeric types, when an operator is used with operands from two types, the greater type is chosen as the domain, and the "less general" operand is cast to the "more general" type. Unfortunately, as the previous example shows, there is no "more general" type between arbitrary integers and double-precision floats. The typical resolution, then, is to take floats as the "more general" type.
+A `BigInt` is not strictly equal to a `Number`, but it is loosely so.
 
-Silently losing precision sometimes may be a problem, but in most dynamically typed programming languages which provide integers and floats, integers are written like `1` and floats are written like `1.0`. It's possible to scan code for operations which may introduce floating point precision by looking for a decimal point. JavaScript exacerbates the scope of losing precision by making the unfortunate decision that a simple literal like `1` is a float. So, if mixed-precision were allowed, an innocent calculation such as `2n ** 53n + 1` would produce the float `2**53`--defeating the core functionality of this feature.
+```js
 
-To avoid this problem, this proposal bans implicit coercions between Numbers and BigInts, including operations which are mixed type. `1n + 1` throws a TypeError. So does passing `1n` as an argument into any JavaScript standard library function or Web API which expects a Number. Instead, to convert between types, an explicit call to `Number()` or `BigInt()` needs to be made to decide which domain to operate in. `0 === 0n` returns `false`.
+0n === 0
+// ↪ false
 
-Comparisons form an exception to this rule: It's mathematically well-defined to allow comparison operators such as `<` and `==` compare between Numbers and BigInts. Unlike operators like `+`, there is no loss of precision, since the output is just a Boolean. Further, `==` is extended in comparisons with strings in analogous ways, such as `0n == ""` is `true`. Although we may not be able to extend this support to user-defined types, it seems sufficiently important for meeting user expectations that this proposal adds them as a one-off.
+0n == 0
+// ↪ true
 
-## Design goals
+```
+
+`Number`s and `BigInt`s may be compared as usual.
+
+```js
+1n < 2
+// ↪ true
+
+2n > 1
+// ↪ true
+
+2 > 2
+// ↪ false
+
+2n > 2
+// ↪ false
+
+2n >= 2
+// ↪ true
+```
+
+They may be mixed in arrays and sorted.
+
+```js
+
+const mixed = [4n, 6, -12n, 10, 4, 0, 0n];
+// ↪  [-12n, 0, 0n, 10, 4n, 4, 6]
+
+mixed.sort();
+// ↪ [-12n, 0, 0n, 10, 4n, 4, 6]
+```
+
+### Conditionals
+
+A `BigInt` behaves like a `Number` in cases where it is converted to a `Boolean`: `if`, `||`, `&&`, `Boolean`, `!`.
+
+```js
+
+if (0n) {
+	console.log('Hello from the if!');
+} else {
+	console.log('Hello from the else!');
+}
+
+// ↪ "Hello from the else!"
+
+0n || 12n
+// ↪ 12n
+
+0n && 12n
+// ↪ 0n
+
+Boolean(0n)
+// ↪ false
+
+Boolean(12n)
+// ↪ true
+
+!12n
+// ↪ false
+
+!0n
+// ↪ true
+
+```
+
+### Other API Notes
+
+`BigInt`s may also be used in `BigInt64Array` and `BigUint64Array` [typed arrays](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/TypedArray) for 64-bit integers.
+
+```js
+const view = new BigInt64Array(4);
+// ↪ [0n, 0n, 0n, 0n]
+view.length;
+// ↪ 4
+view[0];
+// ↪ 0n
+view[0] = 42n;
+view[0];
+// ↪ 42n
+
+// Highest possible BigInt value that can be represented as a
+// signed 64-bit integer.
+const max = 2n ** (64n - 1n) - 1n;
+view[0] = max;
+view[0];
+// ↪ 9_223_372_036_854_775_807n
+view[0] = max + 1n;
+view[0];
+// ↪ -9_223_372_036_854_775_808n
+//   ^ negative because of overflow
+
+```
+
+[For more about `BigInt` library functions, see the advanced section.]()
+
+
+## Gotchas & Exceptions
+
+### Interoperation with `Number` and `String`
+
+The biggest surprise may be that `BigInt`s cannot be operated on interchangeably with `Number`s. Instead a `TypeError` will be thrown. ([Read the design philosophy for more about why this decision was made.]())
+
+
+```js
+
+1n + 2
+// ↪ TypeError: Cannot mix BigInt and other types, use explicit conversions
+
+1n * 2
+// ↪ TypeError: Cannot mix BigInt and other types, use explicit conversions
+
+```
+
+`BigInt`s also cannot be converted to `Number`s using the unary `+`. `Number` must be used.
+
+```js
+
++1n
+// ↪ TypeError: Cannot convert a BigInt value to a number
+
+Number(1n)
+// ↪ 1
+
+```
+
+The `BigInt` *can* however be concatenated with a `String`.
+
+```js
+
+1n + '2'
+// ↪ "12"
+
+'2' + 1n
+// ↪ "21"
+
+```
+
+### Rounding
+
+As noted above, the `BigInt` only represents whole numbers. `Number` only reliably represents integers up to 2^53. That means both dividing and converting to a `Number` can lead to rounding.
+
+```js
+
+5n / 2n
+// ↪ 2n
+
+Number(151851850485185185047n)
+// ↪ 151851850485185200000
+
+```
+
+### Other Exceptions
+
+Attempting to convert a fractional value to a `BigInt` throws an exception both when the value is represented as an `Number` and a `String`.
+
+```js
+BigInt(1.5)
+// ↪ RangeError: The number 1.5 is not a safe integer and thus cannot be converted to a BigInt
+
+BigInt('1.5')
+// ↪ SyntaxError: Cannot convert 1.5 to a BigInt
+
+```
+
+`Math.fround` and `|` throw exceptions when called with a `BigInt` to preserve the current expectations of `asm.js`.
+
+```js
+
+Math.fround(1n)
+// ↪ TypeError: Cannot convert a BigInt value to a number
+
+1n|0
+// ↪ TypeError: Cannot mix BigInt and other types, use explicit conversions
+
+```
+
+
+## About the Proposal
+
+### Motivation: Why Do We Need Such Big Numbers?
+
+- guids
+- fs.stat
+- nanoseconds!
+- ability to store credit cards as numbers
+- include error example with chips and incorrect arithmetic?
+
+### Design Goals, Or Why Is This Like This?
+
+These principles guided the decisions made with this proposal.
 
 ### Don't break user intuition
 
@@ -160,48 +359,10 @@ We need to choose a web-compatible name to add to the global object. There is so
 
 Design work here is being done in conjunction with planned prototyping in V8; this will be used to develop feedback to ensure that the proposal is efficiently implementable.
 
-## Design alternatives not selected here
 
-### Int64/Uint64
+### State of the Proposal
 
-Brendan Eich previously proposed two types--signed and unsigned Int64/Uint64, for JavaScript. These meet many of the concrete use cases for BigInts. One claim is that they may provide more predictable performance; however, my understanding is that, if the appropriate casting operator (e.g., `BigInt.asUintN`) is used everywhere, an implementation like V8 is expected provide the same performance for BigInt as it would for an Int64 type. The risks of this approach are that the performance won't pan out without harder-to-remove cliffs, or that the ergonomics will be too bad for performance-sensitive code--we'll watch for these risks as the prototype advances.
+This proposal is currently in Stage 3. [Check out the TC39 stages to table to understand what that means.](https://tc39.github.io/process-document/)
 
-### Allowing mixed operands
+`BigInt` has been shipped in Chrome and is underway in Node, Firefox, and Safari. 
 
-We could allow mixed operands like `1 + 1n` returning `2` (a Number). It would lose precision, be harder to implement with as high performance, and not generalize well to user-defined types, but it would follow the well-worn path of many other programming languages, which have just let users deal with these issues.
-
-### Leave out TypedArrays and DataView methods for now
-
-One possibility would be to wait until a potential future Int64/Uint64 proposal is created for TypedArray classes and DataView methods. However, they are included here, following the pattern of existing TypedArrays which return Numbers--a more general type than the contents, but one which accurately represents it.
-
-## Left for future proposals
-
-### Function and constant library ([bug](https://github.com/tc39/proposal-bigint/issues/20))
-
-It would be reasonable to add integer-related mathematical library functions, especially those which could be more efficiently based on instructions found on CPUs likely to be used by implementations. This includes:
-- Bitcast between BigInt and Number
-- Find first set/unset bit
-- Popcount
-- Find most significant set/unset bit
-- Convenience functions for doing arithmetic in a specific modulus (e.g., 64-bit signed or unsigned) rather than requiring use of the wrap functions and arithmetic separately.
-- Constants for the maximum and minimum 64-bit signed and unsigned integer
-
-### Any other numerical types, and generalization to binary data and value types
-
-In the course of development of ES2015, the proposal to add 64-bit integers was generalized significantly into a value types/binary data proposal. This big proposal became very complicated and unwieldy, so it was dropped from ES2015. The current proposal is much smaller, and could be built on incrementally. Value types and smaller integer types may be possible follow-ons, and this proposal is designed to generalize to those, but not block on them.
-
-## Implementation status
-
-- [V8](https://bugs.chromium.org/p/v8/issues/detail?id=6791) by Georg Neis and Jakob Kummerow
-- [JSC](https://bugs.webkit.org/show_bug.cgi?id=175359) by Caio Lima and Robin Morisset
-- [SpiderMonkey](https://bugzilla.mozilla.org/show_bug.cgi?id=1366287) by Robin Templeton
-
-## Specification
-
-See the [specification](https://tc39.github.io/proposal-bigint/) for more fine details.
-
-### Related specification proposals
-
-- [BigInt WebAssembly JS API integration proposal](https://github.com/WebAssembly/spec/pull/707)
-- [HTML serialization of BigInt](https://github.com/whatwg/html/pull/3480)
-- [BigInt as an IndexedDB key](https://github.com/w3c/IndexedDB/pull/231)
