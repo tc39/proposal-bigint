@@ -150,7 +150,7 @@ They may be mixed in arrays and sorted.
 ```js
 
 const mixed = [4n, 6, -12n, 10, 4, 0, 0n];
-// ↪  [-12n, 0, 0n, 10, 4n, 4, 6]
+// ↪  [4n, 6, -12n, 10, 4, 0, 0n]
 
 mixed.sort();
 // ↪ [-12n, 0, 0n, 10, 4n, 4, 6]
@@ -163,7 +163,7 @@ A `BigInt` behaves like a `Number` in cases where it is converted to a `Boolean`
 ```js
 
 if (0n) {
-	console.log('Hello from the if!');
+  console.log('Hello from the if!');
 } else {
 	console.log('Hello from the else!');
 }
