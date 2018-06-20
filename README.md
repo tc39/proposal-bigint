@@ -25,24 +25,6 @@ function nthPrime(nth) {
 }
 ```
 
-Read and add two unsigned 64-bit integers in asm.js on the heap:
-
-```js
-function Add64Module(stdlib, foreign, buffer) {
-  "use asm";
-  var cast = stdlib.BigInt.asUintN;
-  var values = new stdlib.BigUint64Array(buffer);
-  function add64(aIndex, bIndex) {
-    aIndex = aIndex|0;
-    bIndex = bIndex|0;
-    var aValue = values[aIndex>>3];
-    var bValue = values[bIndex>>3];
-    return cast(64, aValue + bValue);
-  }
-  return { add64: add64 };
-}
-```
-
 ## Use cases
 
 In many cases in JavaScript coding, integers larger than 2<sup>53</sup> come up, where casting to a double-precision float would lose real, relevant data:
