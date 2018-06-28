@@ -4,61 +4,6 @@ Daniel Ehrenberg, Igalia. Stage 3
 
 Thanks for help and feedback on this effort from Brendan Eich, Waldemar Horwat, Jaro Sevcik, Benedikt Meurer, Michael Saboff, Adam Klein and others.
 
-## Code samples:
-
-Find the nth prime:
-
-```js
-// Takes a BigInt as an argument and returns a BigInt
-function nthPrime(nth) {
-  function isPrime(p) {
-    for (let i = 2n; i < p; i++) {
-      if (p % i === 0n) return false;
-    }
-    return true;
-  }
-  for (let i = 2n; ; i++) {
-    if (isPrime(i)) {
-      if (--nth === 0n) return i;
-    }
-  }
-}
-```
-
-Read and add two unsigned 64-bit integers in asm.js on the heap:
-
-```js
-function Add64Module(stdlib, foreign, buffer) {
-  "use asm";
-  var cast = stdlib.BigInt.asUintN;
-  var values = new stdlib.BigUint64Array(buffer);
-  function add64(aIndex, bIndex) {
-    aIndex = aIndex|0;
-    bIndex = bIndex|0;
-    var aValue = values[aIndex>>3];
-    var bValue = values[bIndex>>3];
-    return cast(64, aValue + bValue);
-  }
-  return { add64: add64 };
-}
-```
-
-## Use cases
-
-In many cases in JavaScript coding, integers larger than 2<sup>53</sup> come up, where casting to a double-precision float would lose real, relevant data:
-- Cases which would fit in a signed or unsigned 64-bit integer
-  - Reading certain machine registers, wire protocols
-  - Protobufs or JSON documents that have GUIDs in them
-  - `stat` may give some data as 64-bit integers
-  - Accurate timestamps
-- Bigger than 64-bit int cases
-  - Generally meeting a reasonable user expectation of a high-level language that integer arithmetic will be "correct" and not suddenly overflow
-  - Basis for implementing BigDecimal; perhaps some applications would be happy with fixpoint calculations based on a BigInt
-  - Any mathematical calculation with larger integers, e.g., solving Project Euler problems
-  - Exact geometric calculations
-
-This proposal provides a new, second primitive numeric type, `BigInt`, to meet those use cases.
-
 ## API outline
 
 BigInts are a new numerical type supporting literals (`1234n`) and arithmetic with operator overloading (`1n + 2n` makes `3n`).
