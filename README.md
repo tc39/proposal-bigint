@@ -64,7 +64,45 @@ const hugeButString = BigInt('9007199254740991');
 ### Example: Calculating Primes
 
 ```js
-// I think we can add a slightly simpler version of the primes example here
+// Takes a Number or BigInt as an argument and returns a BigInt
+function nthPrime(nth) {
+  
+  function makeBig(int) {
+    if (typeof int !== "bigint") {
+      // If it is not already an BigInt, make it one
+      return BigInt(parseInt(int));
+    } else {
+      return int;
+    }
+  }
+  
+  function isPrime(p) {
+    for (let i = 2n; i < p; i++) {
+      if (p % i === 0n) {
+        return false;
+      } else {
+        return true;
+      }
+    }
+  }
+  
+  let bigNth = makeBig(nth);
+  let maybePrime = 2n;
+  let prime = 0n;
+  
+  while (bigNth >= 0n) {
+    maybePrime += 1n;
+    
+    if isPrime(maybePrime) {
+      bigNth -= 1n;
+      prime = maybePrime;
+    }
+  }
+  
+  return prime;
+  
+}
+
 ```
 
 ### Operators
