@@ -226,7 +226,7 @@ view[0];
 
 ### Interoperation with `Number` and `String`
 
-The biggest surprise may be that `BigInt`s cannot be operated on interchangeably with `Number`s. Instead a `TypeError` will be thrown. ([Read the design philosophy for more about why this decision was made.]())
+The biggest surprise may be that `BigInt`s cannot be operated on interchangeably with `Number`s. Instead a `TypeError` will be thrown. ([Read the design philosophy for more about why this decision was made.](#design-goals-or-why-is-this-like-this))
 
 
 ```js
@@ -343,55 +343,45 @@ If this seems far-fetched, consider the case of [the Pentium FDIV bug](https://e
 
 ### Design Goals, Or Why Is This Like This?
 
-These principles guided the decisions made with this proposal.
+These principles guided the decisions made with this proposal. Check out [`ADVANCED.md`](/ADVANCED.md) for more in-depth discussion of each.
 
+#### Find a balance between maintaining user intuition and preserving precision
 
-*NOTE: _These could possibly be edited to be a little clearer for folks with less context or could just be kept in the advanced section_*.
+In general, this proposal has aimed to work in a manner complementary to user intuition about how Javascript works. At the same time, the goal for this proposal is to add further affordances for precision to the language. Sometimes these can conflict.
 
-#### Don't break user intuition
+When a messy situation comes up, this proposal errs on the side of throwing an exception rather than rely on type coercion and risk giving an imprecise answer. This is what's behind throwing a `TypeError` on adding a `BigInt` and a `Number` and other [exceptions detailed above](#gotchas--exceptions): If we don't have a good answer, better to not give one.
 
-When a messy situation comes up, this proposal errs on the side of throwing an exception rather than silently giving a bad answer. This is what's behind throwing a TypeError on adding a BigInt and a Number: If we don't have a good answer, better to not give one.
-
-Some JavaScript users will surely have the intuition that everything will just work, and that exceptions will not be thrown, when doing this sort of interoperation, even at the cost of losing precision. Axel Rauschmeyer [elaborated](https://gist.github.com/rauschma/13d48d1c49615ce2396ce7c9e45d4cd1) a proposal which elaborates this approach. [Further discussion](https://github.com/tc39/proposal-integer/issues/36) raised a few issues with this approach which are a direct result of upgrading the behavior of existing Numbers, both in terms of compatibility and reasonable expectations of invariants of JavaScript values. For now, this repository will stick with the distinct type approach.
+For more discussion of these choices, see [Axel Rauschmeyer's proposal](https://gist.github.com/rauschma/13d48d1c49615ce2396ce7c9e45d4cd1) and [further discussion of its effects on Numbers](https://github.com/tc39/proposal-integer/issues/36).
 
 #### Don't break math
 
-The semantics of all operators should ideally be based on some mathematical first principles, and certainly be well-defined, rather than excessively exposing implementation artifacts. `/` and `%` round towards 0, this is to match well-established computer conventions; aside from that, all operators have clean, mathematical definitions which don't appeal to the implementation shape.
-
-#### Don't break asm.js
-
-Although this proposal introduces operator overloading, it throws in any of the cases that asm.js depends on for setting up type checking. asm.js relies on a few identities:
-- Unary `+` followed by an expression is always either a Number, or results in throwing. For this reason, unfortunately, `+` on a BigInt needs to throw, rather than being symmetrical with `+` on Number: Otherwise, previously "type-declared" asm.js code would now be polymorphic.
-- `|0` always returns a Number in int32 range, or throws. This proposal maintains that, as it would throw on a BigInt for being a mixed operand type.
-- `Math.fround` always returns a Number in float32 range, or throws. This proposal would throw if `Math.fround` is called with a BigInt, preserving the property.
-
-Analogously, `>>> 0` always returns a Number in uint32 range, throwing as `>>>` is not supported on BigInt at all. Note: asm.js itself does not require this property, as `>>>` may be an overloaded operator, and `|0` is used for all `int` parameter declarations, but `>>> 0` is a common idiom to achieve this property in JavaScript code.
-
-This proposal makes special allowances to make BigInt usable in asm.js code to build support for 64-bit integers, by including the standard library functions `BigInt.asUintN` and `BigInt.asIntN` as well as `BigUint64Array` and `BigInt64Array`.
- The operator overloading in this proposal should not complicate the asm.js model: asm.js already treats operators as "overloaded" between floats, doubles, and signed and unsigned integers.
-
-#### Don't break potential future value types extensions
-
-- Should pave the cowpath to value types, as previously discussed, in conjunction with the work done on SIMD.js.
- - BigInts are a new primitive type, and have associated wrappers, as do the other primitives, and SIMD.js, and as value types would get.
- - Operator overloading on value types may follow a similar pattern of requiring uniform argument types; this avoids the very difficult proposition of double dispatch. By not supporting mixed operands, BigInt gets no superpowers which would be very difficult to generalize. Mixed comparisons are a one-off exception to this principle, however.
-- `L` has been proposed as a literal suffix for positive Int64 values. This proposal uses `n` to leave that space free for later (bikeshedding welcome!).
+The semantics of all operators should ideally be based on some mathematical first principles.
 
 #### Don't break JavaScript ergonomics
 
-This proposal comes with built-in operator overloading in order to not make BigInts too ugly to be usable. One particular hazard, if BigInts were to be operated on with static methods, is that users may convert the BigInt into a Number in order to use the `+` operator on it--this would work most of the time, just not with big enough values, so it might pass tests. By including operator overloading, it would be even shorter code to add the BigInts properly than to convert them to Numbers, which minimizes the chance of this bug.
+This proposal comes with built-in operator overloading in order to not make `BigInt`s too ugly to be usable. One particular hazard, if `BigInts` were to be operated on with static methods, is that users may convert the `BigInt` into a `Number` in order to use the `+` operator on it--this would work most of the time, just not with big enough values, so it might pass tests. By including operator overloading, it would be even shorter code to add the `BigInt`s properly than to convert them to `Numbers`, which minimizes the chance of this bug.
 
-#### Don't break a consistent model of JavaScript
+#### Don't break asm.js
 
-This proposal adds a new primitive type with wrappers, similar to Symbol. As part of integrating BigInts into the JavaScript specification, a high amount of rigor will be required to differentiate three types floating around in the specification: Mathematical values, BigInts and Numbers.
+Although this proposal introduces operator overloading, it throws in any of the cases that `asm.js` depends on for setting up type checking.
 
 #### Don't break the web
 
-We need to choose a web-compatible name to add to the global object. There is some worry that the name `Integer` could have a web compatibility risk, though we don't actually have data about this. Changing the semantics of existing operations performed on existing numbers might also have compatibility risk, and this proposal avoids making these kinds of changes.
+The name `BigInt` was chosen to avoid compatibility risks carried by the more general `Integer` name.
 
 #### Don't break good performance
 
-Design work here is being done in conjunction with planned prototyping in V8; this will be used to develop feedback to ensure that the proposal is efficiently implementable.
+Design work here has been done in conjunction with prototyping in to ensure that the proposal is efficiently implementable.
+
+#### Don't break potential future value types extensions
+
+When adding new primitives to the language, it is important to avoid giving them superpowers that would be very difficult to generalize. This is another good reason for `BigInt` to avoid mixed operands.
+
+Mixed comparisons are a one-off exception to this principle, however, taken in support of the intuition design principle.
+
+#### Don't break a consistent model of JavaScript
+
+This proposal adds a new primitive type with wrappers, similar to `Symbol`. As part of integrating `BigInt`s into the JavaScript specification, a high amount of rigor will be required to differentiate three types floating around in the specification: Mathematical values, `BigInt`s and `Number`s.
 
 
 ### State of the Proposal

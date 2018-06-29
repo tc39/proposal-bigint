@@ -60,7 +60,7 @@ Comparisons form an exception to this rule: It's mathematically well-defined to 
 
 ## Design goals
 
-### Don't break user intuition
+#### Find a balance between maintaining user intuition and preserving precision
 
 When a messy situation comes up, this proposal errs on the side of throwing an exception rather than silently giving a bad answer. This is what's behind throwing a TypeError on adding a BigInt and a Number: If we don't have a good answer, better to not give one.
 
