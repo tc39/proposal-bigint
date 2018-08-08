@@ -64,7 +64,7 @@ Comparisons form an exception to this rule: It's mathematically well-defined to 
 
 When a messy situation comes up, this proposal errs on the side of throwing an exception rather than silently giving a bad answer. This is what's behind throwing a TypeError on adding a BigInt and a Number: If we don't have a good answer, better to not give one.
 
-Some JavaScript users will surely have the intuition that everything will just work, and that exceptions will not be thrown, when doing this sort of interoperation, even at the cost of losing precision. Axel Rauschmeyer [elaborated](https://gist.github.com/rauschma/13d48d1c49615ce2396ce7c9e45d4cd1) a proposal which elaborates this approach. [Further discussion](https://github.com/tc39/proposal-integer/issues/36) raised a few issues with this approach which are a direct result of upgrading the behavior of existing Numbers, both in terms of compatibility and reasonable expectations of invariants of JavaScript values. For now, this repository will stick with the distinct type approach.
+Some JavaScript users will surely have the intuition that everything will just work, and that exceptions will not be thrown, when doing this sort of interoperation, even at the cost of losing precision. Axel Rauschmeyer [elaborated](https://gist.github.com/rauschma/13d48d1c49615ce2396ce7c9e45d4cd1) a proposal which elaborates this approach. [Further discussion](https://github.com/tc39/proposal-integer/issues/36) raised a few issues with this approach which are a direct result of upgrading the behavior of existing Numbers, both in terms of compatibility and reasonable expectations of invariants of JavaScript values. Given the tradeoffs, we have chosen to stick with the distinct type approach.
 
 ### Don't break math
 

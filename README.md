@@ -70,20 +70,17 @@ function nthPrime(nth) {
   function makeBig(int) {
     if (typeof int !== "bigint") {
       // If it is not already an BigInt, make it one
-      return BigInt(parseInt(int));
+      return BigInt(int);
     } else {
       return int;
     }
   }
   
   function isPrime(p) {
-    for (let i = 2n; i < p; i++) {
-      if (p % i === 0n) {
-        return false;
-      } else {
-        return true;
-      }
+    for (let i = 2n; i * i <= p; i++) {
+      if (p % i === 0n) return false;
     }
+    return true;
   }
   
   let bigNth = makeBig(nth);
@@ -91,12 +88,13 @@ function nthPrime(nth) {
   let prime = 0n;
   
   while (bigNth >= 0n) {
-    maybePrime += 1n;
     
-    if isPrime(maybePrime) {
+    if (isPrime(maybePrime)) {
       bigNth -= 1n;
       prime = maybePrime;
     }
+
+		maybePrime += 1n;
   }
   
   return prime;
@@ -429,10 +427,6 @@ The semantics of all operators should ideally be based on some mathematical firs
 #### Don't break JavaScript ergonomics
 
 This proposal comes with built-in operator overloading in order to not make `BigInt`s too ugly to be usable. One particular hazard, if `BigInts` were to be operated on with static methods, is that users may convert the `BigInt` into a `Number` in order to use the `+` operator on it--this would work most of the time, just not with big enough values, so it might pass tests. By including operator overloading, it would be even shorter code to add the `BigInt`s properly than to convert them to `Numbers`, which minimizes the chance of this bug.
-
-#### Don't break asm.js
-
-Although this proposal introduces operator overloading, it throws in any of the cases that `asm.js` depends on for setting up type checking.
 
 #### Don't break the web
 
