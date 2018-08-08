@@ -64,33 +64,21 @@ const hugeButString = BigInt('9007199254740991');
 ### Example: Calculating Primes
 
 ```js
-// Takes a Number or BigInt as an argument and returns a BigInt
+function isPrime(p) {
+  for (let i = 2n; i * i <= p; i++) {
+    if (p % i === 0n) return false;
+  }
+  return true;
+}
+
+// Takes a BigInt as an argument and returns a BigInt
 function nthPrime(nth) {
-  
-  function makeBig(int) {
-    if (typeof int !== "bigint") {
-      // If it is not already an BigInt, make it one
-      return BigInt(int);
-    } else {
-      return int;
-    }
-  }
-  
-  function isPrime(p) {
-    for (let i = 2n; i * i <= p; i++) {
-      if (p % i === 0n) return false;
-    }
-    return true;
-  }
-  
-  let bigNth = makeBig(nth);
   let maybePrime = 2n;
   let prime = 0n;
   
-  while (bigNth >= 0n) {
-    
+  while (nth >= 0n) {
     if (isPrime(maybePrime)) {
-      bigNth -= 1n;
+      nth -= 1n;
       prime = maybePrime;
     }
 
@@ -98,7 +86,6 @@ function nthPrime(nth) {
   }
   
   return prime;
-  
 }
 
 ```
@@ -289,6 +276,7 @@ Number(1n)
 
 The `BigInt` *can* however be concatenated with a `String`.
 
+
 ```js
 
 1n + '2'
@@ -418,11 +406,11 @@ In general, this proposal has aimed to work in a manner complementary to user in
 
 When a messy situation comes up, this proposal errs on the side of throwing an exception rather than rely on type coercion and risk giving an imprecise answer. This is what's behind throwing a `TypeError` on adding a `BigInt` and a `Number` and other [exceptions detailed above](#gotchas--exceptions): If we don't have a good answer, better to not give one.
 
-For more discussion of these choices, see [Axel Rauschmeyer's proposal](https://gist.github.com/rauschma/13d48d1c49615ce2396ce7c9e45d4cd1) and [further discussion of its effects on Numbers](https://github.com/tc39/proposal-integer/issues/36).
+For more discussion of these choices, see [Axel Rauschmeyer's proposal](https://gist.github.com/rauschma/13d48d1c49615ce2396ce7c9e45d4cd1) and [further discussion of its effects on Numbers](https://github.com/tc39/proposal-integer/issues/36). We ended up concluding that it would be impractical to provide transparent interoperability between Number and BigInt.
 
 #### Don't break math
 
-The semantics of all operators should ideally be based on some mathematical first principles.
+The semantics of all operators should ideally be based on some mathematical first principles, to match developer expectations. The division and modulo operators are based on conventions from other programming languages for integers.
 
 #### Don't break JavaScript ergonomics
 
@@ -430,7 +418,7 @@ This proposal comes with built-in operator overloading in order to not make `Big
 
 #### Don't break the web
 
-The name `BigInt` was chosen to avoid compatibility risks carried by the more general `Integer` name.
+This proposal doesn't change anything about the way Numbers work. The name `BigInt` was chosen in part to avoid compatibility risks carried by the more general `Integer` name (and in part to make it clear that they are useful for the "big" cases).
 
 #### Don't break good performance
 
@@ -446,13 +434,16 @@ Mixed comparisons are a one-off exception to this principle, however, taken in s
 
 This proposal adds a new primitive type with wrappers, similar to `Symbol`. As part of integrating `BigInt`s into the JavaScript specification, a high amount of rigor will be required to differentiate three types floating around in the specification: Mathematical values, `BigInt`s and `Number`s.
 
-
 ### State of the Proposal
 
 This proposal is currently in [Stage 3.](https://tc39.github.io/process-document/)
 
 `BigInt` has been shipped in Chrome and is underway in Node, Firefox, and Safari.
+- [V8](https://bugs.chromium.org/p/v8/issues/detail?id=6791) by Georg Neis and Jakob Kummerow
+- [JSC](https://bugs.webkit.org/show_bug.cgi?id=179001) by Caio Lima and Robin Morisset
+- [SpiderMonkey](https://bugzilla.mozilla.org/show_bug.cgi?id=1366287) by Robin Templeton
 
+Related specification proposals:
 - [BigInt WebAssembly JS API integration proposal](https://github.com/WebAssembly/spec/pull/707)	
 - [HTML serialization of BigInt](https://github.com/whatwg/html/pull/3480)	
 - [BigInt as an IndexedDB key](https://github.com/w3c/IndexedDB/pull/231)
