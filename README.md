@@ -2,7 +2,7 @@
 
 Daniel Ehrenberg, Igalia. Stage 3
 
-Thanks for help and feedback on this effort from Brendan Eich, Waldemar Horwat, Jaro Sevcik, Benedikt Meurer, Michael Saboff, Adam Klein and others.
+Thanks for help and feedback on this effort from Brendan Eich, Waldemar Horwat, Jaro Sevcik, Benedikt Meurer, Michael Saboff, Adam Klein, Sarah Groff-Palermo and others.
 
 ## Contents
 1. [What Is It?](#what-is-it)
