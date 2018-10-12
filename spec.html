@@ -1869,8 +1869,8 @@ emu-integration-plans:before {
     </emu-clause>
 
     <emu-clause id="sec-atomics.wake">
-      <h1>Atomics.wake( _typedArray_, _index_, _count_ )</h1>
-      <p>`Atomics.wake` wakes up some agents that are sleeping in the wait queue.  The following steps are taken:</p>
+      <h1>Atomics.notify( _typedArray_, _index_, _count_ )</h1>
+      <p>`Atomics.notify` wakes up some agents that are sleeping in the wait queue.  The following steps are taken:</p>
       <emu-alg>
         1. Let _buffer_ be ? ValidateSharedIntegerTypedArray(_typedArray_, *true*).
         1. Let _i_ be ? ValidateAtomicAccess(_typedArray_, _index_).
