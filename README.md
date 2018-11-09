@@ -81,8 +81,7 @@ function nthPrime(nth) {
       nth -= 1n;
       prime = maybePrime;
     }
-
-		maybePrime += 1n;
+    maybePrime += 1n;
   }
   
   return prime;
