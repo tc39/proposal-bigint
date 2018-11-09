@@ -81,8 +81,7 @@ function nthPrime(nth) {
       nth -= 1n;
       prime = maybePrime;
     }
-
-		maybePrime += 1n;
+    maybePrime += 1n;
   }
   
   return prime;
@@ -189,7 +188,7 @@ A `BigInt` behaves like a `Number` in cases where it is converted to a `Boolean`
 if (0n) {
   console.log('Hello from the if!');
 } else {
-	console.log('Hello from the else!');
+  console.log('Hello from the else!');
 }
 
 // ↪ "Hello from the else!"
