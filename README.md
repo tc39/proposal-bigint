@@ -43,7 +43,7 @@ const z = x + 2
 
 ## How Does It Work?
 
-The following sections show `BigInt` in action. A number have been influenced by or taken outright from [Mathias Bynens's Big int v8 update, which includes more details than this page.](https://developers.google.com/web/updates/2018/05/bigint)
+The following sections show `BigInt` in action. A number have been influenced by or taken outright from [Mathias Bynens's BigInt v8 update, which includes more details than this page.](https://developers.google.com/web/updates/2018/05/bigint)
 
 ### Syntax
 
