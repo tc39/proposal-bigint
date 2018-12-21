@@ -246,6 +246,12 @@ view[0];
 
 ## Gotchas & Exceptions
 
+### This is not for cryptography
+
+The operations supported on `BigInt`s are not constant time.  `BigInt` is therefore [unsuitable for use in cryptography](https://www.chosenplaintext.ca/articles/beginners-guide-constant-time-cryptography.html).
+
+Most platforms provide native support for cryptography, such as [webcrypto](https://w3c.github.io/webcrypto/Overview.html) or [node crypto](https://nodejs.org/dist/latest/docs/api/crypto.html).
+
 ### Interoperation with `Number` and `String`
 
 The biggest surprise may be that `BigInt`s cannot be operated on interchangeably with `Number`s. Instead a `TypeError` will be thrown. ([Read the design philosophy for more about why this decision was made.](#design-goals-or-why-is-this-like-this))
