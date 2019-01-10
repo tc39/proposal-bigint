@@ -16,8 +16,9 @@ Thanks for help and feedback on this effort from Brendan Eich, Waldemar Horwat, 
 3. [Gotchas & Exceptions](#gotchas--exceptions)
 	- [Interoperation with `Number` and `String`](#interoperation-with-number-and-string)
 	- [Rounding](#rounding)
+	- [Cryptography](#cryptography)
 	- [Other Exceptions](#other-exceptions)
-	- [Usage Recommendation](#usage-recommendation)
+	- [Usage Recommendations](#usage-recommendations)
 4. [About the Proposal](#about-the-proposal)
 	- [Motivation, Or Why Do We Need Such Big Numbers?](#motivation-why-do-we-need-such-big-numbers)
 	- [Design Philosophy, Or Why Is This Like This?](#design-goals-or-why-is-this-like-this)
@@ -246,12 +247,6 @@ view[0];
 
 ## Gotchas & Exceptions
 
-### This is not for cryptography
-
-The operations supported on `BigInt`s are not constant time.  `BigInt` is therefore [unsuitable for use in cryptography](https://www.chosenplaintext.ca/articles/beginners-guide-constant-time-cryptography.html).
-
-Many platforms provide native support for cryptography, such as [webcrypto](https://w3c.github.io/webcrypto/Overview.html) or [node crypto](https://nodejs.org/dist/latest/docs/api/crypto.html).
-
 ### Interoperation with `Number` and `String`
 
 The biggest surprise may be that `BigInt`s cannot be operated on interchangeably with `Number`s. Instead a `TypeError` will be thrown. ([Read the design philosophy for more about why this decision was made.](#design-goals-or-why-is-this-like-this))
@@ -320,6 +315,13 @@ Number(151851850485185185047n)
 
 ```
 
+### Cryptography
+
+The operations supported on `BigInt`s are not constant time.  `BigInt` is therefore [unsuitable for use in cryptography](https://www.chosenplaintext.ca/articles/beginners-guide-constant-time-cryptography.html).
+
+Many platforms provide native support for cryptography, such as [webcrypto](https://w3c.github.io/webcrypto/Overview.html) or [node crypto](https://nodejs.org/dist/latest/docs/api/crypto.html).
+
+
 ### Other Exceptions
 
 Attempting to convert a fractional value to a `BigInt` throws an exception both when the value is represented as an `Number` and a `String`.
@@ -370,6 +372,11 @@ const bigObj = {a: BigInt(10n)};
 JSON.stringify(bigObj)
 // ↪TypeError: Do not know how to serialize a BigInt
 ```
+
+### Usage Recommendations
+
+### Coercion
+Because coercing between `Number` and BigInt can lead to loss of precision, it is recommended to only use BigInt when values greater than 2<sup>53</sup> are reasonably expected and not to coerce between the two types.
 
 ## About the Proposal
 
