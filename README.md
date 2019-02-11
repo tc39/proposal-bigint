@@ -309,6 +309,9 @@ const badPrecision = BigInt(9007199254740993);
 
 const goodPrecision = BigInt('9007199254740993');
 // ↪9007199254740993n
+
+const alsoGoodPrecision = 9007199254740993n;
+// ↪9007199254740993n
 ```
 
 ### Rounding
