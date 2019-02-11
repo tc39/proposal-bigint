@@ -301,6 +301,19 @@ sendMeTheBiggest(largeFriend, alsoLarge)
 // ↪900719925474099300  // This is neither argument!
 ```
 
+Reserve `Number` values for cases when they are integers up to 2<sup>53</sup>, for other cases, using a string (or a `BigInt` literal) would be advisable to not lose precision.
+
+```js
+const badPrecision = BigInt(9007199254740993);
+// ↪9007199254740992n
+
+const goodPrecision = BigInt('9007199254740993');
+// ↪9007199254740993n
+
+const alsoGoodPrecision = 9007199254740993n;
+// ↪9007199254740993n
+```
+
 ### Rounding
 
 As noted above, the `BigInt` only represents whole numbers. `Number` only reliably represents integers up to 2<sup>53</sup>. That means both dividing and converting to a `Number` can lead to rounding.
