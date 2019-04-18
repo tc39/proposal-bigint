@@ -2141,7 +2141,7 @@ emu-integration-plans:before {
           1. If _view_ does not have a [[DataView]] internal slot, throw a *TypeError* exception.
           1. Assert: _view_ has a [[ViewedArrayBuffer]] internal slot.
           1. Let _getIndex_ be ? ToIndex(_requestIndex_).
-          1. <ins>If _arrayTypeName_ is `"BigUint64Array"` or `"BigInt64Array"`, let _v_ be ? ToBigInt(_value_).</ins>
+          1. <ins>If _type_ is `"BigUint64"` or `"BigInt64"`, let _v_ be ? ToBigInt(_value_).</ins>
           1. <ins>Otherwise,</ins> let _v_ be ? ToInteger(_value_).
           1. Set _isLittleEndian_ to ToBoolean(_isLittleEndian_).
           1. Let _buffer_ be _view_.[[ViewedArrayBuffer]].
@@ -2161,7 +2161,7 @@ emu-integration-plans:before {
         <emu-alg>
           1. Let _v_ be the *this* value.
           1. If _littleEndian_ is not present, let _littleEndian_ be *undefined*.
-          1. Return ? GetViewValue(_v_, _byteOffset_, _littleEndian_, `"Int64"`).
+          1. Return ? GetViewValue(_v_, _byteOffset_, _littleEndian_, `"BigInt64"`).
         </emu-alg>
       </emu-clause>
 
@@ -2171,7 +2171,7 @@ emu-integration-plans:before {
         <emu-alg>
           1. Let _v_ be the *this* value.
           1. If _littleEndian_ is not present, let _littleEndian_ be *undefined*.
-          1. Return ? GetViewValue(_v_, _byteOffset_, _littleEndian_, `"Uint64"`).
+          1. Return ? GetViewValue(_v_, _byteOffset_, _littleEndian_, `"BigUint64"`).
         </emu-alg>
       </emu-clause>
 
@@ -2181,7 +2181,7 @@ emu-integration-plans:before {
         <emu-alg>
           1. Let _v_ be the *this* value.
           1. If _littleEndian_ is not present, let _littleEndian_ be *undefined*.
-          1. Return ? SetViewValue(_v_, _byteOffset_, _littleEndian_, `"Int64"`, _value_).
+          1. Return ? SetViewValue(_v_, _byteOffset_, _littleEndian_, `"BigInt64"`, _value_).
         </emu-alg>
       </emu-clause>
 
@@ -2191,7 +2191,7 @@ emu-integration-plans:before {
         <emu-alg>
           1. Let _v_ be the *this* value.
           1. If _littleEndian_ is not present, let _littleEndian_ be *undefined*.
-          1. Return ? SetViewValue(_v_, _byteOffset_, _littleEndian_, `"Uint64"`, _value_).
+          1. Return ? SetViewValue(_v_, _byteOffset_, _littleEndian_, `"BigUint64"`, _value_).
         </emu-alg>
       </emu-clause>
 
