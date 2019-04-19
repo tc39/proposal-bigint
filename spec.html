@@ -1614,9 +1614,9 @@ emu-integration-plans:before {
     </emu-alg>
   </emu-clause>
 
-      <emu-clause id="sec-rawbytestonumber" aoid="RawBytesToNumber">
-        <h1>RawBytesToNumber( _type_, _rawBytes_, _isLittleEndian_ )</h1>
-        <p>The abstract operation RawBytesToNumber takes three parameters, a String _type_, a List _rawBytes_, and a Boolean _isLittleEndian_. This operation performs the following steps:</p>
+      <emu-clause id="sec-rawbytestonumeric" aoid="RawBytesToNumeric">
+        <h1>RawBytesTo<del>Number</del><ins>Numeric</ins>( _type_, _rawBytes_, _isLittleEndian_ )</h1>
+        <p>The abstract operation RawBytesTo<del>Number</del><ins>Numeric</ins> takes three parameters, a String _type_, a List _rawBytes_, and a Boolean _isLittleEndian_. This operation performs the following steps:</p>
         <emu-alg>
           1. Let _elementSize_ be the Number value of the Element Size value specified in <emu-xref href="#table-49"></emu-xref> for Element Type _type_.
           1. If _isLittleEndian_ is *false*, reverse the order of the elements of _rawBytes_.
@@ -1628,7 +1628,7 @@ emu-integration-plans:before {
             1. Let _value_ be the byte elements of _rawBytes_ concatenated and interpreted as a little-endian bit string encoding of an IEEE 754-2008 binary64 value.
             1. If _value_ is an IEEE 754-2008 binary64 NaN value, return the *NaN* Number value.
             1. Return the Number value that corresponds to _value_.
-          1. If the first code unit of _type_ is `"U"`<ins> or _type_ is `"BigUint64Array"`</ins>, then
+          1. If the first code unit of _type_ is `"U"`<ins> or _type_ is `"BigUint64"`</ins>, then
             1. Let _intValue_ be the byte elements of _rawBytes_ concatenated and interpreted as a bit string encoding of an unsigned little-endian binary number.
           1. Else,
             1. Let _intValue_ be the byte elements of _rawBytes_ concatenated and interpreted as a bit string encoding of a binary little-endian two's complement number of bit length _elementSize_ &times; 8.
@@ -1637,9 +1637,9 @@ emu-integration-plans:before {
         </emu-alg>
       </emu-clause>
 
-      <emu-clause id="sec-numbertorawbytes" aoid="NumberToRawBytes">
-        <h1>NumberToRawBytes( _type_, _value_, _isLittleEndian_ )</h1>
-        <p>The abstract operation NumberToRawBytes takes three parameters, a String _type_, a <ins>BigInt or a </ins>Number _value_, and a Boolean _isLittleEndian_. This operation performs the following steps:</p>
+      <emu-clause id="sec-numerictorawbytes" aoid="NumericToRawBytes">
+        <h1><del>Number</del><ins>Numeric</ins>ToRawBytes( _type_, _value_, _isLittleEndian_ )</h1>
+        <p>The abstract operation <del>Number</del><ins>Numeric</ins>ToRawBytes takes three parameters, a String _type_, a <ins>BigInt or a </ins>Number _value_, and a Boolean _isLittleEndian_. This operation performs the following steps:</p>
         <emu-alg>
           1. If _type_ is `"Float32"`, then
             1. Set _rawBytes_ to a List containing the 4 bytes that are the result of converting _value_ to IEEE 754-2008 binary32 format using &ldquo;Round to nearest, ties to even&rdquo; rounding mode. If _isLittleEndian_ is *false*, the bytes are arranged in big endian order. Otherwise, the bytes are arranged in little endian order. If _value_ is *NaN*, _rawValue_ may be set to any implementation chosen IEEE 754-2008 binary32 format Not-a-Number encoding. An implementation must always choose the same encoding for each implementation distinguishable *NaN* value.
@@ -1694,7 +1694,7 @@ emu-integration-plans:before {
           1. Let _block_ be _arrayBuffer_.[[ArrayBufferData]].
           1. Let _elementSize_ be the Number value of the Element Size value specified in <emu-xref href="#table-49"></emu-xref> for Element Type _type_.
           1. If _isLittleEndian_ is not present, set _isLittleEndian_ to the value of the [[LittleEndian]] field of the surrounding agent's Agent Record.
-          1. Let _rawBytes_ be NumberToRawBytes(_type_, _value_, _isLittleEndian_).
+          1. Let _rawBytes_ be <del>Number</del><ins>Numeric</ins>ToRawBytes(_type_, _value_, _isLittleEndian_).
           1. If IsSharedArrayBuffer(_arrayBuffer_) is *true*, then
             1. Let _execution_ be the [[CandidateExecution]] field of the surrounding agent's Agent Record.
             1. Let _eventList_ be the [[EventList]] field of the element in _execution_.[[EventLists]] whose [[AgentSignifier]] is AgentSignifier().
@@ -1727,7 +1727,7 @@ emu-integration-plans:before {
             1. Append Chosen Value Record { [[Event]]: _readEvent_, [[ChosenValue]]: _rawValue_ } to _execution_.[[ChosenValues]].
           1. Else, let _rawValue_ be a List of _elementSize_ containing, in order, the _elementSize_ sequence of bytes starting with _block_[_byteIndex_].
           1. If _isLittleEndian_ is not present, set _isLittleEndian_ to the value of the [[LittleEndian]] field of the surrounding agent's Agent Record.
-          1. Return RawBytesToNumber(_type_, _rawValue_, _isLittleEndian_).
+          1. Return RawBytesTo<del>Number</del><ins>Numeric</ins>(_type_, _rawValue_, _isLittleEndian_).
         </emu-alg>
       </emu-clause>
 
@@ -1742,7 +1742,7 @@ emu-integration-plans:before {
           1. Let _block_ be _arrayBuffer_.[[ArrayBufferData]].
           1. Let _elementSize_ be the Number value of the Element Size value specified in <emu-xref href="#table-49"></emu-xref> for Element Type _type_.
           1. If _isLittleEndian_ is not present, set _isLittleEndian_ to the value of the [[LittleEndian]] field of the surrounding agent's Agent Record.
-          1. Let _rawBytes_ be NumberToRawBytes(_type_, _value_, _isLittleEndian_).
+          1. Let _rawBytes_ be <del>Number</del><ins>Numeric</ins>ToRawBytes(_type_, _value_, _isLittleEndian_).
           1. Let _execution_ be the [[CandidateExecution]] field of the surrounding agent's Agent Record.
           1. Let _eventList_ be the [[EventList]] field of the element in _execution_.[[EventLists]] whose [[AgentSignifier]] is AgentSignifier().
           1. Let _rawBytesRead_ be a List of length _elementSize_ of nondeterministically chosen byte values.
@@ -1750,7 +1750,7 @@ emu-integration-plans:before {
           1. Let _rmwEvent_ be ReadModifyWriteSharedMemory{ [[Order]]: `"SeqCst"`, [[NoTear]]: *true*, [[Block]]: _block_, [[ByteIndex]]: _byteIndex_, [[ElementSize]]: _elementSize_, [[Payload]]: _rawBytes_, [[ModifyOp]]: _op_ }.
           1. Append _rmwEvent_ to _eventList_.
           1. Append Chosen Value Record { [[Event]]: _rmwEvent_, [[ChosenValue]]: _rawBytesRead_ } to _execution_.[[ChosenValues]].
-          1. Return RawBytesToNumber(_type_, _rawBytesRead_, _isLittleEndian_).
+          1. Return RawBytesTo<del>Number</del><ins>Numeric</ins>(_type_, _rawBytesRead_, _isLittleEndian_).
         </emu-alg>
       </emu-clause>
 
@@ -1805,7 +1805,7 @@ emu-integration-plans:before {
         1. Let _arrayTypeName_ be _typedArray_.[[TypedArrayName]].
         1. Let _elementType_ be the String value of the Element Type value in <emu-xref href="#table-49"></emu-xref> for _arrayTypeName_.
         1. Let _isLittleEndian_ be the value of the [[LittleEndian]] field of the surrounding agent's Agent Record.
-        1. Let _expectedBytes_ be NumberToRawBytes(_elementType_, _expected_, _isLittleEndian_).
+        1. Let _expectedBytes_ be <del>Number</del><ins>Numeric</ins>ToRawBytes(_elementType_, _expected_, _isLittleEndian_).
         1. Let _elementSize_ be the Number value of the Element Size value specified in <emu-xref href="#table-49"></emu-xref> for _arrayTypeName_.
         1. Let _offset_ be _typedArray_.[[ByteOffset]].
         1. Let _indexedPosition_ be (_i_ &times; _elementSize_) + _offset_.
