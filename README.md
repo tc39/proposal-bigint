@@ -463,7 +463,7 @@ This proposal adds a new primitive type with wrappers, similar to `Symbol`. As p
 
 This proposal is currently in [Stage 3.](https://tc39.github.io/process-document/)
 
-`BigInt` has been shipped in Chrome and is underway in Node, Firefox, and Safari.
+`BigInt` has been shipped in Chrome, Node, Firefox, and is underway in Safari.
 - [V8](https://bugs.chromium.org/p/v8/issues/detail?id=6791) by Georg Neis and Jakob Kummerow
 - [JSC](https://bugs.webkit.org/show_bug.cgi?id=179001) by Caio Lima and Robin Morisset
 - [SpiderMonkey](https://bugzilla.mozilla.org/show_bug.cgi?id=1366287) by Robin Templeton
