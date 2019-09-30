@@ -1,6 +1,8 @@
 # BigInt: Arbitrary precision integers in JavaScript
 
-Daniel Ehrenberg, Igalia. Stage 3
+Daniel Ehrenberg, Igalia. Stage 4
+
+This proposal is complete and already merged into ECMA262 specification. See the specification text [here](https://tc39.es/ecma262/).
 
 Thanks for help and feedback on this effort from Brendan Eich, Waldemar Horwat, Jaro Sevcik, Benedikt Meurer, Michael Saboff, Adam Klein, Sarah Groff-Palermo and others.
 
@@ -461,12 +463,12 @@ This proposal adds a new primitive type with wrappers, similar to `Symbol`. As p
 
 ### State of the Proposal
 
-This proposal is currently in [Stage 3.](https://tc39.github.io/process-document/)
+This proposal is currently in [Stage 4.](https://tc39.github.io/process-document/)
 
 `BigInt` has been shipped in Chrome, Node, Firefox, and is underway in Safari.
-- [V8](https://bugs.chromium.org/p/v8/issues/detail?id=6791) by Georg Neis and Jakob Kummerow
-- [JSC](https://bugs.webkit.org/show_bug.cgi?id=179001) by Caio Lima and Robin Morisset
-- [SpiderMonkey](https://bugzilla.mozilla.org/show_bug.cgi?id=1366287) by Robin Templeton
+- [V8](https://bugs.chromium.org/p/v8/issues/detail?id=6791) by Georg Neis and Jakob Kummerow.
+- [JSC](https://bugs.webkit.org/show_bug.cgi?id=179001) by Caio Lima and Robin Morisset.
+- [SpiderMonkey](https://bugzilla.mozilla.org/show_bug.cgi?id=1366287) by Robin Templeton and Andy Wingo.
 
 Related specification proposals:
 - [BigInt WebAssembly JS API integration proposal](https://github.com/WebAssembly/spec/pull/707)	
