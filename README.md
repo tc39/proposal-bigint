@@ -415,7 +415,7 @@ fs.lstatSync('two.gif').ino
 // ↪ 9851624185071828, duplicate, but different file!
 ```
 
-Finally, 64-bit integers enable higher resolution — _nanosecond!_ — timestamps. These will be put to use in the [temporal proposal](https://github.com/tc39/proposal-temporal), currently in Stage 1.
+Finally, 64-bit integers enable higher resolution — _nanosecond!_ — timestamps. These will be put to use in the [temporal proposal](https://github.com/tc39/proposal-temporal), currently in Stage 2.
 
 #### Bigger Than 64-bit Use Cases
 
